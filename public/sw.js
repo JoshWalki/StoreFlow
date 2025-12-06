@@ -1,61 +1,62 @@
-const preLoad = function () {
-    return caches.open("offline").then(function (cache) {
-        // caching index and important routes
-        return cache.addAll(filesToCache);
-    });
-};
-
-self.addEventListener("install", function (event) {
-    event.waitUntil(preLoad());
-});
+const CACHE_NAME = 'storeflow-v1';
+const OFFLINE_URL = '/offline.html';
 
 const filesToCache = [
-    '/',
-    '/offline.html'
+    OFFLINE_URL
 ];
 
-const checkResponse = function (request) {
-    return new Promise(function (fulfill, reject) {
-        fetch(request).then(function (response) {
-            if (response.status !== 404) {
-                fulfill(response);
-            } else {
-                reject();
-            }
-        }, reject);
-    });
-};
+// Install event - cache offline page
+self.addEventListener("install", function (event) {
+    event.waitUntil(
+        caches.open(CACHE_NAME).then(function (cache) {
+            return cache.addAll(filesToCache);
+        })
+    );
+    // Force the waiting service worker to become the active service worker
+    self.skipWaiting();
+});
 
-const addToCache = function (request) {
-    // Only cache http(s) requests
-    if (!request.url.startsWith('http')) {
-        return Promise.resolve();
-    }
-    return caches.open("offline").then(function (cache) {
-        return fetch(request).then(function (response) {
-            return cache.put(request, response);
-        });
-    });
-};
+// Activate event - clean up old caches
+self.addEventListener("activate", function (event) {
+    event.waitUntil(
+        caches.keys().then(function (cacheNames) {
+            return Promise.all(
+                cacheNames.map(function (cacheName) {
+                    if (cacheName !== CACHE_NAME) {
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        })
+    );
+    return self.clients.claim();
+});
 
-
-const returnFromCache = function (request) {
-    return caches.open("offline").then(function (cache) {
-        return cache.match(request).then(function (matching) {
-            if (!matching || matching.status === 404) {
-                return cache.match("offline.html");
-            } else {
-                return matching;
-            }
-        });
-    });
-};
-
+// Fetch event - network first, then cache, only show offline for HTML pages
 self.addEventListener("fetch", function (event) {
-    event.respondWith(checkResponse(event.request).catch(function () {
-        return returnFromCache(event.request);
-    }));
-    if(!event.request.url.startsWith('http')){
-        event.waitUntil(addToCache(event.request));
+    // Skip cross-origin requests
+    if (!event.request.url.startsWith(self.location.origin)) {
+        return;
     }
+
+    // For navigation requests (HTML pages)
+    if (event.request.mode === 'navigate') {
+        event.respondWith(
+            fetch(event.request)
+                .catch(function () {
+                    return caches.match(OFFLINE_URL);
+                })
+        );
+        return;
+    }
+
+    // For all other requests (images, CSS, JS, etc.) - just try to fetch
+    // Don't return offline page for failed asset requests
+    event.respondWith(
+        fetch(event.request)
+            .catch(function () {
+                // Try to get from cache if network fails
+                return caches.match(event.request);
+            })
+    );
 });

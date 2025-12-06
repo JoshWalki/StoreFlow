@@ -29,10 +29,31 @@
                 navigator.serviceWorker.register('/sw.js')
                     .then((registration) => {
                         console.log('Service Worker registered with scope:', registration.scope);
+
+                        // Check for updates every time the page loads
+                        registration.update();
+
+                        // When a new service worker is waiting, activate it immediately
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New service worker available, reload to activate
+                                    console.log('New service worker available, reloading...');
+                                    window.location.reload();
+                                }
+                            });
+                        });
                     })
                     .catch((error) => {
                         console.error('Service Worker registration failed:', error);
                     });
+
+                // Listen for controller change and reload
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    console.log('Service worker controller changed, reloading...');
+                    window.location.reload();
+                });
             }
         </script>
     </body>
