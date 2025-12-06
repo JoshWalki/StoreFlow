@@ -13,33 +13,48 @@
                     </h1>
 
                     <!-- Real-time Connection Indicator -->
-                    <div v-if="store" class="flex items-center space-x-2">
+                    <div v-if="store" class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-2">
+                            <div
+                                class="w-2 h-2 rounded-full"
+                                :class="[
+                                    !store.is_active
+                                        ? 'bg-red-500'
+                                        : isConnected
+                                        ? 'bg-green-500 animate-pulse-subtle'
+                                        : 'bg-red-500',
+                                ]"
+                            ></div>
+                            <span
+                                class="text-sm"
+                                :class="
+                                    !store.is_active
+                                        ? 'text-red-600 font-semibold'
+                                        : 'text-gray-600'
+                                "
+                            >
+                                {{
+                                    !store.is_active
+                                        ? "Store Offline"
+                                        : isConnected
+                                        ? "Live"
+                                        : "Disconnected"
+                                }}
+                            </span>
+                        </div>
+
+                        <!-- Countdown to Closing -->
                         <div
-                            class="w-2 h-2 rounded-full"
-                            :class="[
-                                !store.is_active
-                                    ? 'bg-red-500'
-                                    : isConnected
-                                    ? 'bg-green-500 animate-pulse-subtle'
-                                    : 'bg-red-500',
-                            ]"
-                        ></div>
-                        <span
-                            class="text-sm"
-                            :class="
-                                !store.is_active
-                                    ? 'text-red-600 font-semibold'
-                                    : 'text-gray-600'
-                            "
+                            v-if="store.is_active && store.close_time && timeUntilClose"
+                            class="flex items-center space-x-2 px-3 py-1 bg-orange-50 dark:bg-orange-900/20 rounded-md border border-orange-200 dark:border-orange-800"
                         >
-                            {{
-                                !store.is_active
-                                    ? "Store Offline"
-                                    : isConnected
-                                    ? "Live"
-                                    : "Disconnected"
-                            }}
-                        </span>
+                            <svg class="w-4 h-4 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span class="text-sm font-medium text-orange-700 dark:text-orange-300">
+                                Closes in {{ timeUntilClose }}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
@@ -168,10 +183,105 @@
                     </div>
                 </div>
 
-                <!-- Kanban Board -->
-                <div
-                    class="grid gap-4 pb-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
-                >
+                <!-- Mobile Status Tabs (visible on mobile only) -->
+                <div class="lg:hidden mb-4">
+                    <div class="flex gap-2 overflow-x-auto pb-2">
+                        <button
+                            @click="mobileStatusView = 'pending'"
+                            class="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors"
+                            :class="mobileStatusView === 'pending'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200'"
+                        >
+                            Pending ({{ filteredPendingOrders.length }})
+                        </button>
+                        <button
+                            @click="mobileStatusView = 'in_progress'"
+                            class="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors"
+                            :class="mobileStatusView === 'in_progress'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200'"
+                        >
+                            In Progress ({{ inProgressOrders.length }})
+                        </button>
+                        <button
+                            v-if="activeTab === 'shipping'"
+                            @click="mobileStatusView = 'shipped'"
+                            class="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors"
+                            :class="mobileStatusView === 'shipped'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200'"
+                        >
+                            Shipped ({{ filteredShippedOrders.length }})
+                        </button>
+                        <button
+                            v-else
+                            @click="mobileStatusView = 'ready_for_pickup'"
+                            class="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors"
+                            :class="mobileStatusView === 'ready_for_pickup'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200'"
+                        >
+                            Ready ({{ filteredReadyForPickupOrders.length }})
+                        </button>
+                        <button
+                            @click="mobileStatusView = 'completed'"
+                            class="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors"
+                            :class="mobileStatusView === 'completed'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200'"
+                        >
+                            Completed ({{ filteredCompletedOrders.length }})
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile Single Column View -->
+                <div class="lg:hidden">
+                    <OrderStatusColumn
+                        v-if="mobileStatusView === 'pending'"
+                        status="pending"
+                        title="Pending"
+                        :orders="filteredPendingOrders"
+                        @order-click="openOrderDetail"
+                        @order-drop="handleOrderDrop"
+                    />
+                    <OrderStatusColumn
+                        v-if="mobileStatusView === 'in_progress'"
+                        status="in_progress"
+                        title="In Progress"
+                        :orders="inProgressOrders"
+                        @order-click="openOrderDetail"
+                        @order-drop="handleOrderDrop"
+                    />
+                    <OrderStatusColumn
+                        v-if="mobileStatusView === 'shipped' && activeTab === 'shipping'"
+                        status="shipped"
+                        title="Shipped"
+                        :orders="filteredShippedOrders"
+                        @order-click="openOrderDetail"
+                        @order-drop="handleOrderDrop"
+                    />
+                    <OrderStatusColumn
+                        v-if="mobileStatusView === 'ready_for_pickup' && activeTab === 'pickup'"
+                        status="ready_for_pickup"
+                        title="Ready for Pickup"
+                        :orders="filteredReadyForPickupOrders"
+                        @order-click="openOrderDetail"
+                        @order-drop="handleOrderDrop"
+                    />
+                    <OrderStatusColumn
+                        v-if="mobileStatusView === 'completed'"
+                        status="completed"
+                        title="Completed"
+                        :orders="filteredCompletedOrders"
+                        @order-click="openOrderDetail"
+                        @order-drop="handleOrderDrop"
+                    />
+                </div>
+
+                <!-- Desktop Kanban Board (4 columns) -->
+                <div class="hidden lg:grid gap-4 pb-4 lg:grid-cols-4">
                     <!-- Pending Orders -->
                     <OrderStatusColumn
                         status="pending"
@@ -254,11 +364,84 @@ const isConnected = ref(false);
 const searchQuery = ref("");
 
 // Active tab (shipping or pickup)
-const activeTab = ref("shipping");
+const activeTab = ref("pickup");
+
+// Mobile status view
+const mobileStatusView = ref("pending");
 
 // Modal state
 const isModalOpen = ref(false);
 const selectedOrder = ref(null);
+
+// Countdown to closing time
+const timeUntilClose = ref(null);
+let countdownInterval = null;
+
+const calculateTimeUntilClose = () => {
+    if (!props.store?.close_time) {
+        timeUntilClose.value = null;
+        return;
+    }
+
+    // Get current time in store's timezone
+    const timezone = props.store.timezone || 'UTC';
+    const now = new Date();
+
+    // Create a date object for today's closing time
+    const [hours, minutes] = props.store.close_time.split(':');
+    const closeTime = new Date();
+    closeTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+    // Calculate difference in milliseconds
+    let diff = closeTime - now;
+
+    // If the closing time has passed today, trigger store closure check
+    if (diff < 0) {
+        timeUntilClose.value = null;
+        // Trigger the store closure check on the server
+        if (props.store.is_active) {
+            fetch('/dashboard/check-hours', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                },
+            }).then(() => {
+                router.reload({ only: ['store'] });
+            });
+        }
+        return;
+    }
+
+    // Calculate hours, minutes, and seconds
+    const hoursLeft = Math.floor(diff / (1000 * 60 * 60));
+    const minutesLeft = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const secondsLeft = Math.floor((diff % (1000 * 60)) / 1000);
+
+    // Format the countdown
+    if (hoursLeft > 0) {
+        timeUntilClose.value = `${hoursLeft}h ${minutesLeft}m`;
+    } else if (minutesLeft > 0) {
+        timeUntilClose.value = `${minutesLeft}m ${secondsLeft}s`;
+    } else {
+        timeUntilClose.value = `${secondsLeft}s`;
+    }
+
+    // When countdown reaches 0, trigger store closure check
+    if (diff <= 1000 && props.store.is_active) {
+        setTimeout(() => {
+            fetch('/dashboard/check-hours', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                },
+            }).then(() => {
+                router.reload({ only: ['store'] });
+            });
+        }, 1000);
+    }
+};
 
 // Orders grouped by status
 const ordersByStatus = reactive({
@@ -644,10 +827,19 @@ const cleanupWebSocket = () => {
 onMounted(() => {
     initializeOrders();
     setupWebSocket();
+
+    // Start countdown timer
+    calculateTimeUntilClose();
+    countdownInterval = setInterval(calculateTimeUntilClose, 1000);
 });
 
 onUnmounted(() => {
     cleanupWebSocket();
+
+    // Clear countdown interval
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+    }
 });
 </script>
 

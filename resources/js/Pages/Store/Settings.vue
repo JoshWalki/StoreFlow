@@ -87,6 +87,45 @@
                         </p>
                     </div>
 
+                    <!-- Operating Hours -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label
+                                for="open_time"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                            >
+                                Opening Time
+                            </label>
+                            <input
+                                id="open_time"
+                                v-model="basicForm.open_time"
+                                type="time"
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                            />
+                            <p class="mt-1 text-sm text-gray-500">
+                                Store will automatically close when outside operating hours
+                            </p>
+                        </div>
+
+                        <div>
+                            <label
+                                for="close_time"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                            >
+                                Closing Time
+                            </label>
+                            <input
+                                id="close_time"
+                                v-model="basicForm.close_time"
+                                type="time"
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                            />
+                            <p class="mt-1 text-sm text-gray-500">
+                                Must be manually re-enabled after closing
+                            </p>
+                        </div>
+                    </div>
+
                     <div class="flex items-center">
                         <input
                             id="is_active"
@@ -743,6 +782,8 @@ const basicForm = useForm({
     subdomain: props.store.subdomain,
     description: props.store.description,
     is_active: props.store.is_active,
+    open_time: props.store.open_time ? props.store.open_time.substring(0, 5) : '',
+    close_time: props.store.close_time ? props.store.close_time.substring(0, 5) : '',
 });
 
 const contactForm = useForm({

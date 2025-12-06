@@ -27,6 +27,8 @@ class Store extends Model
         'address_city',
         'address_state',
         'address_postcode',
+        'open_time',
+        'close_time',
     ];
 
     protected $casts = [

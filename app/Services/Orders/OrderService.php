@@ -7,6 +7,7 @@ use App\Events\OrderStatusUpdated;
 use App\Events\ShippingStatusUpdated;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Services\Loyalty\LoyaltyService;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -216,6 +217,19 @@ class OrderService
 
             // Fire OrderStatusUpdated event
             event(new OrderStatusUpdated($order, $oldStatus, $newStatus));
+
+            // Handle loyalty points deduction if order is cancelled
+            if ($newStatus === Order::STATUS_CANCELLED && $oldStatus !== Order::STATUS_CANCELLED) {
+                $loyaltyService = app(LoyaltyService::class);
+                $deductionResult = $loyaltyService->deductPointsForCancelledOrder($order);
+
+                if ($deductionResult['success']) {
+                    \Log::info('Loyalty points deducted for cancelled order', [
+                        'order_id' => $order->id,
+                        'points_deducted' => $deductionResult['points_deducted'] ?? 0,
+                    ]);
+                }
+            }
 
             return $order->fresh();
         });

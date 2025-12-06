@@ -20,6 +20,42 @@
                     </div>
 
                     <div class="flex items-center space-x-4">
+                        <!-- Store Link with Copy Button -->
+                        <div v-if="currentStore" class="flex items-center space-x-2 px-3 py-1.5 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <a
+                                :href="storeUrl"
+                                target="_blank"
+                                class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
+                                title="View store in new tab"
+                            >
+                                /store/{{ currentStore.id }}
+                            </a>
+                            <button
+                                @click="copyStoreLink"
+                                class="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
+                                title="Copy store link"
+                            >
+                                <svg
+                                    v-if="!linkCopied"
+                                    class="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                                <svg
+                                    v-else
+                                    class="w-4 h-4 text-green-600 dark:text-green-400"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </button>
+                        </div>
+
                         <span v-if="currentUser" class="text-sm text-gray-600 dark:text-gray-300">{{
                             currentUser.username
                         }}</span>
@@ -107,41 +143,201 @@
                                 Operations
                             </h3>
                             <div v-else class="border-t border-gray-200 dark:border-gray-700 my-2"></div>
-                            <Link
-                                :href="route('dashboard')"
-                                class="flex items-center py-2 text-sm font-medium rounded-md transition-colors"
-                                :class="[
-                                    isActive('dashboard')
-                                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
-                                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
-                                    sidebarCollapsed ? 'justify-center px-2' : 'px-3'
-                                ]"
-                                :title="sidebarCollapsed ? 'Active Orders' : ''"
-                            >
-                                <svg
-                                    class="flex-shrink-0 w-5 h-5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
+                            <div class="space-y-1">
+                                <Link
+                                    :href="route('dashboard')"
+                                    class="flex items-center py-2 text-sm font-medium rounded-md transition-colors"
+                                    :class="[
+                                        isActive('dashboard')
+                                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
+                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
+                                        sidebarCollapsed ? 'justify-center px-2' : 'px-3'
+                                    ]"
+                                    :title="sidebarCollapsed ? 'Active Orders' : ''"
                                 >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                                    />
-                                </svg>
-                                <span v-if="!sidebarCollapsed" class="ml-3">Active Orders</span>
-                            </Link>
+                                    <svg
+                                        class="flex-shrink-0 w-5 h-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                                        />
+                                    </svg>
+                                    <span v-if="!sidebarCollapsed" class="ml-3">Active Orders</span>
+                                </Link>
+                                <Link
+                                    :href="route('orders.history')"
+                                    class="flex items-center py-2 text-sm font-medium rounded-md transition-colors"
+                                    :class="[
+                                        isActive('orders.history')
+                                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
+                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
+                                        sidebarCollapsed ? 'justify-center px-2' : 'px-3'
+                                    ]"
+                                    :title="sidebarCollapsed ? 'Order History' : ''"
+                                >
+                                    <svg
+                                        class="flex-shrink-0 w-5 h-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                        />
+                                    </svg>
+                                    <span v-if="!sidebarCollapsed" class="ml-3">Order History</span>
+                                </Link>
+                            </div>
                         </div>
 
-                        <!-- Management Section -->
+                        <!-- Catalog Section -->
                         <div class="mb-4">
                             <h3
                                 v-if="!sidebarCollapsed"
                                 class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2"
                             >
-                                Management
+                                Catalog
+                            </h3>
+                            <div v-else class="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+                            <div class="space-y-1">
+                                <Link
+                                    :href="route('products.index')"
+                                    class="flex items-center py-2 text-sm font-medium rounded-md transition-colors"
+                                    :class="[
+                                        isActive('products.index')
+                                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
+                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
+                                        sidebarCollapsed ? 'justify-center px-2' : 'px-3'
+                                    ]"
+                                    :title="sidebarCollapsed ? 'Products' : ''"
+                                >
+                                    <svg
+                                        class="flex-shrink-0 w-5 h-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                                        />
+                                    </svg>
+                                    <span v-if="!sidebarCollapsed" class="ml-3">Products</span>
+                                </Link>
+                                <Link
+                                    v-if="currentUser && currentUser.role !== 'staff'"
+                                    :href="route('categories.index')"
+                                    class="flex items-center py-2 text-sm font-medium rounded-md transition-colors"
+                                    :class="[
+                                        isActive('categories.index')
+                                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
+                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
+                                        sidebarCollapsed ? 'justify-center px-2' : 'px-3'
+                                    ]"
+                                    :title="sidebarCollapsed ? 'Categories' : ''"
+                                >
+                                    <svg
+                                        class="flex-shrink-0 w-5 h-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                                        />
+                                    </svg>
+                                    <span v-if="!sidebarCollapsed" class="ml-3">Categories</span>
+                                </Link>
+                            </div>
+                        </div>
+
+                        <!-- Customer Section -->
+                        <div class="mb-4">
+                            <h3
+                                v-if="!sidebarCollapsed"
+                                class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2"
+                            >
+                                Customers
+                            </h3>
+                            <div v-else class="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+                            <div class="space-y-1">
+                                <Link
+                                    :href="route('customers.index')"
+                                    class="flex items-center py-2 text-sm font-medium rounded-md transition-colors"
+                                    :class="[
+                                        isActive('customers.index')
+                                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
+                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
+                                        sidebarCollapsed ? 'justify-center px-2' : 'px-3'
+                                    ]"
+                                    :title="sidebarCollapsed ? 'Customers' : ''"
+                                >
+                                    <svg
+                                        class="flex-shrink-0 w-5 h-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                                        />
+                                    </svg>
+                                    <span v-if="!sidebarCollapsed" class="ml-3">Customers</span>
+                                </Link>
+                                <Link
+                                    v-if="currentUser && currentUser.role !== 'staff'"
+                                    :href="route('loyalty.index')"
+                                    class="flex items-center py-2 text-sm font-medium rounded-md transition-colors"
+                                    :class="[
+                                        isActive('loyalty.index')
+                                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
+                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
+                                        sidebarCollapsed ? 'justify-center px-2' : 'px-3'
+                                    ]"
+                                    :title="sidebarCollapsed ? 'Loyalty' : ''"
+                                >
+                                    <svg
+                                        class="flex-shrink-0 w-5 h-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                                        />
+                                    </svg>
+                                    <span v-if="!sidebarCollapsed" class="ml-3">Loyalty</span>
+                                </Link>
+                            </div>
+                        </div>
+
+                        <!-- Settings Section -->
+                        <div class="mb-4">
+                            <h3
+                                v-if="!sidebarCollapsed"
+                                class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2"
+                            >
+                                Settings
                             </h3>
                             <div v-else class="border-t border-gray-200 dark:border-gray-700 my-2"></div>
                             <div class="space-y-1">
@@ -180,138 +376,6 @@
                                 </Link>
                                 <Link
                                     v-if="currentUser && currentUser.role !== 'staff'"
-                                    :href="route('categories.index')"
-                                    class="flex items-center py-2 text-sm font-medium rounded-md transition-colors"
-                                    :class="[
-                                        isActive('categories.index')
-                                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
-                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
-                                        sidebarCollapsed ? 'justify-center px-2' : 'px-3'
-                                    ]"
-                                    :title="sidebarCollapsed ? 'Categories' : ''"
-                                >
-                                    <svg
-                                        class="flex-shrink-0 w-5 h-5"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                                        />
-                                    </svg>
-                                    <span v-if="!sidebarCollapsed" class="ml-3">Categories</span>
-                                </Link>
-                                <Link
-                                    :href="route('products.index')"
-                                    class="flex items-center py-2 text-sm font-medium rounded-md transition-colors"
-                                    :class="[
-                                        isActive('products.index')
-                                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
-                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
-                                        sidebarCollapsed ? 'justify-center px-2' : 'px-3'
-                                    ]"
-                                    :title="sidebarCollapsed ? 'Products' : ''"
-                                >
-                                    <svg
-                                        class="flex-shrink-0 w-5 h-5"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                                        />
-                                    </svg>
-                                    <span v-if="!sidebarCollapsed" class="ml-3">Products</span>
-                                </Link>
-                                <Link
-                                    :href="route('customers.index')"
-                                    class="flex items-center py-2 text-sm font-medium rounded-md transition-colors"
-                                    :class="[
-                                        isActive('customers.index')
-                                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
-                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
-                                        sidebarCollapsed ? 'justify-center px-2' : 'px-3'
-                                    ]"
-                                    :title="sidebarCollapsed ? 'Customers' : ''"
-                                >
-                                    <svg
-                                        class="flex-shrink-0 w-5 h-5"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                                        />
-                                    </svg>
-                                    <span v-if="!sidebarCollapsed" class="ml-3">Customers</span>
-                                </Link>
-                                <Link
-                                    v-if="currentUser && currentUser.role === 'owner'"
-                                    :href="route('staff.index')"
-                                    class="flex items-center py-2 text-sm font-medium rounded-md transition-colors"
-                                    :class="[
-                                        isActive('staff.index')
-                                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
-                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
-                                        sidebarCollapsed ? 'justify-center px-2' : 'px-3'
-                                    ]"
-                                    :title="sidebarCollapsed ? 'Staff' : ''"
-                                >
-                                    <svg
-                                        class="flex-shrink-0 w-5 h-5"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                                        />
-                                    </svg>
-                                    <span v-if="!sidebarCollapsed" class="ml-3">Staff</span>
-                                </Link>
-                                <Link
-                                    :href="route('orders.history')"
-                                    class="flex items-center py-2 text-sm font-medium rounded-md transition-colors"
-                                    :class="[
-                                        isActive('orders.history')
-                                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
-                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
-                                        sidebarCollapsed ? 'justify-center px-2' : 'px-3'
-                                    ]"
-                                    :title="sidebarCollapsed ? 'Order History' : ''"
-                                >
-                                    <svg
-                                        class="flex-shrink-0 w-5 h-5"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                        />
-                                    </svg>
-                                    <span v-if="!sidebarCollapsed" class="ml-3">Order History</span>
-                                </Link>
-                                <Link
-                                    v-if="currentUser && currentUser.role !== 'staff'"
                                     :href="route('shipping.index')"
                                     class="flex items-center py-2 text-sm font-medium rounded-md transition-colors"
                                     :class="[
@@ -341,16 +405,16 @@
                                     <span v-if="!sidebarCollapsed" class="ml-3">Shipping</span>
                                 </Link>
                                 <Link
-                                    v-if="currentUser && currentUser.role !== 'staff'"
-                                    :href="route('loyalty.index')"
+                                    v-if="currentUser && currentUser.role === 'owner'"
+                                    :href="route('staff.index')"
                                     class="flex items-center py-2 text-sm font-medium rounded-md transition-colors"
                                     :class="[
-                                        isActive('loyalty.index')
+                                        isActive('staff.index')
                                             ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
                                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
                                         sidebarCollapsed ? 'justify-center px-2' : 'px-3'
                                     ]"
-                                    :title="sidebarCollapsed ? 'Loyalty' : ''"
+                                    :title="sidebarCollapsed ? 'Staff' : ''"
                                 >
                                     <svg
                                         class="flex-shrink-0 w-5 h-5"
@@ -362,10 +426,10 @@
                                             stroke-linecap="round"
                                             stroke-linejoin="round"
                                             stroke-width="2"
-                                            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                                         />
                                     </svg>
-                                    <span v-if="!sidebarCollapsed" class="ml-3">Loyalty</span>
+                                    <span v-if="!sidebarCollapsed" class="ml-3">Staff</span>
                                 </Link>
                                 <Link
                                     v-if="currentUser && currentUser.role !== 'staff'"
@@ -472,6 +536,29 @@ const needsOnboarding = computed(() => page.props.needsOnboarding || false);
 const currentUser = computed(() => props.user || page.props.auth?.user);
 const currentStore = computed(() => props.store || page.props.store);
 const { success } = useNotifications();
+
+// Store URL and copy functionality
+const storeUrl = computed(() => {
+    if (!currentStore.value?.id) return '';
+    return `${window.location.origin}/store/${currentStore.value.id}`;
+});
+
+const linkCopied = ref(false);
+
+const copyStoreLink = async () => {
+    try {
+        await navigator.clipboard.writeText(storeUrl.value);
+        linkCopied.value = true;
+        success('Link Copied!', 'Store link copied to clipboard');
+
+        // Reset checkmark after 2 seconds
+        setTimeout(() => {
+            linkCopied.value = false;
+        }, 2000);
+    } catch (err) {
+        console.error('Failed to copy link:', err);
+    }
+};
 
 // Dark mode
 const { isDark, toggleDarkMode, initializeDarkMode } = useDarkMode();

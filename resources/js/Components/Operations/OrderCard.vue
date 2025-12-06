@@ -1,90 +1,57 @@
 <template>
     <div
         draggable="true"
-        class="bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-4 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow"
+        class="bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow h-[100px] flex flex-col justify-between"
         :class="{ 'opacity-50': isDragging }"
         @click="handleClick"
         @dragstart="handleDragStart"
         @dragend="handleDragEnd"
     >
-        <!-- Order Header -->
-        <div class="flex justify-between items-start mb-3">
-            <div>
-                <div class="font-semibold text-gray-900 dark:text-white">
-                    {{ order.public_id }}
-                </div>
-                <div class="text-sm text-gray-600 dark:text-gray-300">
+        <!-- Header Row -->
+        <div class="flex justify-between items-start">
+            <div class="flex-1 min-w-0">
+                <div class="font-bold text-base text-gray-900 dark:text-white truncate">
                     {{ order.customer_name }}
                 </div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    {{ order.public_id }}
+                </div>
             </div>
-            <div class="flex items-center space-x-2">
+            <div class="ml-2 flex-shrink-0">
                 <span
                     v-if="order.fulfilment_type === 'pickup'"
-                    class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200"
+                    class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200"
                 >
-                    <svg
-                        class="w-3 h-3 mr-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                        />
-                    </svg>
                     Pickup
                 </span>
                 <span
                     v-else
-                    class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200"
+                    class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200"
                 >
-                    <svg
-                        class="w-3 h-3 mr-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-                        />
-                    </svg>
-                    Shipping
+                    Ship
                 </span>
             </div>
         </div>
 
-        <!-- Order Details -->
-        <div class="space-y-2 text-sm">
-            <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Total:</span>
-                <span class="font-medium text-gray-900 dark:text-white">{{
-                    formatCurrency(order.total_cents)
-                }}</span>
-            </div>
-            <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Items:</span>
-                <span class="text-gray-900 dark:text-white">{{
-                    order.items_count
-                }}</span>
-            </div>
-            <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">Time:</span>
-                <span class="text-gray-900 dark:text-white">{{
-                    formatTime(order.created_at)
-                }}</span>
+        <!-- Middle Row -->
+        <div class="flex justify-between items-center text-sm">
+            <div class="flex items-center gap-3">
+                <span class="font-semibold text-gray-900 dark:text-white">
+                    {{ formatCurrency(order.total_cents) }}
+                </span>
+                <span class="text-gray-600 dark:text-gray-400">
+                    {{ order.items_count }} {{ order.items_count === 1 ? 'item' : 'items' }}
+                </span>
             </div>
         </div>
 
-        <!-- Payment Status Badge -->
-        <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-600">
+        <!-- Bottom Row -->
+        <div class="flex justify-between items-center">
+            <span class="text-sm font-medium text-blue-600 dark:text-blue-400">
+                {{ formatTime(order.created_at) }}
+            </span>
             <span
-                class="inline-flex items-center px-2 py-1 rounded text-xs font-medium"
+                class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
                 :class="paymentStatusClass"
             >
                 {{ order.payment_status }}

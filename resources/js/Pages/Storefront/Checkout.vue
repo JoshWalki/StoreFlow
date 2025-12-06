@@ -12,6 +12,16 @@
             </div>
         </header>
 
+        <!-- Store Closed Alert -->
+        <div v-if="!store.is_active" class="bg-red-500 text-white py-4 px-4">
+            <div class="max-w-7xl mx-auto flex items-center justify-center gap-3">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-lg font-semibold">This store is currently closed and not accepting orders. Please check back during operating hours.</span>
+            </div>
+        </div>
+
         <!-- Main Content -->
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div v-if="cartItems.length === 0" class="text-center py-12 rounded-lg shadow-md p-8" :class="themeConfig.cardBackground">
@@ -37,6 +47,17 @@
                     <!-- Contact Information -->
                     <div class="rounded-lg shadow-md p-6" :class="themeConfig.cardBackground">
                         <h2 class="text-xl font-semibold mb-4" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">Contact Information</h2>
+
+                        <!-- Logged in message -->
+                        <div v-if="customer" class="mb-4 p-3 rounded-md flex items-center gap-2" :class="store.theme === 'bold' ? 'bg-green-900/20 border border-green-500/30' : 'bg-green-50 border border-green-200'">
+                            <svg class="w-5 h-5" :class="store.theme === 'bold' ? 'text-green-400' : 'text-green-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span class="text-sm" :class="store.theme === 'bold' ? 'text-green-300' : 'text-green-800'">
+                                Logged in as <strong>{{ customer.full_name }}</strong> - Your information has been pre-filled
+                            </span>
+                        </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium mb-1" :class="store.theme === 'bold' ? 'text-gray-300' : 'text-gray-700'">First Name *</label>
@@ -80,8 +101,8 @@
                         </div>
                     </div>
 
-                    <!-- Account Creation Option -->
-                    <div class="rounded-lg shadow-md p-6" :class="themeConfig.cardBackground">
+                    <!-- Account Creation Option (Hidden when logged in) -->
+                    <div v-if="!customer" class="rounded-lg shadow-md p-6" :class="themeConfig.cardBackground">
                         <h2 class="text-xl font-semibold mb-4" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">Customer Account</h2>
 
                         <div class="space-y-3 mb-4">
@@ -466,6 +487,64 @@
                             </div>
                         </div>
 
+                        <!-- Loyalty Reward Section -->
+                        <div v-if="loyaltyReward" class="pt-4 border-t" :class="store.theme === 'bold' ? 'border-gray-700' : 'border-gray-200'">
+                            <div class="rounded-lg p-4 mb-4" :class="[
+                                loyaltyReward.eligible
+                                    ? (store.theme === 'bold' ? 'bg-purple-900/20 border border-purple-500/30' : 'bg-purple-50 border border-purple-200')
+                                    : (store.theme === 'bold' ? 'bg-gray-800 border border-gray-700' : 'bg-gray-50 border border-gray-200')
+                            ]">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-5 h-5" :class="loyaltyReward.eligible ? 'text-purple-600' : 'text-gray-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                        </svg>
+                                        <span class="text-sm font-semibold" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
+                                            Loyalty Reward
+                                        </span>
+                                    </div>
+                                    <span class="text-xs px-2 py-1 rounded-full" :class="[
+                                        loyaltyReward.eligible
+                                            ? 'bg-purple-600 text-white'
+                                            : (store.theme === 'bold' ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600')
+                                    ]">
+                                        {{ loyaltyReward.points_balance }} pts
+                                    </span>
+                                </div>
+
+                                <div v-if="loyaltyReward.eligible" class="space-y-3">
+                                    <p class="text-xs" :class="store.theme === 'bold' ? 'text-purple-300' : 'text-purple-700'">
+                                        {{ loyaltyReward.reward_config.description }}
+                                    </p>
+                                    <label class="flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            v-model="applyLoyaltyReward"
+                                            class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                                        />
+                                        <span class="ml-2 text-sm font-medium" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
+                                            Apply reward ({{ loyaltyReward.threshold }} points)
+                                        </span>
+                                    </label>
+                                    <div v-if="applyLoyaltyReward && loyaltyDiscount > 0" class="text-xs p-2 rounded" :class="store.theme === 'bold' ? 'bg-gray-900 text-green-400' : 'bg-green-50 text-green-700'">
+                                        <strong>Discount:</strong> -{{ formatPrice(loyaltyDiscount) }}
+                                        <br />
+                                        <strong>Remaining Points:</strong> {{ loyaltyReward.points_balance - loyaltyReward.threshold }}
+                                    </div>
+                                </div>
+
+                                <div v-else class="text-xs" :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-600'">
+                                    <p>Earn {{ loyaltyReward.threshold - loyaltyReward.points_balance }} more points to unlock your reward!</p>
+                                    <div class="mt-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div
+                                            class="bg-purple-600 h-2 rounded-full transition-all"
+                                            :style="{width: Math.min((loyaltyReward.points_balance / loyaltyReward.threshold) * 100, 100) + '%'}"
+                                        ></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Price Breakdown -->
                         <div class="pt-4 space-y-2 border-t" :class="store.theme === 'bold' ? 'border-gray-700' : 'border-gray-200'">
                             <div class="flex justify-between text-sm">
@@ -476,20 +555,24 @@
                                 <span :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-600'">Shipping</span>
                                 <span :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">{{ formatPrice(selectedShippingCost) }}</span>
                             </div>
+                            <div v-if="applyLoyaltyReward && loyaltyDiscount > 0" class="flex justify-between text-sm">
+                                <span class="text-purple-600 dark:text-purple-400">Loyalty Discount</span>
+                                <span class="text-purple-600 dark:text-purple-400">-{{ formatPrice(loyaltyDiscount) }}</span>
+                            </div>
                             <div class="flex justify-between text-base font-semibold pt-2 border-t" :class="store.theme === 'bold' ? 'border-gray-700' : 'border-gray-200'">
                                 <span :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">Total</span>
-                                <span :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">{{ formatPrice(orderTotal) }}</span>
+                                <span :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">{{ formatPrice(finalTotal) }}</span>
                             </div>
                         </div>
 
                         <!-- Place Order Button -->
                         <button
                             type="submit"
-                            :disabled="processing || !isFormValid"
+                            :disabled="processing || !isFormValid || !store.is_active"
                             class="w-full mt-6 font-semibold py-3 px-6 rounded-lg transition-all shadow-lg hover:shadow-xl disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
-                            :class="!processing && isFormValid ? themeConfig.buttonPrimary : ''"
+                            :class="!processing && isFormValid && store.is_active ? themeConfig.buttonPrimary : ''"
                         >
-                            {{ processing ? 'Processing...' : 'Place Order' }}
+                            {{ !store.is_active ? 'Store Closed' : processing ? 'Processing...' : 'Place Order' }}
                         </button>
                     </div>
                 </div>
@@ -514,6 +597,14 @@ const props = defineProps({
         type: Object,
         default: () => ({}),
     },
+    customer: {
+        type: Object,
+        default: null,
+    },
+    loyaltyReward: {
+        type: Object,
+        default: null,
+    },
 });
 
 const { cartItems, cartSubtotal, getItemTotal, formatPrice, clearCart, removeFromCart } = useCart();
@@ -521,22 +612,23 @@ const { cartItems, cartSubtotal, getItemTotal, formatPrice, clearCart, removeFro
 // Initialize theme
 const { config: themeConfig } = useTheme(props.store.theme);
 
+// Auto-fill form with customer data if logged in
 const form = ref({
     contact: {
-        first_name: '',
-        last_name: '',
-        email: '',
-        mobile: '',
+        first_name: props.customer?.first_name || '',
+        last_name: props.customer?.last_name || '',
+        email: props.customer?.email || '',
+        mobile: props.customer?.mobile || '',
     },
     fulfilment_type: 'pickup',
     shipping_address: {
-        name: '',
-        line1: '',
-        line2: '',
-        city: '',
-        state: '',
-        postcode: '',
-        country: 'Australia',
+        name: props.customer ? `${props.customer.first_name} ${props.customer.last_name}` : '',
+        line1: props.customer?.address_line1 || '',
+        line2: props.customer?.address_line2 || '',
+        city: props.customer?.address_city || '',
+        state: props.customer?.address_state || '',
+        postcode: props.customer?.address_postcode || '',
+        country: props.customer?.address_country || 'Australia',
     },
     shipping_method_id: null,
     payment_method: 'simulated',
@@ -552,6 +644,7 @@ const showPasswordConfirm = ref(false);
 const shippingOptions = ref([]);
 const loadingShipping = ref(false);
 const processing = ref(false);
+const applyLoyaltyReward = ref(false);
 
 // Check if cart has any pickup-only items
 const hasPickupOnlyItems = computed(() => {
@@ -583,9 +676,35 @@ const selectedShippingCost = computed(() => {
     return selected ? selected.price_cents : 0;
 });
 
-// Calculate order total
+// Calculate order total (before loyalty discount)
 const orderTotal = computed(() => {
     return cartSubtotal.value + selectedShippingCost.value;
+});
+
+// Calculate loyalty discount
+const loyaltyDiscount = computed(() => {
+    if (!applyLoyaltyReward.value || !props.loyaltyReward || !props.loyaltyReward.eligible) {
+        return 0;
+    }
+
+    const rewardConfig = props.loyaltyReward.reward_config;
+    let discountCents = 0;
+
+    if (rewardConfig.type === 'percentage') {
+        // Percentage discount
+        discountCents = Math.floor((orderTotal.value * rewardConfig.value) / 100);
+    } else if (rewardConfig.type === 'fixed_amount') {
+        // Fixed amount discount (convert dollars to cents)
+        discountCents = Math.floor(rewardConfig.value * 100);
+    }
+
+    // Ensure discount doesn't exceed order total
+    return Math.min(discountCents, orderTotal.value);
+});
+
+// Calculate final total (after loyalty discount)
+const finalTotal = computed(() => {
+    return Math.max(0, orderTotal.value - loyaltyDiscount.value);
 });
 
 // Check if form is valid
@@ -665,6 +784,7 @@ const placeOrder = () => {
             quantity: item.quantity,
         })),
         payment_method: form.value.payment_method,
+        apply_loyalty_reward: applyLoyaltyReward.value && props.loyaltyReward?.eligible,
     };
 
     // Include account data if password is provided (create account mode)

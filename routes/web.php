@@ -122,6 +122,7 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
     Route::middleware('store.selected')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/dashboard/orders/poll/{store}', [DashboardController::class, 'pollOrders'])->name('dashboard.orders.poll');
+        Route::post('/dashboard/check-hours', [DashboardController::class, 'checkOperatingHours'])->name('dashboard.check-hours');
 
         // Orders (specific routes must come before parameterized routes)
         Route::get('/orders/history', [OrderController::class, 'history'])->name('orders.history');
@@ -130,6 +131,9 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
         Route::put('/orders/{order}/shipping', [OrderController::class, 'updateShipping'])->name('orders.shipping.update');
 
         // Products & Categories (with policy authorization)
+        Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
+        Route::delete('/products/bulk-delete', [ProductController::class, 'bulkDelete'])->name('products.bulk-delete');
+        Route::put('/products/bulk-update', [ProductController::class, 'bulkUpdate'])->name('products.bulk-update');
         Route::resource('products', ProductController::class);
         Route::resource('categories', CategoryController::class);
 

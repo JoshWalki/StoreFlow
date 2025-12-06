@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Store;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -130,6 +131,41 @@ class DashboardController extends Controller
 
         return response()->json([
             'orders' => $orders,
+        ]);
+    }
+
+    /**
+     * Check if store should be closed based on operating hours.
+     */
+    public function checkOperatingHours(Request $request): JsonResponse
+    {
+        $storeId = session('store_id');
+        $store = Store::find($storeId);
+
+        if (!$store || !$store->close_time) {
+            return response()->json(['status' => 'no_closing_time']);
+        }
+
+        // Get current time
+        $now = Carbon::now();
+
+        // Parse the store's closing time
+        $closeTime = Carbon::parse($store->close_time);
+
+        // Check if current time is past closing time
+        if ($now->format('H:i') >= $closeTime->format('H:i')) {
+            // Close the store
+            $store->update(['is_active' => false]);
+
+            return response()->json([
+                'status' => 'closed',
+                'is_active' => false,
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'open',
+            'is_active' => $store->is_active,
         ]);
     }
 }

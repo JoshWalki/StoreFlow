@@ -131,9 +131,9 @@
                     </div>
 
                     <!-- Loyalty Points -->
-                    <div class="rounded-lg shadow-md p-6" :class="themeConfig.cardBackground">
-                        <div class="flex items-center justify-between">
-                            <div>
+                    <div v-if="loyalty" class="rounded-lg shadow-md p-6" :class="themeConfig.cardBackground">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex-1">
                                 <p class="text-sm font-medium" :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-600'">
                                     Loyalty Points
                                 </p>
@@ -145,6 +145,16 @@
                                 <svg class="w-8 h-8" :class="store.theme === 'bold' ? 'text-orange-500' : 'text-purple-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                                 </svg>
+                            </div>
+                        </div>
+                        <div class="text-xs space-y-1 pt-3 border-t" :class="store.theme === 'bold' ? 'border-gray-700' : 'border-gray-200'">
+                            <div class="flex justify-between" :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-600'">
+                                <span>Lifetime Earned:</span>
+                                <span class="font-medium">{{ loyalty.lifetime_points }}</span>
+                            </div>
+                            <div class="flex justify-between" :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-600'">
+                                <span>Total Redeemed:</span>
+                                <span class="font-medium">{{ loyalty.points_redeemed }}</span>
                             </div>
                         </div>
                     </div>
@@ -224,9 +234,10 @@
             </div>
 
             <!-- Profile Tab Content -->
-            <div v-show="activeTab === 'profile'" class="max-w-3xl">
-                <!-- Profile Information -->
-                <div class="rounded-lg shadow-md p-6 mb-6" :class="themeConfig.cardBackground">
+            <div v-show="activeTab === 'profile'" class="max-w-7xl">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <!-- Profile Information -->
+                    <div class="lg:col-span-2 rounded-lg shadow-md p-6" :class="themeConfig.cardBackground">
                     <h3 class="text-xl font-semibold mb-4" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
                         Account Information
                     </h3>
@@ -299,6 +310,117 @@
                             />
                         </div>
 
+                        <!-- Address Section -->
+                        <div class="mt-6 pt-6 border-t" :class="store.theme === 'bold' ? 'border-gray-700' : 'border-gray-200'">
+                            <h4 class="text-lg font-semibold mb-4" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
+                                Address (Optional)
+                            </h4>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-1" :class="store.theme === 'bold' ? 'text-gray-300' : 'text-gray-700'">
+                                        Address Line 1
+                                    </label>
+                                    <input
+                                        v-model="profileForm.address_line1"
+                                        type="text"
+                                        placeholder="Street address, P.O. box, company name"
+                                        class="w-full px-3 py-2 border rounded-md"
+                                        :class="[
+                                            store.theme === 'bold'
+                                                ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:ring-orange-500 focus:border-orange-500'
+                                                : 'bg-white border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500'
+                                        ]"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium mb-1" :class="store.theme === 'bold' ? 'text-gray-300' : 'text-gray-700'">
+                                        Address Line 2
+                                    </label>
+                                    <input
+                                        v-model="profileForm.address_line2"
+                                        type="text"
+                                        placeholder="Apartment, suite, unit, building, floor, etc."
+                                        class="w-full px-3 py-2 border rounded-md"
+                                        :class="[
+                                            store.theme === 'bold'
+                                                ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:ring-orange-500 focus:border-orange-500'
+                                                : 'bg-white border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500'
+                                        ]"
+                                    />
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1" :class="store.theme === 'bold' ? 'text-gray-300' : 'text-gray-700'">
+                                            City
+                                        </label>
+                                        <input
+                                            v-model="profileForm.address_city"
+                                            type="text"
+                                            class="w-full px-3 py-2 border rounded-md"
+                                            :class="[
+                                                store.theme === 'bold'
+                                                    ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:ring-orange-500 focus:border-orange-500'
+                                                    : 'bg-white border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500'
+                                            ]"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1" :class="store.theme === 'bold' ? 'text-gray-300' : 'text-gray-700'">
+                                            State/Province
+                                        </label>
+                                        <input
+                                            v-model="profileForm.address_state"
+                                            type="text"
+                                            class="w-full px-3 py-2 border rounded-md"
+                                            :class="[
+                                                store.theme === 'bold'
+                                                    ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:ring-orange-500 focus:border-orange-500'
+                                                    : 'bg-white border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500'
+                                            ]"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1" :class="store.theme === 'bold' ? 'text-gray-300' : 'text-gray-700'">
+                                            Postcode/ZIP
+                                        </label>
+                                        <input
+                                            v-model="profileForm.address_postcode"
+                                            type="text"
+                                            class="w-full px-3 py-2 border rounded-md"
+                                            :class="[
+                                                store.theme === 'bold'
+                                                    ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:ring-orange-500 focus:border-orange-500'
+                                                    : 'bg-white border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500'
+                                            ]"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1" :class="store.theme === 'bold' ? 'text-gray-300' : 'text-gray-700'">
+                                            Country
+                                        </label>
+                                        <input
+                                            v-model="profileForm.address_country"
+                                            type="text"
+                                            class="w-full px-3 py-2 border rounded-md"
+                                            :class="[
+                                                store.theme === 'bold'
+                                                    ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:ring-orange-500 focus:border-orange-500'
+                                                    : 'bg-white border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500'
+                                            ]"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <button
                             type="submit"
                             :disabled="processing"
@@ -308,10 +430,10 @@
                             {{ processing ? 'Saving...' : 'Save Changes' }}
                         </button>
                     </form>
-                </div>
+                    </div>
 
-                <!-- Change Password -->
-                <div class="rounded-lg shadow-md p-6" :class="themeConfig.cardBackground">
+                    <!-- Change Password -->
+                    <div class="lg:col-span-1 rounded-lg shadow-md p-6" :class="themeConfig.cardBackground">
                     <h3 class="text-xl font-semibold mb-4" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
                         Change Password
                     </h3>
@@ -384,6 +506,21 @@
                             {{ processingPassword ? 'Updating...' : 'Update Password' }}
                         </button>
                     </form>
+
+                    <!-- Privacy Disclosure Button -->
+                    <div class="mt-6 pt-6 border-t" :class="store.theme === 'bold' ? 'border-gray-700' : 'border-gray-200'">
+                        <button
+                            @click="showPrivacyModal = true"
+                            class="flex items-center gap-2 text-sm transition-colors"
+                            :class="store.theme === 'bold' ? 'text-gray-400 hover:text-orange-500' : 'text-gray-600 hover:text-blue-600'"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                            Privacy & Data Storage
+                        </button>
+                    </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -546,6 +683,188 @@
                 </div>
             </div>
         </div>
+
+        <!-- Privacy Disclosure Modal -->
+        <div v-if="showPrivacyModal" class="fixed inset-0 z-50 overflow-y-auto" @click="showPrivacyModal = false">
+            <div class="flex items-center justify-center min-h-screen px-4">
+                <!-- Backdrop -->
+                <div class="fixed inset-0 bg-black opacity-50"></div>
+
+                <!-- Modal -->
+                <div
+                    @click.stop
+                    class="relative rounded-lg shadow-xl max-w-4xl w-full p-8 max-h-[90vh] overflow-y-auto"
+                    :class="store.theme === 'bold' ? 'bg-gray-900' : 'bg-white'"
+                >
+                    <!-- Header -->
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 rounded-lg" :class="store.theme === 'bold' ? 'bg-orange-500/10' : 'bg-blue-50'">
+                                <svg class="w-6 h-6" :class="store.theme === 'bold' ? 'text-orange-500' : 'text-blue-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
+                                Privacy & Data Storage Disclosure
+                            </h3>
+                        </div>
+                        <button
+                            @click="showPrivacyModal = false"
+                            class="p-2 rounded-lg transition-colors"
+                            :class="store.theme === 'bold' ? 'hover:bg-gray-800 text-gray-400' : 'hover:bg-gray-100 text-gray-500'"
+                        >
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="space-y-6" :class="store.theme === 'bold' ? 'text-gray-300' : 'text-gray-700'">
+                        <!-- Introduction -->
+                        <div class="p-4 rounded-lg" :class="store.theme === 'bold' ? 'bg-gray-800/50 border border-gray-700' : 'bg-blue-50 border border-blue-200'">
+                            <p class="text-sm" :class="store.theme === 'bold' ? 'text-gray-300' : 'text-gray-700'">
+                                Your privacy is important to us. This disclosure explains what personal information we collect,
+                                how we store it, and your rights regarding your data.
+                            </p>
+                        </div>
+
+                        <!-- What Data We Collect -->
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3 flex items-center gap-2" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
+                                <svg class="w-5 h-5" :class="store.theme === 'bold' ? 'text-orange-500' : 'text-blue-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                What Data We Collect
+                            </h4>
+                            <div class="ml-7 space-y-2 text-sm">
+                                <p><strong class="font-medium">Personal Information:</strong> First name, last name, email address, mobile number</p>
+                                <p><strong class="font-medium">Account Security:</strong> Encrypted password (stored using bcrypt hashing)</p>
+                                <p><strong class="font-medium">Address Information:</strong> Street address, city, state/province, postal code, country</p>
+                                <p><strong class="font-medium">Order History:</strong> Purchase records, order details, payment information</p>
+                                <p><strong class="font-medium">Loyalty Program:</strong> Points balance, earned points, redemption history (if applicable)</p>
+                            </div>
+                        </div>
+
+                        <!-- How We Secure Your Data -->
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3 flex items-center gap-2" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
+                                <svg class="w-5 h-5" :class="store.theme === 'bold' ? 'text-orange-500' : 'text-blue-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                                How We Secure Your Data
+                            </h4>
+                            <div class="ml-7 space-y-3 text-sm">
+                                <div>
+                                    <p class="font-medium mb-1">🔐 Password Encryption</p>
+                                    <p>All passwords are encrypted using bcrypt hashing with 12 rounds. Passwords are never stored in plain text and cannot be retrieved by anyone, including our staff.</p>
+                                </div>
+                                <div>
+                                    <p class="font-medium mb-1">🛡️ Session Security</p>
+                                    <p>Your login session uses secure, HttpOnly cookies with CSRF protection to prevent unauthorized access and cross-site attacks.</p>
+                                </div>
+                                <div>
+                                    <p class="font-medium mb-1">🧹 Input Sanitization</p>
+                                    <p>All data you provide is sanitized and validated to protect against malicious input and ensure data integrity.</p>
+                                </div>
+                                <div>
+                                    <p class="font-medium mb-1">🔒 Secure Connections</p>
+                                    <p>All data transmission is encrypted using industry-standard SSL/TLS protocols.</p>
+                                </div>
+                                <div>
+                                    <p class="font-medium mb-1">⚡ Rate Limiting</p>
+                                    <p>Login attempts are limited to 5 per minute, and registrations to 3 per hour to prevent brute force attacks.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- How We Use Your Data -->
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3 flex items-center gap-2" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
+                                <svg class="w-5 h-5" :class="store.theme === 'bold' ? 'text-orange-500' : 'text-blue-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                How We Use Your Data
+                            </h4>
+                            <div class="ml-7 space-y-2 text-sm">
+                                <p>• <strong>Order Processing:</strong> To fulfill your orders and communicate order status</p>
+                                <p>• <strong>Account Management:</strong> To provide access to your order history and profile</p>
+                                <p>• <strong>Customer Support:</strong> To respond to your inquiries and resolve issues</p>
+                                <p>• <strong>Loyalty Program:</strong> To track and award loyalty points (if enrolled)</p>
+                                <p>• <strong>Security:</strong> To protect your account from unauthorized access</p>
+                            </div>
+                        </div>
+
+                        <!-- Data Retention -->
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3 flex items-center gap-2" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
+                                <svg class="w-5 h-5" :class="store.theme === 'bold' ? 'text-orange-500' : 'text-blue-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Data Retention
+                            </h4>
+                            <div class="ml-7 space-y-2 text-sm">
+                                <p>We retain your personal information for as long as your account is active or as needed to provide you services. Order history is retained for legal and accounting purposes as required by law.</p>
+                                <p class="mt-2">You may request deletion of your account at any time by contacting customer support, subject to legal retention requirements.</p>
+                            </div>
+                        </div>
+
+                        <!-- Your Rights -->
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3 flex items-center gap-2" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
+                                <svg class="w-5 h-5" :class="store.theme === 'bold' ? 'text-orange-500' : 'text-blue-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Your Rights
+                            </h4>
+                            <div class="ml-7 space-y-2 text-sm">
+                                <p>• <strong>Access:</strong> You can view and update your personal information in your profile</p>
+                                <p>• <strong>Correction:</strong> You can update incorrect information at any time</p>
+                                <p>• <strong>Deletion:</strong> You can request account deletion through customer support</p>
+                                <p>• <strong>Portability:</strong> You can request a copy of your data in a portable format</p>
+                                <p>• <strong>Objection:</strong> You can object to certain data processing activities</p>
+                            </div>
+                        </div>
+
+                        <!-- Multi-Tenant Isolation -->
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3 flex items-center gap-2" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
+                                <svg class="w-5 h-5" :class="store.theme === 'bold' ? 'text-orange-500' : 'text-blue-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                                Data Isolation
+                            </h4>
+                            <div class="ml-7 text-sm">
+                                <p>Your data is isolated per merchant. This means your information is only accessible within {{ store.name }} and cannot be accessed by other merchants on the platform.</p>
+                            </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="p-4 rounded-lg" :class="store.theme === 'bold' ? 'bg-gray-800/50 border border-gray-700' : 'bg-gray-50 border border-gray-200'">
+                            <h5 class="font-semibold mb-2" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
+                                Questions or Concerns?
+                            </h5>
+                            <p class="text-sm">
+                                If you have any questions about how we handle your data or want to exercise your rights,
+                                please contact customer support. We're committed to protecting your privacy and ensuring
+                                the security of your personal information.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="flex justify-end mt-6 pt-6 border-t" :class="store.theme === 'bold' ? 'border-gray-700' : 'border-gray-200'">
+                        <button
+                            @click="showPrivacyModal = false"
+                            class="px-6 py-2 rounded-lg font-semibold transition-all"
+                            :class="themeConfig.buttonPrimary"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -588,6 +907,10 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    loyalty: {
+        type: Object,
+        default: null,
+    },
     recent_orders: {
         type: Array,
         default: () => [],
@@ -606,6 +929,12 @@ const profileForm = ref({
     first_name: props.customer.first_name,
     last_name: props.customer.last_name,
     mobile: props.customer.mobile || '',
+    address_line1: props.customer.address_line1 || '',
+    address_line2: props.customer.address_line2 || '',
+    address_city: props.customer.address_city || '',
+    address_state: props.customer.address_state || '',
+    address_postcode: props.customer.address_postcode || '',
+    address_country: props.customer.address_country || '',
 });
 
 const passwordForm = ref({
@@ -619,6 +948,7 @@ const processingPassword = ref(false);
 const showOrderModal = ref(false);
 const selectedOrder = ref(null);
 const loadingOrder = ref(false);
+const showPrivacyModal = ref(false);
 
 const csrfToken = computed(() => {
     return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');

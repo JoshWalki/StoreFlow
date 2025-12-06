@@ -75,6 +75,19 @@ class LoyaltyController extends Controller
         return Inertia::render('Loyalty/Index', [
             'store' => $store,
             'user' => $user,
+            'settings' => [
+                'is_enabled' => $loyaltyConfig->is_active,
+                'points_per_dollar' => $loyaltyConfig->points_per_dollar,
+                'signup_bonus' => 100,
+                'birthday_bonus' => 50,
+                'points_for_redemption' => 100,
+                'redemption_value' => 1,
+                'min_redemption_points' => $loyaltyConfig->threshold,
+                'enable_tiers' => false,
+                'enable_expiration' => false,
+                'expiration_months' => 12,
+            ],
+            'tiers' => [],
             'loyaltyConfig' => [
                 'id' => $loyaltyConfig->id,
                 'points_per_dollar' => $loyaltyConfig->points_per_dollar,
@@ -99,17 +112,46 @@ class LoyaltyController extends Controller
         $merchantId = $request->user()->merchant_id;
 
         $validated = $request->validate([
-            'points_per_dollar' => ['required', 'numeric', 'min:0', 'max:100'],
-            'threshold' => ['required', 'integer', 'min:1'],
-            'reward_json' => ['required', 'array'],
-            'reward_json.type' => ['required', 'in:percentage,fixed_amount,free_product'],
-            'reward_json.value' => ['required', 'numeric', 'min:0'],
-            'reward_json.description' => ['required', 'string', 'max:500'],
-            'is_active' => ['boolean'],
+            'is_enabled' => ['boolean'],
+            'points_per_dollar' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'signup_bonus' => ['nullable', 'integer', 'min:0'],
+            'birthday_bonus' => ['nullable', 'integer', 'min:0'],
+            'min_redemption_points' => ['nullable', 'integer', 'min:1'],
+            'reward_type' => ['nullable', 'string', 'in:percentage,fixed_amount'],
+            'reward_value' => ['nullable', 'numeric', 'min:0'],
+            'reward_description' => ['nullable', 'string', 'max:500'],
+            'enable_tiers' => ['boolean'],
+            'enable_expiration' => ['boolean'],
+            'expiration_months' => ['nullable', 'integer', 'min:1', 'max:36'],
         ]);
 
         $loyaltyConfig = LoyaltyConfig::where('merchant_id', $merchantId)->firstOrFail();
-        $loyaltyConfig->update($validated);
+
+        // Map frontend field names to database field names
+        $updateData = [];
+
+        if (isset($validated['is_enabled'])) {
+            $updateData['is_active'] = $validated['is_enabled'];
+        }
+
+        if (isset($validated['points_per_dollar'])) {
+            $updateData['points_per_dollar'] = $validated['points_per_dollar'];
+        }
+
+        if (isset($validated['min_redemption_points'])) {
+            $updateData['threshold'] = $validated['min_redemption_points'];
+        }
+
+        // Build reward_json structure
+        if (isset($validated['reward_type']) || isset($validated['reward_value']) || isset($validated['reward_description'])) {
+            $updateData['reward_json'] = [
+                'type' => $validated['reward_type'] ?? $loyaltyConfig->reward_json['type'] ?? 'percentage',
+                'value' => $validated['reward_value'] ?? $loyaltyConfig->reward_json['value'] ?? 10,
+                'description' => $validated['reward_description'] ?? $loyaltyConfig->reward_json['description'] ?? '10% off your next purchase',
+            ];
+        }
+
+        $loyaltyConfig->update($updateData);
 
         return redirect()->route('loyalty.index')
             ->with('success', 'Loyalty program updated successfully.');

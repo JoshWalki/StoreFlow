@@ -252,4 +252,181 @@ class LoyaltyService
             'reward' => $reward,
         ];
     }
+
+    /**
+     * Calculate discount amount for loyalty redemption
+     *
+     * @param Customer $customer
+     * @param int $orderTotalCents Order total in cents before discount
+     * @return array Contains discount info and eligibility
+     */
+    public function calculateRedemptionDiscount(Customer $customer, int $orderTotalCents): array
+    {
+        // Get merchant's loyalty config
+        $config = LoyaltyConfig::where('merchant_id', $customer->merchant_id)
+            ->where('is_active', true)
+            ->first();
+
+        if (!$config) {
+            return [
+                'eligible' => false,
+                'message' => 'Loyalty program not active',
+            ];
+        }
+
+        // Get customer's loyalty account
+        $account = $this->getLoyaltyAccount($customer);
+
+        if (!$account) {
+            return [
+                'eligible' => false,
+                'message' => 'No loyalty account found',
+            ];
+        }
+
+        // Check if customer has reached threshold
+        if (!$account->hasReachedThreshold($config->threshold)) {
+            return [
+                'eligible' => false,
+                'message' => 'Insufficient points',
+                'points_needed' => $config->threshold - $account->points_balance,
+                'current_balance' => $account->points_balance,
+                'threshold' => $config->threshold,
+            ];
+        }
+
+        // Calculate discount based on reward type
+        $rewardConfig = $config->getRewardConfig();
+        $discountCents = 0;
+
+        if ($rewardConfig['type'] === 'percentage') {
+            // Percentage discount
+            $discountCents = (int) floor(($orderTotalCents * $rewardConfig['value']) / 100);
+        } elseif ($rewardConfig['type'] === 'fixed_amount') {
+            // Fixed amount discount (convert dollars to cents)
+            $discountCents = (int) ($rewardConfig['value'] * 100);
+        }
+
+        // Ensure discount doesn't exceed order total
+        $discountCents = min($discountCents, $orderTotalCents);
+
+        return [
+            'eligible' => true,
+            'discount_cents' => $discountCents,
+            'discount_dollars' => $discountCents / 100,
+            'points_to_redeem' => $config->threshold,
+            'reward_type' => $rewardConfig['type'],
+            'reward_value' => $rewardConfig['value'],
+            'reward_description' => $rewardConfig['description'] ?? '',
+            'current_balance' => $account->points_balance,
+            'balance_after_redemption' => $account->points_balance - $config->threshold,
+        ];
+    }
+
+    /**
+     * Apply loyalty redemption and deduct points
+     *
+     * @param Customer $customer
+     * @param int $orderTotalCents
+     * @return array Contains redemption result
+     * @throws \Exception
+     */
+    public function applyRedemption(Customer $customer, int $orderTotalCents): array
+    {
+        // Calculate discount first
+        $discountInfo = $this->calculateRedemptionDiscount($customer, $orderTotalCents);
+
+        if (!$discountInfo['eligible']) {
+            throw new \Exception($discountInfo['message'] ?? 'Not eligible for redemption');
+        }
+
+        // Redeem the points
+        try {
+            $account = $this->redeemPoints($customer, $discountInfo['points_to_redeem']);
+
+            Log::info('Loyalty reward redeemed', [
+                'customer_id' => $customer->id,
+                'merchant_id' => $customer->merchant_id,
+                'points_redeemed' => $discountInfo['points_to_redeem'],
+                'discount_cents' => $discountInfo['discount_cents'],
+                'new_balance' => $account->points_balance,
+            ]);
+
+            return [
+                'success' => true,
+                'discount_cents' => $discountInfo['discount_cents'],
+                'discount_dollars' => $discountInfo['discount_dollars'],
+                'points_redeemed' => $discountInfo['points_to_redeem'],
+                'new_balance' => $account->points_balance,
+                'reward_description' => $discountInfo['reward_description'],
+            ];
+        } catch (\Exception $e) {
+            throw new \Exception('Failed to apply redemption: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Deduct loyalty points for a cancelled order
+     *
+     * @param Order $order
+     * @return array Contains deduction status and info
+     */
+    public function deductPointsForCancelledOrder(Order $order): array
+    {
+        // Only process if order has a customer
+        if (!$order->customer_id) {
+            return [
+                'success' => false,
+                'message' => 'No customer associated with order',
+            ];
+        }
+
+        $customer = $order->customer;
+
+        // Get loyalty account
+        $account = $this->getLoyaltyAccount($customer);
+
+        if (!$account) {
+            return [
+                'success' => false,
+                'message' => 'No loyalty account found',
+            ];
+        }
+
+        // Calculate how many points this order would have earned
+        $points = $this->calculatePointsForOrder($order);
+
+        if ($points <= 0) {
+            return [
+                'success' => false,
+                'message' => 'No points to deduct',
+            ];
+        }
+
+        return DB::transaction(function () use ($account, $points, $customer, $order) {
+            // Deduct points (but not below zero)
+            $pointsToDeduct = min($points, $account->points_balance);
+
+            $account->points_balance -= $pointsToDeduct;
+            $account->points_earned -= $pointsToDeduct;
+            $account->lifetime_points -= $pointsToDeduct;
+            $account->last_activity_at = now();
+            $account->save();
+
+            Log::info('Points deducted for cancelled order', [
+                'order_id' => $order->id,
+                'customer_id' => $customer->id,
+                'merchant_id' => $customer->merchant_id,
+                'points_deducted' => $pointsToDeduct,
+                'new_balance' => $account->points_balance,
+                'new_lifetime_points' => $account->lifetime_points,
+            ]);
+
+            return [
+                'success' => true,
+                'points_deducted' => $pointsToDeduct,
+                'account' => $account->fresh(),
+            ];
+        });
+    }
 }

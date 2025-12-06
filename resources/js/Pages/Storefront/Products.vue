@@ -1,13 +1,11 @@
 <template>
-    <div class="min-h-screen" :class="themeConfig.background">
+    <div class="min-h-screen bg-gray-50">
         <!-- Inactive Store Banner -->
         <div
             v-if="!store.is_active"
             class="bg-yellow-500 text-white py-3 px-4 text-center font-medium"
         >
-            <div
-                class="max-w-7xl mx-auto flex items-center justify-center gap-2"
-            >
+            <div class="max-w-7xl mx-auto flex items-center justify-center gap-2">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path
                         fill-rule="evenodd"
@@ -20,100 +18,43 @@
         </div>
 
         <!-- Header -->
-        <header
-            :class="
-                store.theme === 'bold'
-                    ? 'bg-gray-900 border-b border-orange-500/20'
-                    : 'bg-white shadow-sm'
-            "
-        >
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <header class="bg-white shadow-sm sticky top-0 z-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                 <div class="flex justify-between items-center">
                     <div>
                         <a
                             :href="`/store/${store.id}`"
-                            :class="themeConfig.link"
-                            class="text-sm mb-2 inline-block"
-                            >← Back to Store</a
+                            class="text-sm text-blue-600 hover:text-blue-700 mb-2 inline-block"
                         >
-                        <!-- Store Logo or Name -->
+                            ← Back to Store
+                        </a>
                         <div class="flex items-center">
                             <img
                                 v-if="store.logo_url"
                                 :src="store.logo_url"
-                                :alt="store.name + ' logo'"
-                                class="max-h-16 max-w-xs object-contain"
-                                style="max-height: 64px; max-width: 300px"
+                                :alt="store.name"
+                                class="max-h-12 max-w-xs object-contain"
                             />
-                            <h1
-                                v-else
-                                class="text-3xl font-bold"
-                                :class="
-                                    store.theme === 'bold'
-                                        ? 'text-white'
-                                        : 'text-gray-900'
-                                "
-                            >
+                            <h1 v-else class="text-2xl font-bold text-gray-900">
                                 {{ store.name }}
                             </h1>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <!-- Track Order Button -->
-                        <a
-                            href="/track"
-                            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200"
-                            :class="[
-                                store.theme === 'bold'
-                                    ? 'text-white hover:bg-gray-800 border border-gray-700'
-                                    : store.theme === 'modern'
-                                    ? 'text-purple-700 hover:bg-purple-50 border border-purple-200'
-                                    : 'text-blue-700 hover:bg-blue-50 border border-blue-200'
-                            ]"
-                        >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                            </svg>
-                            <span>Track Order</span>
-                        </a>
-
-                        <!-- Login/Profile Button -->
+                    <div class="flex items-center gap-3">
                         <a
                             v-if="!customer"
                             :href="`/store/${store.id}/login`"
-                            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200"
-                            :class="[
-                                store.theme === 'bold'
-                                    ? 'text-white hover:bg-gray-800 border border-gray-700'
-                                    : store.theme === 'modern'
-                                    ? 'text-purple-700 hover:bg-purple-50 border border-purple-200'
-                                    : 'text-blue-700 hover:bg-blue-50 border border-blue-200'
-                            ]"
+                            class="text-sm font-medium text-gray-700 hover:text-gray-900"
                         >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                            </svg>
-                            <span>Login</span>
+                            Login
                         </a>
                         <a
                             v-else
                             :href="`/store/${store.id}/profile`"
-                            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200"
-                            :class="[
-                                store.theme === 'bold'
-                                    ? 'bg-gradient-to-r from-orange-500 to-yellow-500 text-white hover:from-orange-600 hover:to-yellow-600 shadow-lg'
-                                    : store.theme === 'modern'
-                                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-lg'
-                                    : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg'
-                            ]"
+                            class="text-sm font-medium text-blue-600 hover:text-blue-700"
                         >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                            <span>{{ customer.first_name }}'s Profile</span>
+                            {{ customer.first_name }}'s Profile
                         </a>
-
-                        <!-- Cart Button -->
                         <CartButton />
                     </div>
                 </div>
@@ -123,290 +64,82 @@
         <!-- Cart Drawer -->
         <CartDrawer :store="store" />
 
-        <!-- Main Content -->
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="flex flex-col lg:flex-row gap-8">
-                <!-- Sidebar Filters -->
-                <aside class="lg:w-64 flex-shrink-0">
-                    <div
-                        class="rounded-lg shadow-md p-6 sticky top-4"
-                        :class="themeConfig.cardBackground"
-                    >
-                        <h3
-                            class="text-lg font-bold mb-4"
-                            :class="
-                                store.theme === 'bold'
-                                    ? 'text-white'
-                                    : 'text-gray-900'
-                            "
-                        >
-                            Filters
-                        </h3>
+        <!-- Main Layout: Sidebar + Content -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex gap-8">
+                <!-- Left Sidebar Navigation -->
+                <aside class="w-64 flex-shrink-0 hidden lg:block">
+                    <div class="bg-white rounded-lg shadow-sm p-6 sticky top-24">
+                        <h2 class="text-xl font-bold text-gray-900 mb-2">Menu</h2>
+
+                        <!-- Operating Hours -->
+                        <div v-if="store.open_time && store.close_time" class="mb-6 pb-4 border-b border-gray-200">
+                            <div class="flex items-center gap-2 text-sm text-gray-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span class="font-medium">{{ formatTime(store.open_time) }} - {{ formatTime(store.close_time) }}</span>
+                            </div>
+                        </div>
 
                         <!-- Search -->
                         <div class="mb-6">
-                            <label
-                                for="search"
-                                class="block text-sm font-medium mb-2"
-                                :class="
-                                    store.theme === 'bold'
-                                        ? 'text-gray-300'
-                                        : 'text-gray-700'
-                                "
-                                >Search</label
-                            >
                             <input
                                 type="text"
-                                id="search"
                                 v-model="searchQuery"
-                                @input="applyFilters"
                                 placeholder="Search products..."
-                                class="w-full px-3 py-2 border rounded-md"
-                                :class="
-                                    store.theme === 'bold'
-                                        ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:ring-orange-500 focus:border-orange-500'
-                                        : 'bg-white border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500'
-                                "
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
 
                         <!-- Categories -->
-                        <div v-if="categories.length > 0">
-                            <h4
-                                class="text-sm font-medium mb-3"
-                                :class="
-                                    store.theme === 'bold'
-                                        ? 'text-gray-300'
-                                        : 'text-gray-700'
-                                "
+                        <nav class="space-y-1">
+                            <a
+                                href="#"
+                                @click.prevent="filterByCategory(null)"
+                                class="block px-3 py-2 text-sm font-medium rounded transition-colors"
+                                :class="selectedCategory === null ? 'bg-gray-200 text-gray-900' : 'text-gray-700 hover:bg-gray-100'"
                             >
-                                Categories
-                            </h4>
-                            <div class="space-y-2">
-                                <button
-                                    @click="selectCategory(null)"
-                                    class="w-full text-left px-3 py-2 rounded-md text-sm transition-colors"
-                                    :class="
-                                        !selectedCategory
-                                            ? store.theme === 'bold'
-                                                ? 'bg-orange-500 text-gray-900 font-bold'
-                                                : store.theme === 'modern'
-                                                ? 'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 font-medium'
-                                                : 'bg-blue-100 text-blue-700 font-medium'
-                                            : store.theme === 'bold'
-                                            ? 'hover:bg-gray-800 text-gray-300'
-                                            : 'hover:bg-gray-100 text-gray-700'
-                                    "
-                                >
-                                    All Products
-                                </button>
-                                <button
-                                    v-for="category in categories"
-                                    :key="category.id"
-                                    @click="selectCategory(category.slug)"
-                                    class="w-full text-left px-3 py-2 rounded-md text-sm transition-colors"
-                                    :class="
-                                        selectedCategory === category.slug
-                                            ? store.theme === 'bold'
-                                                ? 'bg-orange-500 text-gray-900 font-bold'
-                                                : store.theme === 'modern'
-                                                ? 'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 font-medium'
-                                                : 'bg-blue-100 text-blue-700 font-medium'
-                                            : store.theme === 'bold'
-                                            ? 'hover:bg-gray-800 text-gray-300'
-                                            : 'hover:bg-gray-100 text-gray-700'
-                                    "
-                                >
-                                    {{ category.name }} ({{
-                                        category.products_count
-                                    }})
-                                </button>
-                            </div>
-                        </div>
+                                All Products
+                            </a>
+                            <a
+                                v-for="category in categories"
+                                :key="category.id"
+                                href="#"
+                                @click.prevent="filterByCategory(category.slug)"
+                                class="block px-3 py-2 text-sm font-medium rounded transition-colors"
+                                :class="selectedCategory === category.slug ? 'bg-gray-200 text-gray-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'"
+                            >
+                                {{ category.name }}
+                            </a>
+                        </nav>
                     </div>
                 </aside>
 
-                <!-- Products Grid -->
-                <div class="flex-1">
+                <!-- Main Content Area -->
+                <main class="flex-1 min-w-0">
+                    <!-- Page Title and Results Count -->
                     <div class="mb-6">
-                        <h2
-                            class="text-2xl font-bold"
-                            :class="
-                                store.theme === 'bold'
-                                    ? 'text-white'
-                                    : 'text-gray-900'
-                            "
-                        >
-                            {{
-                                selectedCategory
-                                    ? "Filtered Products"
-                                    : "All Products"
-                            }}
-                            <span
-                                class="text-lg font-normal"
-                                :class="
-                                    store.theme === 'bold'
-                                        ? 'text-gray-400'
-                                        : 'text-gray-500'
-                                "
-                                >({{ products.total }} items)</span
-                            >
-                        </h2>
+                        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                            {{ pageTitle }}
+                        </h1>
+                        <p class="text-gray-600">
+                            {{ filteredProducts.length }} {{ filteredProducts.length === 1 ? 'product' : 'products' }}
+                        </p>
                     </div>
 
-                    <div v-if="products.data.length > 0">
-                        <div
-                            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-                        >
-                            <a
-                                v-for="product in products.data"
-                                :key="product.id"
-                                :href="`/store/${store.id}/products/${product.id}`"
-                                class="rounded-lg shadow-md transition-all duration-300 overflow-hidden group"
-                                :class="[
-                                    themeConfig.productCard,
-                                    store.theme === 'modern'
-                                        ? 'rounded-2xl'
-                                        : '',
-                                ]"
-                            >
-                                <!-- Product Image -->
-                                <div
-                                    class="aspect-square bg-gray-200 overflow-hidden"
-                                >
-                                    <img
-                                        v-if="product.image"
-                                        :src="product.image"
-                                        :alt="product.name"
-                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                    />
-                                    <div
-                                        v-else
-                                        class="w-full h-full flex items-center justify-center text-gray-400"
-                                    >
-                                        <svg
-                                            class="w-16 h-16"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                stroke-width="2"
-                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                            />
-                                        </svg>
-                                    </div>
-                                </div>
-
-                                <!-- Product Info -->
-                                <div class="p-4">
-                                    <h3
-                                        class="text-lg font-semibold text-gray-900 line-clamp-2 mb-2"
-                                    >
-                                        {{ product.name }}
-                                    </h3>
-
-                                    <!-- Fulfillment Badges -->
-                                    <div class="flex flex-wrap gap-1.5 mb-2">
-                                        <!-- Pickup Only (when delivery not available) -->
-                                        <span
-                                            v-if="!product.is_shippable"
-                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800"
-                                        >
-                                            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            </svg>
-                                            Pickup Only
-                                        </span>
-
-                                        <!-- Both badges when delivery is available -->
-                                        <template v-else>
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                </svg>
-                                                Pickup Available
-                                            </span>
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                                                </svg>
-                                                Delivery Available
-                                            </span>
-                                        </template>
-                                    </div>
-
-                                    <p
-                                        class="text-sm mb-3 line-clamp-2"
-                                        :class="
-                                            store.theme === 'bold'
-                                                ? 'text-gray-400'
-                                                : 'text-gray-600'
-                                        "
-                                    >
-                                        {{ product.description }}
-                                    </p>
-                                    <div
-                                        class="flex justify-between items-center"
-                                    >
-                                        <span
-                                            class="text-2xl font-bold"
-                                            :class="themeConfig.productPrice"
-                                            >{{
-                                                formatCurrency(
-                                                    product.price_cents
-                                                )
-                                            }}</span
-                                        >
-                                        <span
-                                            v-if="product.category"
-                                            class="text-xs px-2 py-1 rounded"
-                                            :class="
-                                                store.theme === 'bold'
-                                                    ? 'text-gray-400 bg-gray-800'
-                                                    : 'text-gray-500 bg-gray-100'
-                                            "
-                                            >{{ product.category }}</span
-                                        >
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-
-                        <!-- Pagination -->
-                        <div
-                            v-if="products.last_page > 1"
-                            class="mt-8 flex justify-center"
-                        >
-                            <nav class="flex items-center space-x-2">
-                                <a
-                                    v-for="link in products.links"
-                                    :key="link.label"
-                                    :href="link.url"
-                                    v-html="link.label"
-                                    :class="[
-                                        'px-4 py-2 border rounded-md',
-                                        link.active
-                                            ? 'bg-blue-600 text-white border-blue-600'
-                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50',
-                                        !link.url
-                                            ? 'opacity-50 cursor-not-allowed'
-                                            : '',
-                                    ]"
-                                ></a>
-                            </nav>
-                        </div>
+                    <!-- Products Grid -->
+                    <div v-if="filteredProducts.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <ProductCardGrid
+                            v-for="product in paginatedProducts"
+                            :key="product.id"
+                            :product="product"
+                            :store="store"
+                        />
                     </div>
 
                     <!-- Empty State -->
-                    <div
-                        v-else
-                        class="text-center py-12 bg-white rounded-lg shadow-md"
-                    >
+                    <div v-else class="text-center py-12">
                         <svg
                             class="mx-auto h-24 w-24 text-gray-400"
                             fill="none"
@@ -417,38 +150,48 @@
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                                 stroke-width="2"
-                                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                             />
                         </svg>
                         <h3 class="mt-4 text-xl font-medium text-gray-900">
                             No products found
                         </h3>
                         <p class="mt-2 text-gray-500">
-                            Try adjusting your filters or search query
+                            Try adjusting your search or filter to find what you're looking for.
                         </p>
                     </div>
-                </div>
-            </div>
-        </main>
 
-        <!-- Footer -->
-        <footer class="bg-white border-t mt-20">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <p class="text-center text-gray-500">
-                    &copy; {{ new Date().getFullYear() }} {{ store.name }}. All
-                    rights reserved.
-                </p>
+                    <!-- Pagination -->
+                    <div v-if="totalPages > 1" class="mt-8 flex justify-center gap-2">
+                        <button
+                            @click="currentPage = Math.max(1, currentPage - 1)"
+                            :disabled="currentPage === 1"
+                            class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Previous
+                        </button>
+                        <span class="px-4 py-2 text-sm text-gray-700">
+                            Page {{ currentPage }} of {{ totalPages }}
+                        </span>
+                        <button
+                            @click="currentPage = Math.min(totalPages, currentPage + 1)"
+                            :disabled="currentPage === totalPages"
+                            class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Next
+                        </button>
+                    </div>
+                </main>
             </div>
-        </footer>
+        </div>
     </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { router } from "@inertiajs/vue3";
-import { useTheme } from "@/Composables/useTheme";
+import { ref, computed } from 'vue';
 import CartButton from "@/Components/Storefront/CartButton.vue";
 import CartDrawer from "@/Components/Storefront/CartDrawer.vue";
+import ProductCardGrid from "@/Components/Storefront/ProductCardGrid.vue";
 
 const props = defineProps({
     store: {
@@ -456,53 +199,77 @@ const props = defineProps({
         required: true,
     },
     products: {
-        type: Object,
+        type: Array,
+        required: true,
+    },
+    categories: {
+        type: Array,
         required: true,
     },
     customer: {
         type: Object,
         default: null,
     },
-    categories: {
-        type: Array,
-        required: true,
-    },
-    filters: {
-        type: Object,
-        default: () => ({}),
-    },
 });
 
-// Initialize theme
-const { config: themeConfig } = useTheme(props.store.theme);
+const searchQuery = ref('');
+const selectedCategory = ref(null);
+const currentPage = ref(1);
+const itemsPerPage = 12;
 
-const searchQuery = ref(props.filters.search || "");
-const selectedCategory = ref(props.filters.category || null);
+// Computed
+const totalCount = computed(() => props.products.length);
 
-const applyFilters = () => {
-    const params = {};
-    if (searchQuery.value) {
-        params.search = searchQuery.value;
-    }
+const pageTitle = computed(() => {
     if (selectedCategory.value) {
-        params.category = selectedCategory.value;
+        const category = props.categories.find(c => c.slug === selectedCategory.value);
+        return category ? category.name : 'Products';
+    }
+    return searchQuery.value ? `Search Results for "${searchQuery.value}"` : 'All Products';
+});
+
+const filteredProducts = computed(() => {
+    let filtered = props.products;
+
+    // Filter by search query
+    if (searchQuery.value) {
+        const query = searchQuery.value.toLowerCase();
+        filtered = filtered.filter(product =>
+            product.name.toLowerCase().includes(query) ||
+            (product.description && product.description.toLowerCase().includes(query))
+        );
     }
 
-    router.get(`/store/${props.store.id}/products`, params, {
-        preserveState: true,
-        preserveScroll: true,
-    });
-};
+    // Filter by category
+    if (selectedCategory.value) {
+        filtered = filtered.filter(product =>
+            product.category_slug === selectedCategory.value
+        );
+    }
 
-const selectCategory = (categorySlug) => {
+    return filtered;
+});
+
+const totalPages = computed(() => Math.ceil(filteredProducts.value.length / itemsPerPage));
+
+const paginatedProducts = computed(() => {
+    const start = (currentPage.value - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    return filteredProducts.value.slice(start, end);
+});
+
+// Methods
+const filterByCategory = (categorySlug) => {
     selectedCategory.value = categorySlug;
-    applyFilters();
+    currentPage.value = 1; // Reset to first page when filtering
 };
 
-const formatCurrency = (cents) => {
-    return new Intl.NumberFormat("en-AU", {
-        style: "currency",
-        currency: "AUD",
-    }).format(cents / 100);
+const formatTime = (time) => {
+    if (!time) return '';
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour}:${minutes} ${ampm}`;
 };
 </script>

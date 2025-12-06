@@ -9,7 +9,10 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\LoyaltyConfig;
 use App\Models\Store;
+use App\Services\Loyalty\LoyaltyService;
+use App\Services\Products\ProductDisplayService;
 use App\Services\Shipping\ShippingEngine;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,35 +25,12 @@ use Inertia\Response;
 class StorefrontController extends Controller
 {
     /**
-     * Display the storefront homepage.
+     * Display the storefront homepage with frequent products and category sections.
      */
-    public function index(Store $store): Response
+    public function index(Store $store, ProductDisplayService $productDisplayService): Response
     {
-        // Get featured products (store-specific OR merchant-wide)
-        $products = Product::with(['category', 'images'])
-            ->where('merchant_id', $store->merchant_id)
-            ->where(function ($query) use ($store) {
-                $query->where('store_id', $store->id)
-                      ->orWhereNull('store_id');
-            })
-            ->where('is_active', true)
-            ->orderBy('created_at', 'desc')
-            ->limit(12)
-            ->get()
-            ->map(function ($product) {
-                $primaryImage = $product->images->where('is_primary', true)->first();
-                return [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'description' => $product->description,
-                    'price_cents' => $product->price_cents,
-                    'category' => $product->category ? $product->category->name : null,
-                    'is_active' => $product->is_active,
-                    'is_shippable' => $product->is_shippable,
-                    'image' => $primaryImage ? '/storage/' . $primaryImage->image_path : null,
-                    'images' => $product->images->map(fn($img) => '/storage/' . $img->image_path),
-                ];
-            });
+        // Get storefront data (frequent products + products by category)
+        $storefrontData = $productDisplayService->getStorefrontData($store);
 
         // Get authenticated customer if logged in
         $customer = Auth::guard('customer')->user();
@@ -73,8 +53,11 @@ class StorefrontController extends Controller
                 'theme' => $store->theme_key ?? 'classic',
                 'logo_url' => $store->logo_path ? asset('storage/' . $store->logo_path) : null,
                 'is_active' => $store->is_active ?? true,
+                'open_time' => $store->open_time ? substr($store->open_time, 0, 5) : null,
+                'close_time' => $store->close_time ? substr($store->close_time, 0, 5) : null,
             ],
-            'products' => $products,
+            'frequent_products' => $storefrontData['frequent_products'],
+            'categories' => $storefrontData['categories'],
             'customer' => $customerData,
         ]);
     }
@@ -159,6 +142,8 @@ class StorefrontController extends Controller
                 'theme' => $store->theme_key ?? 'classic',
                 'logo_url' => $store->logo_path ? asset('storage/' . $store->logo_path) : null,
                 'is_active' => $store->is_active ?? true,
+                'open_time' => $store->open_time ? substr($store->open_time, 0, 5) : null,
+                'close_time' => $store->close_time ? substr($store->close_time, 0, 5) : null,
             ],
             'products' => $products,
             'categories' => $categories,
@@ -266,6 +251,8 @@ class StorefrontController extends Controller
         // Get authenticated customer if logged in
         $customer = Auth::guard('customer')->user();
         $customerData = null;
+        $loyaltyReward = null;
+
         if ($customer && $customer->merchant_id === $store->merchant_id) {
             $customerData = [
                 'id' => $customer->id,
@@ -273,7 +260,33 @@ class StorefrontController extends Controller
                 'last_name' => $customer->last_name,
                 'full_name' => $customer->full_name,
                 'email' => $customer->email,
+                'mobile' => $customer->mobile,
+                'address_line1' => $customer->address_line1,
+                'address_line2' => $customer->address_line2,
+                'address_city' => $customer->address_city,
+                'address_state' => $customer->address_state,
+                'address_postcode' => $customer->address_postcode,
+                'address_country' => $customer->address_country,
             ];
+
+            // Get loyalty reward eligibility
+            $loyaltyService = app(LoyaltyService::class);
+            $loyaltyAccount = $customer->loyaltyAccount;
+
+            if ($loyaltyAccount) {
+                $loyaltyConfig = LoyaltyConfig::where('merchant_id', $store->merchant_id)
+                    ->where('is_active', true)
+                    ->first();
+
+                if ($loyaltyConfig) {
+                    $loyaltyReward = [
+                        'points_balance' => $loyaltyAccount->points_balance,
+                        'threshold' => $loyaltyConfig->threshold,
+                        'eligible' => $loyaltyAccount->hasReachedThreshold($loyaltyConfig->threshold),
+                        'reward_config' => $loyaltyConfig->reward_json,
+                    ];
+                }
+            }
         }
 
         return Inertia::render('Storefront/Checkout', [
@@ -283,9 +296,11 @@ class StorefrontController extends Controller
                 'merchant_id' => $store->merchant_id,
                 'shipping_enabled' => $store->shipping_enabled,
                 'theme' => $store->theme_key ?? 'classic',
+                'is_active' => $store->is_active ?? true,
             ],
             'zones' => $zones,
             'customer' => $customerData,
+            'loyaltyReward' => $loyaltyReward,
         ]);
     }
 
@@ -317,7 +332,15 @@ class StorefrontController extends Controller
             'shipping_address.country' => 'required_if:fulfilment_type,shipping|string|max:100',
             'shipping_method_id' => 'required_if:fulfilment_type,shipping|exists:shipping_methods,id',
             'payment_method' => 'nullable|string',
+            'apply_loyalty_reward' => 'nullable|boolean',
         ]);
+
+        // Check if store is active
+        if (!$store->is_active) {
+            return back()->withErrors([
+                'store' => 'This store is currently closed and not accepting orders. Please check back during operating hours.'
+            ]);
+        }
 
         try {
             DB::beginTransaction();
@@ -408,6 +431,36 @@ class StorefrontController extends Controller
 
             $totalCents = $itemsTotalCents + $shippingCostCents;
 
+            // Apply loyalty discount if requested and eligible
+            $loyaltyDiscountCents = 0;
+            if (!empty($validated['apply_loyalty_reward']) && $customer) {
+                $loyaltyService = app(LoyaltyService::class);
+
+                try {
+                    // Apply redemption and get discount amount
+                    $redemptionResult = $loyaltyService->applyRedemption($customer, $totalCents);
+
+                    if ($redemptionResult['success']) {
+                        $loyaltyDiscountCents = $redemptionResult['discount_cents'];
+                        $totalCents -= $loyaltyDiscountCents;
+
+                        \Log::info('Loyalty discount applied during checkout', [
+                            'customer_id' => $customer->id,
+                            'order_total_before' => $itemsTotalCents + $shippingCostCents,
+                            'discount_cents' => $loyaltyDiscountCents,
+                            'order_total_after' => $totalCents,
+                            'points_redeemed' => $redemptionResult['points_redeemed'],
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to apply loyalty discount', [
+                        'customer_id' => $customer->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                    // Continue with order without discount if redemption fails
+                }
+            }
+
             // Create order
             $order = Order::create([
                 'public_id' => 'ORD-' . strtoupper(Str::random(12)),
@@ -453,6 +506,20 @@ class StorefrontController extends Controller
             }
 
             DB::commit();
+
+            // Process loyalty points for completed order (payment_status is always PAID)
+            $loyaltyService = app(LoyaltyService::class);
+            $loyaltyResult = $loyaltyService->processOrderLoyalty($order);
+
+            // Log loyalty processing result for debugging
+            if ($loyaltyResult['success']) {
+                \Log::info('Loyalty points awarded', [
+                    'order_id' => $order->id,
+                    'customer_id' => $customer->id,
+                    'points_awarded' => $loyaltyResult['points_awarded'] ?? 0,
+                    'reward_earned' => $loyaltyResult['reward'] !== null,
+                ]);
+            }
 
             // Broadcast order created event (for websocket)
             event(new OrderCreated($order));

@@ -1,13 +1,11 @@
 <template>
-    <div class="min-h-screen" :class="themeConfig.background">
+    <div class="min-h-screen bg-gray-50">
         <!-- Inactive Store Banner -->
         <div
             v-if="!store.is_active"
             class="bg-yellow-500 text-white py-3 px-4 text-center font-medium"
         >
-            <div
-                class="max-w-7xl mx-auto flex items-center justify-center gap-2"
-            >
+            <div class="max-w-7xl mx-auto flex items-center justify-center gap-2">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path
                         fill-rule="evenodd"
@@ -20,92 +18,38 @@
         </div>
 
         <!-- Header -->
-        <header
-            :class="
-                store.theme === 'bold'
-                    ? 'bg-gray-900 border-b border-orange-500/20'
-                    : 'bg-white shadow-sm'
-            "
-        >
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <header class="bg-white shadow-sm sticky top-0 z-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                 <div class="flex justify-between items-center">
-                    <!-- Store Logo or Name -->
+                    <!-- Store Logo/Name -->
                     <div class="flex items-center">
                         <img
                             v-if="store.logo_url"
                             :src="store.logo_url"
-                            :alt="store.name + ' logo'"
-                            class="max-h-16 max-w-xs object-contain"
-                            style="max-height: 64px; max-width: 300px"
+                            :alt="store.name"
+                            class="max-h-12 max-w-xs object-contain"
                         />
-                        <h1
-                            v-else
-                            class="text-3xl font-bold"
-                            :class="
-                                store.theme === 'bold'
-                                    ? 'text-white'
-                                    : 'text-gray-900'
-                            "
-                        >
+                        <h1 v-else class="text-2xl font-bold text-gray-900">
                             {{ store.name }}
                         </h1>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <!-- Track Order Button -->
-                        <a
-                            href="/track"
-                            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200"
-                            :class="[
-                                store.theme === 'bold'
-                                    ? 'text-white hover:bg-gray-800 border border-gray-700'
-                                    : store.theme === 'modern'
-                                    ? 'text-purple-700 hover:bg-purple-50 border border-purple-200'
-                                    : 'text-blue-700 hover:bg-blue-50 border border-blue-200'
-                            ]"
-                        >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                            </svg>
-                            <span>Track Order</span>
-                        </a>
 
-                        <!-- Login/Profile Button -->
+                    <!-- Header Actions -->
+                    <div class="flex items-center gap-3">
                         <a
                             v-if="!customer"
                             :href="`/store/${store.id}/login`"
-                            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200"
-                            :class="[
-                                store.theme === 'bold'
-                                    ? 'text-white hover:bg-gray-800 border border-gray-700'
-                                    : store.theme === 'modern'
-                                    ? 'text-purple-700 hover:bg-purple-50 border border-purple-200'
-                                    : 'text-blue-700 hover:bg-blue-50 border border-blue-200'
-                            ]"
+                            class="text-sm font-medium text-gray-700 hover:text-gray-900"
                         >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                            </svg>
-                            <span>Login</span>
+                            Login
                         </a>
                         <a
                             v-else
                             :href="`/store/${store.id}/profile`"
-                            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200"
-                            :class="[
-                                store.theme === 'bold'
-                                    ? 'bg-gradient-to-r from-orange-500 to-yellow-500 text-white hover:from-orange-600 hover:to-yellow-600 shadow-lg'
-                                    : store.theme === 'modern'
-                                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-lg'
-                                    : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg'
-                            ]"
+                            class="text-sm font-medium text-blue-600 hover:text-blue-700"
                         >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                            <span>{{ customer.first_name }}'s Profile</span>
+                            {{ customer.first_name }}'s Profile
                         </a>
-
-                        <!-- Cart Button -->
                         <CartButton />
                     </div>
                 </div>
@@ -115,210 +59,131 @@
         <!-- Cart Drawer -->
         <CartDrawer :store="store" />
 
-        <!-- Main Content -->
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <!-- Welcome Section -->
-            <div class="mb-12 text-center">
-                <h2
-                    class="text-4xl font-bold mb-4"
-                    :class="
-                        store.theme === 'bold' ? 'text-white' : 'text-gray-900'
-                    "
-                >
-                    Welcome to {{ store.name }}
-                </h2>
-                <p
-                    class="text-lg"
-                    :class="
-                        store.theme === 'bold'
-                            ? 'text-gray-400'
-                            : 'text-gray-600'
-                    "
-                >
-                    Browse our latest products
-                </p>
-            </div>
+        <!-- Main Layout: Sidebar + Content -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex gap-8">
+                <!-- Left Sidebar Navigation -->
+                <aside class="w-64 flex-shrink-0 hidden lg:block">
+                    <div class="bg-white rounded-lg shadow-sm p-6 sticky top-24">
+                        <h2 class="text-xl font-bold text-gray-900 mb-2">Menu</h2>
 
-            <!-- Products Grid -->
-            <div v-if="products.length > 0">
-                <h3 class="text-2xl font-bold text-gray-900 mb-6">
-                    Featured Products
-                </h3>
-                <div
-                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                >
-                    <a
-                        v-for="product in products"
-                        :key="product.id"
-                        :href="`/store/${store.id}/products/${product.id}`"
-                        class="rounded-lg shadow-md transition-all duration-300 overflow-hidden group"
-                        :class="[
-                            themeConfig.productCard,
-                            store.theme === 'modern' ? 'rounded-2xl' : '',
-                        ]"
-                    >
-                        <!-- Product Image -->
-                        <div class="aspect-square bg-gray-200 overflow-hidden">
-                            <img
-                                v-if="product.image"
-                                :src="product.image"
-                                :alt="product.name"
-                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                            <div
-                                v-else
-                                class="w-full h-full flex items-center justify-center text-gray-400"
-                            >
-                                <svg
-                                    class="w-16 h-16"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                    />
+                        <!-- Operating Hours -->
+                        <div v-if="store.open_time && store.close_time" class="mb-6 pb-4 border-b border-gray-200">
+                            <div class="flex items-center gap-2 text-sm text-gray-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
+                                <span class="font-medium">{{ formatTime(store.open_time) }} - {{ formatTime(store.close_time) }}</span>
                             </div>
                         </div>
 
-                        <!-- Product Info -->
-                        <div class="p-4">
-                            <h3
-                                class="text-lg font-semibold text-gray-900 line-clamp-2 mb-2"
-                            >
-                                {{ product.name }}
-                            </h3>
-
-                            <!-- Fulfillment Badges -->
-                            <div class="flex flex-wrap gap-1.5 mb-2">
-                                <!-- Pickup Only (when delivery not available) -->
-                                <span
-                                    v-if="!product.is_shippable"
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800"
+                        <nav class="space-y-1">
+                            <!-- Categories -->
+                            <div v-for="category in categories" :key="category.id">
+                                <a
+                                    :href="`#${category.slug}`"
+                                    @click.prevent="scrollToCategory(category.slug)"
+                                    class="block px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                                    :class="{ 'bg-gray-200 font-semibold': activeCategory === category.slug }"
                                 >
-                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                    Pickup Only
-                                </span>
-
-                                <!-- Both badges when delivery is available -->
-                                <template v-else>
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                        Pickup Available
-                                    </span>
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                                        </svg>
-                                        Delivery Available
-                                    </span>
-                                </template>
+                                    {{ category.name }}
+                                </a>
                             </div>
+                        </nav>
+                    </div>
+                </aside>
 
-                            <p
-                                class="text-sm mb-3 line-clamp-2"
-                                :class="
-                                    store.theme === 'bold'
-                                        ? 'text-gray-400'
-                                        : 'text-gray-600'
-                                "
-                            >
-                                {{ product.description }}
-                            </p>
-                            <div class="flex justify-between items-center">
-                                <span
-                                    class="text-2xl font-bold"
-                                    :class="themeConfig.productPrice"
-                                    >{{
-                                        formatCurrency(product.price_cents)
-                                    }}</span
-                                >
-                                <span
-                                    v-if="product.category"
-                                    class="text-xs px-2 py-1 rounded"
-                                    :class="
-                                        store.theme === 'bold'
-                                            ? 'text-gray-400 bg-gray-800'
-                                            : 'text-gray-500 bg-gray-100'
-                                    "
-                                    >{{ product.category }}</span
-                                >
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- View All Products Link -->
-                <div class="mt-12 text-center">
-                    <a
-                        :href="`/store/${store.id}/products`"
-                        class="inline-block px-8 py-3 font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
-                        :class="themeConfig.buttonPrimary"
+                <!-- Main Content Area -->
+                <main class="flex-1 min-w-0">
+                    <!-- Picked for You Section -->
+                    <section
+                        v-if="frequent_products && frequent_products.length > 0"
+                        id="picked"
+                        class="mb-12"
                     >
-                        View All Products
-                    </a>
-                </div>
-            </div>
+                        <h2 class="text-3xl font-bold text-gray-900 mb-6">Picked for you</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <ProductCardGrid
+                                v-for="product in frequent_products.slice(0, 4)"
+                                :key="'picked-' + product.id"
+                                :product="product"
+                                :store="store"
+                                :show-popular="true"
+                            />
+                        </div>
+                    </section>
 
-            <!-- Empty State -->
-            <div v-else class="text-center py-12">
-                <svg
-                    class="mx-auto h-24 w-24 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                    />
-                </svg>
-                <h3 class="mt-4 text-xl font-medium text-gray-900">
-                    No products available
-                </h3>
-                <p class="mt-2 text-gray-500">
-                    Check back soon for new products!
-                </p>
-            </div>
-        </main>
+                    <!-- Category Sections -->
+                    <div v-if="categories && categories.length > 0">
+                        <section
+                            v-for="category in categories"
+                            :key="category.id"
+                            :id="category.slug"
+                            class="mb-12 scroll-mt-24"
+                        >
+                            <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                                {{ category.name }}
+                            </h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <ProductCardGrid
+                                    v-for="product in category.products"
+                                    :key="'cat-' + category.id + '-prod-' + product.id"
+                                    :product="product"
+                                    :store="store"
+                                />
+                            </div>
+                        </section>
+                    </div>
 
-        <!-- Footer -->
-        <footer class="bg-white border-t mt-20">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <p class="text-center text-gray-500">
-                    &copy; {{ new Date().getFullYear() }} {{ store.name }}. All
-                    rights reserved.
-                </p>
+                    <!-- Empty State -->
+                    <div
+                        v-if="(!frequent_products || frequent_products.length === 0) && (!categories || categories.length === 0)"
+                        class="text-center py-12"
+                    >
+                        <svg
+                            class="mx-auto h-24 w-24 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                            />
+                        </svg>
+                        <h3 class="mt-4 text-xl font-medium text-gray-900">
+                            No products available
+                        </h3>
+                        <p class="mt-2 text-gray-500">
+                            Check back soon for new products!
+                        </p>
+                    </div>
+                </main>
             </div>
-        </footer>
+        </div>
     </div>
 </template>
 
 <script setup>
-import { useTheme } from "@/Composables/useTheme";
+import { ref, onMounted, onUnmounted } from 'vue';
 import CartButton from "@/Components/Storefront/CartButton.vue";
 import CartDrawer from "@/Components/Storefront/CartDrawer.vue";
+import ProductCardGrid from "@/Components/Storefront/ProductCardGrid.vue";
 
 const props = defineProps({
     store: {
         type: Object,
         required: true,
     },
-    products: {
+    frequent_products: {
         type: Array,
-        required: true,
+        default: () => [],
+    },
+    categories: {
+        type: Array,
+        default: () => [],
     },
     customer: {
         type: Object,
@@ -326,13 +191,54 @@ const props = defineProps({
     },
 });
 
-// Initialize theme
-const { config: themeConfig } = useTheme(props.store.theme);
+const activeCategory = ref('');
 
-const formatCurrency = (cents) => {
-    return new Intl.NumberFormat("en-AU", {
-        style: "currency",
-        currency: "AUD",
-    }).format(cents / 100);
+const scrollToCategory = (slug) => {
+    const element = document.getElementById(slug);
+    if (element) {
+        const offset = 100; // Account for sticky header
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+        });
+        activeCategory.value = slug;
+    }
 };
+
+const formatTime = (time) => {
+    if (!time) return '';
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour}:${minutes} ${ampm}`;
+};
+
+// Update active category on scroll
+const handleScroll = () => {
+    if (!props.categories || props.categories.length === 0) return;
+
+    const scrollPosition = window.scrollY + 150;
+
+    for (let i = props.categories.length - 1; i >= 0; i--) {
+        const category = props.categories[i];
+        const element = document.getElementById(category.slug);
+        if (element && element.offsetTop <= scrollPosition) {
+            activeCategory.value = category.slug;
+            break;
+        }
+    }
+};
+
+onMounted(() => {
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Set initial active category
+});
+
+onUnmounted(() => {
+    window.removeEventListener('scroll', handleScroll);
+});
 </script>

@@ -51,6 +51,8 @@ class StoreSettingsController extends Controller
             'shipping_enabled' => $store->shipping_enabled,
             'logo_path' => $store->logo_path,
             'logo_url' => $store->logo_path ? asset('storage/' . $store->logo_path) : null,
+            'open_time' => $store->open_time,
+            'close_time' => $store->close_time,
         ];
 
         return Inertia::render('Store/Settings', [
@@ -78,6 +80,8 @@ class StoreSettingsController extends Controller
             'description' => ['nullable', 'string', 'max:1000'],
             'subdomain' => ['nullable', 'string', 'max:63'],
             'is_active' => ['boolean'],
+            'open_time' => ['nullable', 'date_format:H:i'],
+            'close_time' => ['nullable', 'date_format:H:i'],
         ]);
 
         // Update all fields
@@ -86,6 +90,8 @@ class StoreSettingsController extends Controller
             'description' => $validated['description'],
             'subdomain' => $validated['subdomain'],
             'is_active' => $validated['is_active'] ?? false,
+            'open_time' => $validated['open_time'] ?? null,
+            'close_time' => $validated['close_time'] ?? null,
         ]);
 
         return redirect()->route('store.settings')
