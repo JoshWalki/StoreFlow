@@ -61,6 +61,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Platform Owner Password
+    |--------------------------------------------------------------------------
+    |
+    | This password is used to access the platform owner dashboard where you
+    | can manage all merchants in the StoreFlow system. Set this in your .env
+    | file as PLATFORM_PASSWORD for security.
+    |
+    */
+
+    'platform_password' => env('PLATFORM_PASSWORD'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

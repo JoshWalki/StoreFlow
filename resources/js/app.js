@@ -8,7 +8,7 @@ import Echo from "laravel-echo";
 import Pusher from "pusher-js";
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
-import flashMessages from "./plugins/flashMessages";
+import flashMessages from "./Plugins/flashMessages";
 
 const appName =
     window.document.getElementsByTagName("title")[0]?.innerText || "StoreFlow";
@@ -29,7 +29,7 @@ const toastOptions = {
     rtl: false,
     transition: "Vue-Toastification__bounce",
     maxToasts: 5,
-    newestOnTop: true
+    newestOnTop: true,
 };
 
 createInertiaApp({

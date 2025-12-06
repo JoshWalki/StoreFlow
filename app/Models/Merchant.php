@@ -15,6 +15,11 @@ class Merchant extends Model
         'name',
         'slug',
         'owner_user_id',
+        'onboarding_complete',
+    ];
+
+    protected $casts = [
+        'onboarding_complete' => 'boolean',
     ];
 
     /**

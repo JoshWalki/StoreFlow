@@ -62,6 +62,7 @@ class Kernel extends HttpKernel
         'customer.auth' => \App\Http\Middleware\CustomerAuth::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
+        'platform.auth' => \App\Http\Middleware\PlatformAuth::class,
         'precognitive' => \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class,
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'store.selected' => \App\Http\Middleware\EnsureStoreSelected::class,

@@ -15,12 +15,25 @@ class EnsureStoreSelected
      */
     public function handle(Request $request, Closure $next): Response
     {
+        $user = $request->user();
+
+        // Allow users who need onboarding to proceed (they'll see the modal)
+        if ($user && $user->isOwner() && $user->merchant) {
+            $merchant = $user->merchant;
+            $isOwner = $user->id === $merchant->owner_user_id;
+            $needsOnboarding = !$merchant->onboarding_complete;
+
+            if ($isOwner && $needsOnboarding) {
+                // Skip store selection check for onboarding
+                return $next($request);
+            }
+        }
+
         if (!session()->has('store_id')) {
             return redirect()->route('store-selection');
         }
 
         // Verify the store still exists and user has access
-        $user = $request->user();
         $storeId = session('store_id');
 
         $hasAccess = $user->isOwner()

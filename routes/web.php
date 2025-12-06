@@ -5,6 +5,9 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\Platform\PlatformAuthController;
+use App\Http\Controllers\Platform\PlatformDashboardController;
+use App\Http\Controllers\Platform\PlatformMerchantController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShippingManagementController;
 use App\Http\Controllers\StoreSelectionController;
@@ -26,6 +29,25 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::redirect('/', '/login');
+
+// Platform Owner Dashboard Routes
+Route::prefix('platform')->name('platform.')->group(function () {
+    // Platform login (not authenticated)
+    Route::middleware('guest')->group(function () {
+        Route::get('/login', [PlatformAuthController::class, 'showLogin'])->name('login');
+        Route::post('/login', [PlatformAuthController::class, 'login'])->name('login.post');
+    });
+
+    // Platform protected routes
+    Route::middleware(['platform.auth'])->group(function () {
+        Route::post('/logout', [PlatformAuthController::class, 'logout'])->name('logout');
+        Route::get('/dashboard', [PlatformDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/merchants', [PlatformDashboardController::class, 'merchants'])->name('merchants');
+        Route::get('/merchants/create', [PlatformMerchantController::class, 'create'])->name('merchants.create');
+        Route::post('/merchants', [PlatformMerchantController::class, 'store'])->name('merchants.store');
+        Route::get('/merchants/{merchant}', [PlatformDashboardController::class, 'showMerchant'])->name('merchants.show');
+    });
+});
 
 // Store Settings Routes (Must be defined BEFORE storefront routes to avoid route conflict)
 // These are protected by auth middleware later in the file
@@ -88,6 +110,9 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware(['auth', 'tenant.context'])->group(function () {
     Route::post('/logout', LogoutController::class)->name('logout');
+
+    // Onboarding (for new merchant owners)
+    Route::post('/onboarding/complete', [App\Http\Controllers\OnboardingController::class, 'completeOnboarding'])->name('onboarding.complete');
 
     // Store Selection
     Route::get('/store-selection', [StoreSelectionController::class, 'show'])->name('store-selection');

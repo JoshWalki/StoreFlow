@@ -35,7 +35,21 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        $selectedStore = $request->session()->get('selected_store');
+        $selectedStore = null;
+        $storeId = $request->session()->get('store_id');
+
+        if ($storeId) {
+            $selectedStore = \App\Models\Store::find($storeId);
+        }
+
+        // Check if onboarding is needed
+        $needsOnboarding = false;
+        if ($request->user() && $request->user()->merchant) {
+            $merchant = $request->user()->merchant;
+            $needsOnboarding = $request->user()->isOwner()
+                && $request->user()->id === $merchant->owner_user_id
+                && !$merchant->onboarding_complete;
+        }
 
         return [
             ...parent::share($request),
@@ -53,7 +67,9 @@ class HandleInertiaRequests extends Middleware
                 'id' => $selectedStore->id,
                 'name' => $selectedStore->name,
                 'merchant_id' => $selectedStore->merchant_id,
+                'is_active' => $selectedStore->is_active ?? true,
             ] : null,
+            'needsOnboarding' => $needsOnboarding,
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),

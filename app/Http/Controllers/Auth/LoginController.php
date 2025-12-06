@@ -39,6 +39,18 @@ class LoginController extends Controller
 
         $user = Auth::user();
 
+        // Check if this is a new merchant owner who needs onboarding
+        if ($user->isOwner() && $user->merchant) {
+            $merchant = $user->merchant;
+            $isOwner = $user->id === $merchant->owner_user_id;
+            $needsOnboarding = !$merchant->onboarding_complete;
+
+            if ($isOwner && $needsOnboarding) {
+                // Allow owner to proceed to dashboard where onboarding modal will appear
+                return redirect()->route('dashboard');
+            }
+        }
+
         // Check if user has multiple stores
         $stores = $user->stores()->get();
 

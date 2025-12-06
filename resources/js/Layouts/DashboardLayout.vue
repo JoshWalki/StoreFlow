@@ -1,5 +1,8 @@
 <template>
     <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+        <!-- Onboarding Modal (Unclosable) -->
+        <OnboardingModal v-if="needsOnboarding" />
+
         <!-- Toast Notifications -->
         <ToastContainer />
 
@@ -453,6 +456,7 @@
 import { Link, router, usePage } from "@inertiajs/vue3";
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import ToastContainer from "@/Components/Notifications/ToastContainer.vue";
+import OnboardingModal from "@/Components/OnboardingModal.vue";
 import { useNotifications } from "@/Composables/useNotifications";
 import { useDarkMode } from "@/Composables/useDarkMode";
 
@@ -462,6 +466,7 @@ const props = defineProps({
 });
 
 const page = usePage();
+const needsOnboarding = computed(() => page.props.needsOnboarding || false);
 
 // Use auth user from Inertia shared props if not passed as prop
 const currentUser = computed(() => props.user || page.props.auth?.user);
