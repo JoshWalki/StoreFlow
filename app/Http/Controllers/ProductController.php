@@ -5,12 +5,26 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Services\AuditLogger;
+use App\Services\Products\ProductDisplayService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ProductController extends Controller
 {
+    /**
+     * Clear storefront cache for all stores in the merchant.
+     */
+    private function clearMerchantStorefrontCache(int $merchantId): void
+    {
+        $productDisplayService = app(ProductDisplayService::class);
+        $stores = \App\Models\Store::where('merchant_id', $merchantId)->get();
+
+        foreach ($stores as $store) {
+            $productDisplayService->clearStorefrontCache($merchantId, $store->id);
+        }
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -169,6 +183,9 @@ class ProductController extends Controller
             'is_active' => $product->is_active,
         ]);
 
+        // Clear storefront cache for all stores in merchant
+        $this->clearMerchantStorefrontCache($request->user()->merchant_id);
+
         return redirect()->route('products.index')
             ->with('success', 'Product created successfully.');
     }
@@ -303,6 +320,9 @@ class ProductController extends Controller
             AuditLogger::logUpdated('Product', $product->id, $changes);
         }
 
+        // Clear storefront cache for all stores in merchant
+        $this->clearMerchantStorefrontCache($request->user()->merchant_id);
+
         return redirect()->route('products.index')
             ->with('success', 'Product updated successfully.');
     }
@@ -341,7 +361,11 @@ class ProductController extends Controller
             'images_deleted' => $images->count(),
         ]);
 
+        $merchantId = $product->merchant_id;
         $product->delete();
+
+        // Clear storefront cache for all stores in merchant
+        $this->clearMerchantStorefrontCache($merchantId);
 
         return redirect()->route('products.index')
             ->with('success', 'Product deleted successfully.');
@@ -509,6 +533,11 @@ class ProductController extends Controller
                 }
             }
 
+            // Clear storefront cache for all stores in merchant if any products were imported
+            if ($imported > 0) {
+                $this->clearMerchantStorefrontCache($merchantId);
+            }
+
             $message = "Import completed: {$imported} products imported";
             if ($failed > 0) {
                 $message .= ", {$failed} failed";
@@ -584,6 +613,9 @@ class ProductController extends Controller
 
             $product->delete();
         }
+
+        // Clear storefront cache for all stores in merchant
+        $this->clearMerchantStorefrontCache($merchantId);
 
         $message = "{$count} product" . ($count > 1 ? 's' : '') . " deleted successfully";
         if ($totalImagesDeleted > 0) {
@@ -662,6 +694,11 @@ class ProductController extends Controller
 
                 $count++;
             }
+        }
+
+        // Clear storefront cache for all stores in merchant if any products were updated
+        if ($count > 0) {
+            $this->clearMerchantStorefrontCache($merchantId);
         }
 
         return redirect()->route('products.index')
