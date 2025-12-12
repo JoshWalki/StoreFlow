@@ -20,7 +20,8 @@ class AuditLogController extends Controller
         $store = \App\Models\Store::find($storeId);
 
         $query = AuditLog::where('merchant_id', $merchantId)
-            ->with(['user:id,name,email']);
+            ->with(['user:id,name,email'])
+            ->select('id', 'merchant_id', 'user_id', 'entity', 'entity_id', 'action', 'meta_json', 'created_at');
 
         // Filter by entity type
         if ($request->has('entity')) {
@@ -37,7 +38,31 @@ class AuditLogController extends Controller
             $query->where('user_id', $request->input('user_id'));
         }
 
-        // Filter by date range
+        // Filter by period
+        if ($request->has('period')) {
+            $period = $request->input('period');
+            $now = now();
+
+            switch ($period) {
+                case 'today':
+                    $query->whereDate('created_at', $now->toDateString());
+                    break;
+                case 'week':
+                    $query->where('created_at', '>=', $now->startOfWeek());
+                    break;
+                case 'month':
+                    $query->where('created_at', '>=', $now->startOfMonth());
+                    break;
+                case 'year':
+                    $query->where('created_at', '>=', $now->startOfYear());
+                    break;
+                case 'all':
+                    // No date filter
+                    break;
+            }
+        }
+
+        // Filter by custom date range (overrides period if provided)
         if ($request->has('date_from')) {
             $query->where('created_at', '>=', $request->input('date_from'));
         }
@@ -54,17 +79,23 @@ class AuditLogController extends Controller
             });
         }
 
+        // Optimized pagination - reduced from 50 to 25 for better performance
         $logs = $query->orderBy('created_at', 'desc')
-            ->paginate(50);
+            ->paginate(25);
 
-        // Get unique entities and actions for filters
-        $entities = AuditLog::where('merchant_id', $merchantId)
-            ->distinct()
-            ->pluck('entity');
+        // Only load filter options when needed (not on every request)
+        // These are cached to avoid repeated queries
+        $entities = cache()->remember("audit_entities_{$merchantId}", 3600, function() use ($merchantId) {
+            return AuditLog::where('merchant_id', $merchantId)
+                ->distinct()
+                ->pluck('entity');
+        });
 
-        $actions = AuditLog::where('merchant_id', $merchantId)
-            ->distinct()
-            ->pluck('action');
+        $actions = cache()->remember("audit_actions_{$merchantId}", 3600, function() use ($merchantId) {
+            return AuditLog::where('merchant_id', $merchantId)
+                ->distinct()
+                ->pluck('action');
+        });
 
         return Inertia::render('AuditLogs/Index', [
             'store' => $store,
@@ -72,7 +103,7 @@ class AuditLogController extends Controller
             'logs' => $logs,
             'entities' => $entities,
             'actions' => $actions,
-            'filters' => $request->only(['entity', 'action', 'user_id', 'date_from', 'date_to', 'search']),
+            'filters' => $request->only(['entity', 'action', 'user_id', 'date_from', 'date_to', 'search', 'period']),
         ]);
     }
 
@@ -88,8 +119,9 @@ class AuditLogController extends Controller
             ->where('entity', $entity)
             ->where('entity_id', $entityId)
             ->with(['user:id,name,email'])
+            ->select('id', 'merchant_id', 'user_id', 'entity', 'entity_id', 'action', 'meta_json', 'created_at')
             ->orderBy('created_at', 'desc')
-            ->paginate(50);
+            ->paginate(25);
 
         return Inertia::render('AuditLogs/Show', [
             'entity' => $entity,

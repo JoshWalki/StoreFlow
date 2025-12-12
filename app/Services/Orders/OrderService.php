@@ -137,12 +137,44 @@ class OrderService
 
             // Create order items
             foreach ($data['items'] as $item) {
-                OrderItem::create([
+                $orderItem = OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $item['product_id'],
                     'qty' => $item['qty'],
                     'unit_price_cents' => $item['unit_price_cents'],
+                    'addons' => $item['addons'] ?? null, // Keep JSON for backward compatibility
                 ]);
+
+                // Create order item customizations (options)
+                if (isset($item['customizations']) && is_array($item['customizations'])) {
+                    foreach ($item['customizations'] as $customization) {
+                        \App\Models\OrderItemOption::create([
+                            'order_item_id' => $orderItem->id,
+                            'option_id' => $customization['option_id'] ?? null,
+                            'qty' => 1,
+                            'price_delta_cents' => $customization['price_delta_cents'] ?? 0,
+                        ]);
+                    }
+                }
+
+                // Create order item addons
+                if (isset($item['addons']) && is_array($item['addons'])) {
+                    foreach ($item['addons'] as $addon) {
+                        $priceAdjustmentCents = isset($addon['price_adjustment'])
+                            ? (int) round($addon['price_adjustment'] * 100)
+                            : 0;
+
+                        \App\Models\OrderItemAddon::create([
+                            'order_item_id' => $orderItem->id,
+                            'product_addon_id' => null, // We don't have this in the cart data
+                            'name' => ($addon['addon_name'] ?? 'Addon') . ': ' . ($addon['option_name'] ?? ''),
+                            'description' => null,
+                            'quantity' => 1,
+                            'unit_price_cents' => $priceAdjustmentCents,
+                            'total_price_cents' => $priceAdjustmentCents,
+                        ]);
+                    }
+                }
             }
 
             // Fire OrderCreated event
@@ -214,6 +246,9 @@ class OrderService
 
             // Update order with status and timestamp
             $order->update($updateData);
+
+            // Reload order with relationships for broadcasting
+            $order->load(['items.product', 'items.addons', 'customer']);
 
             // Fire OrderStatusUpdated event
             event(new OrderStatusUpdated($order, $oldStatus, $newStatus));

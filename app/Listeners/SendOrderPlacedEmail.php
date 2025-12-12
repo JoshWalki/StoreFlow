@@ -52,8 +52,8 @@ class SendOrderPlacedEmail implements ShouldQueue
                 'error' => $e->getMessage(),
             ]);
 
-            // Re-throw to allow queue retry mechanism
-            throw $e;
+            // Don't re-throw - log error but don't break checkout flow
+            // The failed() method will be called for queue job failures
         }
     }
 

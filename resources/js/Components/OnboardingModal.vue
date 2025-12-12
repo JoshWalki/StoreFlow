@@ -67,10 +67,10 @@
                                 class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             />
                             <p
-                                v-if="errors.name"
+                                v-if="form.errors.name"
                                 class="mt-1 text-sm text-red-600 dark:text-red-400"
                             >
-                                {{ errors.name }}
+                                {{ form.errors.name }}
                             </p>
                         </div>
 
@@ -113,10 +113,10 @@
                                 PNG, JPG or GIF (max 2MB)
                             </p>
                             <p
-                                v-if="errors.logo"
+                                v-if="form.errors.logo"
                                 class="mt-1 text-sm text-red-600 dark:text-red-400"
                             >
-                                {{ errors.logo }}
+                                {{ form.errors.logo }}
                             </p>
                         </div>
 
@@ -264,10 +264,10 @@
                         <div class="flex justify-end">
                             <button
                                 type="submit"
-                                :disabled="processing || !form.name"
+                                :disabled="form.processing || !form.name"
                                 class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                             >
-                                <span v-if="!processing"
+                                <span v-if="!form.processing"
                                     >Create Store & Get Started</span
                                 >
                                 <span v-else>Creating Store...</span>
@@ -287,9 +287,9 @@
 
 <script setup>
 import { ref } from "vue";
-import { router } from "@inertiajs/vue3";
+import { useForm } from "@inertiajs/vue3";
 
-const form = ref({
+const form = useForm({
     name: "",
     description: "",
     logo: null,
@@ -303,40 +303,24 @@ const form = ref({
 });
 
 const logoInput = ref(null);
-const processing = ref(false);
-const errors = ref({});
 
 const handleLogoChange = (event) => {
-    form.value.logo = event.target.files[0];
+    form.logo = event.target.files[0];
 };
 
 const submitForm = () => {
-    console.log("Form submission started", form.value);
-    processing.value = true;
-    errors.value = {};
-
-    // Create FormData for file upload
-    const formData = new FormData();
-    Object.keys(form.value).forEach((key) => {
-        if (form.value[key] !== null && form.value[key] !== "") {
-            formData.append(key, form.value[key]);
-        }
-    });
-
+    console.log("Form submission started", form.data());
     console.log("Submitting to route:", route("onboarding.complete"));
 
-    router.post(route("onboarding.complete"), formData, {
-        forceFormData: true,
+    form.post(route("onboarding.complete"), {
         onSuccess: (page) => {
             console.log("Success!", page);
         },
         onError: (err) => {
             console.error("Submission error:", err);
-            errors.value = err;
         },
         onFinish: () => {
             console.log("Request finished");
-            processing.value = false;
         },
     });
 };

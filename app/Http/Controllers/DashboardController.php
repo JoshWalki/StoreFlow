@@ -22,7 +22,7 @@ class DashboardController extends Controller
         $store = Store::find($storeId);
 
         // Get active orders (not completed or cancelled)
-        $orders = Order::with(['customer', 'items.product'])
+        $orders = Order::with(['customer', 'items.product', 'items.addons', 'items.options.customizationOption'])
             ->where('store_id', $storeId)
             ->whereNotIn('status', ['delivered', 'picked_up', 'cancelled'])
             ->orderBy('created_at', 'desc')
@@ -59,9 +59,16 @@ class DashboardController extends Controller
                             'id' => $item->id,
                             'product_id' => $item->product_id,
                             'product_name' => $item->product->name ?? 'Unknown Product',
-                            'quantity' => $item->qty,
+                            'quantity' => $item->quantity,
                             'price_cents' => $item->unit_price_cents,
-                            'total_cents' => $item->qty * $item->unit_price_cents,
+                            'total_cents' => $item->total_cents,
+                            'addons' => $item->addons ? $item->addons->map(function ($addon) {
+                                return [
+                                    'addon_name' => $addon->name,
+                                    'option_name' => '', // Already included in name
+                                    'price_adjustment' => $addon->unit_price_cents / 100,
+                                ];
+                            })->toArray() : [],
                         ];
                     }),
                     'created_at' => $order->created_at,
@@ -82,7 +89,7 @@ class DashboardController extends Controller
     public function pollOrders(Request $request, Store $store): JsonResponse
     {
         // Get active orders (not completed or cancelled)
-        $orders = Order::with(['customer', 'items.product'])
+        $orders = Order::with(['customer', 'items.product', 'items.addons', 'items.options.customizationOption'])
             ->where('store_id', $store->id)
             ->whereNotIn('status', ['delivered', 'picked_up', 'cancelled'])
             ->orderBy('created_at', 'desc')
@@ -119,9 +126,16 @@ class DashboardController extends Controller
                             'id' => $item->id,
                             'product_id' => $item->product_id,
                             'product_name' => $item->product->name ?? 'Unknown Product',
-                            'quantity' => $item->qty,
+                            'quantity' => $item->quantity,
                             'price_cents' => $item->unit_price_cents,
-                            'total_cents' => $item->qty * $item->unit_price_cents,
+                            'total_cents' => $item->total_cents,
+                            'addons' => $item->addons ? $item->addons->map(function ($addon) {
+                                return [
+                                    'addon_name' => $addon->name,
+                                    'option_name' => '', // Already included in name
+                                    'price_adjustment' => $addon->unit_price_cents / 100,
+                                ];
+                            })->toArray() : [],
                         ];
                     }),
                     'created_at' => $order->created_at,
@@ -166,6 +180,76 @@ class DashboardController extends Controller
         return response()->json([
             'status' => 'open',
             'is_active' => $store->is_active,
+        ]);
+    }
+
+    /**
+     * Display the full-screen display view (for secondary monitors/displays).
+     */
+    public function displayView(Request $request): Response
+    {
+        $user = $request->user();
+        $storeId = session('store_id');
+        $store = Store::find($storeId);
+
+        // Get active orders (not completed or cancelled)
+        $orders = Order::with(['customer', 'items.product', 'items.addons', 'items.options.customizationOption'])
+            ->where('store_id', $storeId)
+            ->whereNotIn('status', ['delivered', 'picked_up', 'cancelled'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($order) {
+                return [
+                    'id' => $order->id,
+                    'public_id' => $order->public_id,
+                    'status' => $order->status,
+                    'fulfilment_type' => $order->fulfilment_type,
+                    'payment_status' => $order->payment_status,
+                    'total_cents' => $order->total_cents,
+                    'items_total_cents' => $order->items_total_cents,
+                    'shipping_cost_cents' => $order->shipping_cost_cents,
+                    'customer_name' => $order->customer->first_name . ' ' . $order->customer->last_name,
+                    'customer_email' => $order->customer->email,
+                    'customer_phone' => $order->customer->phone ?? '',
+                    'customer_order_count' => Order::where('customer_id', $order->customer_id)
+                        ->where('store_id', $order->store_id)
+                        ->where('status', '!=', 'cancelled')
+                        ->count(),
+                    'pickup_time' => $order->pickup_time,
+                    'shipping_name' => $order->shipping_name,
+                    'line1' => $order->line1,
+                    'line2' => $order->line2,
+                    'city' => $order->city,
+                    'state' => $order->state,
+                    'postcode' => $order->postcode,
+                    'country' => $order->country,
+                    'tracking_code' => $order->tracking_code,
+                    'tracking_url' => $order->tracking_url,
+                    'items' => $order->items->map(function ($item) {
+                        return [
+                            'id' => $item->id,
+                            'product_id' => $item->product_id,
+                            'product_name' => $item->product->name ?? 'Unknown Product',
+                            'quantity' => $item->quantity,
+                            'price_cents' => $item->unit_price_cents,
+                            'total_cents' => $item->total_cents,
+                            'addons' => $item->addons ? $item->addons->map(function ($addon) {
+                                return [
+                                    'addon_name' => $addon->name,
+                                    'option_name' => '', // Already included in name
+                                    'price_adjustment' => $addon->unit_price_cents / 100,
+                                ];
+                            })->toArray() : [],
+                        ];
+                    }),
+                    'created_at' => $order->created_at,
+                    'updated_at' => $order->updated_at,
+                ];
+            });
+
+        return Inertia::render('Dashboard/DisplayView', [
+            'store' => $store,
+            'orders' => $orders,
         ]);
     }
 }

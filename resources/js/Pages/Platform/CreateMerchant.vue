@@ -27,7 +27,11 @@
                                 type="text"
                                 required
                                 class="w-full px-3 py-2 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                :class="{ 'border-red-500': form.errors.merchant_name }"
                             />
+                            <p v-if="form.errors.merchant_name" class="mt-1 text-sm text-red-400">
+                                {{ form.errors.merchant_name }}
+                            </p>
                         </div>
 
                         <div>
@@ -71,8 +75,13 @@
                                 v-model="form.owner_email"
                                 type="email"
                                 required
+                                autocomplete="email"
                                 class="w-full px-3 py-2 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                :class="{ 'border-red-500': form.errors.owner_email }"
                             />
+                            <p v-if="form.errors.owner_email" class="mt-1 text-sm text-red-400">
+                                {{ form.errors.owner_email }}
+                            </p>
                         </div>
 
                         <div>
@@ -84,8 +93,13 @@
                                 v-model="form.owner_username"
                                 type="text"
                                 required
+                                autocomplete="username"
                                 class="w-full px-3 py-2 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                :class="{ 'border-red-500': form.errors.owner_username }"
                             />
+                            <p v-if="form.errors.owner_username" class="mt-1 text-sm text-red-400">
+                                {{ form.errors.owner_username }}
+                            </p>
                         </div>
 
                         <div>
@@ -98,8 +112,13 @@
                                 type="password"
                                 required
                                 minlength="8"
+                                autocomplete="new-password"
                                 class="w-full px-3 py-2 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                :class="{ 'border-red-500': form.errors.owner_password }"
                             />
+                            <p v-if="form.errors.owner_password" class="mt-1 text-sm text-red-400">
+                                {{ form.errors.owner_password }}
+                            </p>
                         </div>
 
                         <div>
@@ -112,6 +131,7 @@
                                 type="password"
                                 required
                                 minlength="8"
+                                autocomplete="new-password"
                                 class="w-full px-3 py-2 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
@@ -128,10 +148,10 @@
                     </Link>
                     <button
                         type="submit"
-                        :disabled="processing"
+                        :disabled="form.processing"
                         class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
                     >
-                        {{ processing ? 'Creating...' : 'Create Merchant' }}
+                        {{ form.processing ? 'Creating...' : 'Create Merchant' }}
                     </button>
                 </div>
             </form>
@@ -140,10 +160,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { Link, router } from '@inertiajs/vue3';
+import { Link, useForm } from '@inertiajs/vue3';
 
-const form = ref({
+const form = useForm({
     merchant_name: '',
     merchant_slug: '',
     owner_name: '',
@@ -153,15 +172,7 @@ const form = ref({
     owner_password_confirmation: '',
 });
 
-const processing = ref(false);
-
 const submit = () => {
-    processing.value = true;
-
-    router.post(route('platform.merchants.store'), form.value, {
-        onFinish: () => {
-            processing.value = false;
-        },
-    });
+    form.post(route('platform.merchants.store'));
 };
 </script>

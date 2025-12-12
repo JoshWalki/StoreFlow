@@ -12,7 +12,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::statement("ALTER TABLE store_users MODIFY COLUMN role ENUM('owner', 'manager', 'staff') NOT NULL DEFAULT 'staff'");
+        $driver = Schema::getConnection()->getDriverName();
+
+        if ($driver === 'sqlite') {
+            // SQLite: Drop and recreate column (ENUM not supported)
+            Schema::table('store_users', function (Blueprint $table) {
+                $table->dropColumn('role');
+            });
+            Schema::table('store_users', function (Blueprint $table) {
+                $table->string('role')->default('staff')->after('user_id');
+            });
+        } else {
+            // MySQL: Use ENUM
+            DB::statement("ALTER TABLE store_users MODIFY COLUMN role ENUM('owner', 'manager', 'staff') NOT NULL DEFAULT 'staff'");
+        }
     }
 
     /**
@@ -20,6 +33,19 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement("ALTER TABLE store_users MODIFY COLUMN role ENUM('manager', 'staff') NOT NULL DEFAULT 'staff'");
+        $driver = Schema::getConnection()->getDriverName();
+
+        if ($driver === 'sqlite') {
+            // SQLite: Drop and recreate column
+            Schema::table('store_users', function (Blueprint $table) {
+                $table->dropColumn('role');
+            });
+            Schema::table('store_users', function (Blueprint $table) {
+                $table->string('role')->default('staff')->after('user_id');
+            });
+        } else {
+            // MySQL: Revert ENUM
+            DB::statement("ALTER TABLE store_users MODIFY COLUMN role ENUM('manager', 'staff') NOT NULL DEFAULT 'staff'");
+        }
     }
 };

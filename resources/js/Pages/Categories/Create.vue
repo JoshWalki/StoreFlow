@@ -1,6 +1,5 @@
 <template>
-    <DashboardLayout :store="store" :user="user">
-        <div class="max-w-2xl">
+    <div class="max-w-2xl">
             <div class="mb-6">
                 <Link :href="route('categories.index')" class="text-blue-600 hover:text-blue-800">
                     ← Back to Categories
@@ -68,6 +67,63 @@
                         </label>
                     </div>
 
+                    <!-- Product Assignment -->
+                    <div v-if="products && products.length > 0" class="border-t pt-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Assign Products to Category</h3>
+                        <p class="text-sm text-gray-600 mb-4">
+                            Select products to assign to this category. Products showing their current category (if any).
+                        </p>
+
+                        <div class="max-h-96 overflow-y-auto border border-gray-200 rounded-md">
+                            <div class="divide-y divide-gray-200">
+                                <div
+                                    v-for="product in products"
+                                    :key="product.id"
+                                    class="flex items-center p-3 hover:bg-gray-50"
+                                >
+                                    <input
+                                        :id="`product-${product.id}`"
+                                        v-model="form.product_ids"
+                                        type="checkbox"
+                                        :value="product.id"
+                                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0"
+                                    />
+                                    <label :for="`product-${product.id}`" class="ml-3 flex-1 flex items-center gap-3 cursor-pointer">
+                                        <!-- Product Image -->
+                                        <div class="w-12 h-12 flex-shrink-0 bg-gray-100 rounded overflow-hidden">
+                                            <img
+                                                v-if="product.images && product.images.length > 0"
+                                                :src="`/storage/${product.images[0].image_path}`"
+                                                :alt="product.name"
+                                                class="w-full h-full object-cover"
+                                            />
+                                            <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
+                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+
+                                        <!-- Product Info -->
+                                        <div class="flex-1 flex items-center justify-between min-w-0">
+                                            <span class="text-sm font-medium text-gray-900 truncate">{{ product.name }}</span>
+                                            <span v-if="product.category" class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded flex-shrink-0 ml-2">
+                                                Current: {{ product.category.name }}
+                                            </span>
+                                            <span v-else class="text-xs text-gray-400 italic flex-shrink-0 ml-2">
+                                                No category
+                                            </span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p v-if="form.product_ids.length > 0" class="mt-2 text-sm text-gray-600">
+                            {{ form.product_ids.length }} product(s) selected
+                        </p>
+                    </div>
+
                     <!-- Actions -->
                     <div class="flex justify-end space-x-3">
                         <Link
@@ -87,16 +143,15 @@
                 </form>
             </div>
         </div>
-    </DashboardLayout>
 </template>
 
 <script setup>
 import { Link, useForm } from '@inertiajs/vue3';
-import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 
 defineProps({
     store: Object,
     user: Object,
+    products: Array,
 });
 
 const form = useForm({
@@ -104,6 +159,7 @@ const form = useForm({
     description: '',
     sort_order: 0,
     is_active: true,
+    product_ids: [],
 });
 
 const submitForm = () => {

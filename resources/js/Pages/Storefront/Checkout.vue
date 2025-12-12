@@ -438,15 +438,51 @@
                         </div>
                     </div>
 
-                    <!-- Simulated Payment Notice -->
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <div class="flex">
-                            <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                            </svg>
-                            <div class="ml-3">
-                                <h3 class="text-sm font-medium text-blue-800">Simulated Payment</h3>
-                                <p class="mt-1 text-sm text-blue-700">This is a demo store. All orders will be automatically paid using simulated payment processing.</p>
+                    <!-- Payment Section -->
+                    <div class="rounded-lg shadow-md p-6" :class="themeConfig.cardBackground">
+                        <h2 class="text-xl font-semibold mb-4" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">Payment</h2>
+
+                        <!-- Show payment form only if form is valid and payment intent is ready -->
+                        <div v-if="showPaymentForm">
+                            <StripePaymentForm
+                                v-if="paymentClientSecret"
+                                :publishable-key="$page.props.stripe.publishableKey"
+                                :client-secret="paymentClientSecret"
+                                :return-url="paymentReturnUrl"
+                                @payment-success="handlePaymentSuccess"
+                                @payment-error="handlePaymentError"
+                            />
+                        </div>
+
+                        <!-- Prepare payment button -->
+                        <div v-else>
+                            <p class="text-sm mb-4" :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-600'">
+                                Click below to proceed to secure payment.
+                            </p>
+                            <button
+                                @click="preparePayment"
+                                :disabled="!isFormValid || preparingPayment"
+                                class="w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                            >
+                                <svg v-if="preparingPayment" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span v-if="preparingPayment">Preparing payment...</span>
+                                <span v-else>Proceed to Payment</span>
+                            </button>
+                        </div>
+
+                        <!-- Payment Error -->
+                        <div v-if="paymentError" class="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                            <div class="flex items-start">
+                                <svg class="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div class="flex-1">
+                                    <h3 class="text-sm font-medium text-red-800 dark:text-red-200">Payment Error</h3>
+                                    <p class="mt-1 text-sm text-red-700 dark:text-red-300">{{ paymentError }}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -471,7 +507,16 @@
                                 <div class="flex-1 min-w-0">
                                     <p class="text-sm font-medium truncate" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">{{ item.product.name }}</p>
                                     <p class="text-sm" :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-500'">Qty: {{ item.quantity }}</p>
-                                    <p class="text-sm font-medium" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">{{ formatPrice(getItemTotal(item)) }}</p>
+
+                                    <!-- Addons -->
+                                    <div v-if="item.addons && item.addons.length > 0" class="mt-1 text-xs" :class="store.theme === 'bold' ? 'text-gray-500' : 'text-gray-600'">
+                                        <div v-for="(addon, addonIdx) in item.addons" :key="addonIdx" class="flex justify-between">
+                                            <span>+ {{ addon.addon_name }}: {{ addon.option_name }}</span>
+                                            <span v-if="addon.price_adjustment > 0">+{{ formatCurrency(addon.price_adjustment) }}</span>
+                                        </div>
+                                    </div>
+
+                                    <p class="text-sm font-medium mt-1" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">{{ formatPrice(getItemTotal(item)) }}</p>
                                 </div>
                                 <!-- Remove Button -->
                                 <button
@@ -565,15 +610,10 @@
                             </div>
                         </div>
 
-                        <!-- Place Order Button -->
-                        <button
-                            type="submit"
-                            :disabled="processing || !isFormValid || !store.is_active"
-                            class="w-full mt-6 font-semibold py-3 px-6 rounded-lg transition-all shadow-lg hover:shadow-xl disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
-                            :class="!processing && isFormValid && store.is_active ? themeConfig.buttonPrimary : ''"
-                        >
-                            {{ !store.is_active ? 'Store Closed' : processing ? 'Processing...' : 'Place Order' }}
-                        </button>
+                        <!-- Info Text -->
+                        <div v-if="!showPaymentForm" class="mt-6 text-center text-sm" :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-600'">
+                            Complete your information on the left to proceed to payment
+                        </div>
                     </div>
                 </div>
             </form>
@@ -583,9 +623,10 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import { useCart } from '@/Composables/useCart';
 import { useTheme } from '@/Composables/useTheme';
+import StripePaymentForm from '@/Components/Storefront/StripePaymentForm.vue';
 import axios from 'axios';
 
 const props = defineProps({
@@ -646,6 +687,13 @@ const loadingShipping = ref(false);
 const processing = ref(false);
 const applyLoyaltyReward = ref(false);
 
+// Payment state
+const showPaymentForm = ref(false);
+const preparingPayment = ref(false);
+const paymentClientSecret = ref(null);
+const paymentIntentId = ref(null);
+const paymentError = ref(null);
+
 // Check if cart has any pickup-only items
 const hasPickupOnlyItems = computed(() => {
     return cartItems.value.some(item => !item.product.is_shippable);
@@ -665,6 +713,14 @@ const allItemsShippable = computed(() => {
 const getImageUrl = (imagePath) => {
     if (!imagePath) return null;
     return imagePath.startsWith('/storage/') ? imagePath : `/storage/${imagePath}`;
+};
+
+// Format currency helper for dollar amounts
+const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-AU', {
+        style: 'currency',
+        currency: 'AUD',
+    }).format(amount);
 };
 
 // Calculate selected shipping cost
@@ -705,6 +761,11 @@ const loyaltyDiscount = computed(() => {
 // Calculate final total (after loyalty discount)
 const finalTotal = computed(() => {
     return Math.max(0, orderTotal.value - loyaltyDiscount.value);
+});
+
+// Stripe payment return URL (must be absolute)
+const paymentReturnUrl = computed(() => {
+    return `${window.location.origin}/store/${props.store.id}/checkout/success`;
 });
 
 // Check if form is valid
@@ -770,9 +831,73 @@ watch(() => form.value.fulfilment_type, (newType) => {
     }
 });
 
+// Prepare payment - create payment intent
+const preparePayment = async () => {
+    if (!isFormValid.value) return;
+
+    preparingPayment.value = true;
+    paymentError.value = null;
+
+    try {
+        const orderData = {
+            contact: form.value.contact,
+            fulfilment_type: form.value.fulfilment_type,
+            items: cartItems.value.map(item => ({
+                product_id: item.product.id,
+                qty: item.quantity,
+                customizations: item.customizations || [],
+                addons: item.addons || [],
+            })),
+        };
+
+        if (form.value.fulfilment_type === 'shipping') {
+            orderData.shipping_address = form.value.shipping_address;
+            orderData.shipping_method_id = form.value.shipping_method_id;
+        }
+
+        // Apply loyalty discount if applicable
+        if (applyLoyaltyReward.value && props.loyaltyReward?.eligible) {
+            orderData.discount_cents = -loyaltyDiscount.value;
+        }
+
+        // Create payment intent
+        const response = await axios.post(`/api/v1/stores/${props.store.id}/payment-intent`, orderData);
+
+        paymentClientSecret.value = response.data.client_secret;
+        paymentIntentId.value = response.data.payment_intent_id;
+        showPaymentForm.value = true;
+    } catch (error) {
+        console.error('Failed to prepare payment:', error);
+        console.error('Validation errors:', error.response?.data?.errors);
+        paymentError.value = error.response?.data?.message || 'Failed to initialize payment. Please try again.';
+    } finally {
+        preparingPayment.value = false;
+    }
+};
+
+// Handle successful payment
+const handlePaymentSuccess = (paymentIntent) => {
+    console.log('Payment successful:', paymentIntent);
+    paymentIntentId.value = paymentIntent.id;
+    // Now submit the order with payment_intent_id
+    placeOrder();
+};
+
+// Handle payment error
+const handlePaymentError = (error) => {
+    console.error('Payment error:', error);
+    paymentError.value = error.message || 'Payment failed. Please try again.';
+};
+
 // Place order
 const placeOrder = () => {
-    if (!isFormValid.value) return;
+    if (!isFormValid.value || !paymentIntentId.value) return;
+
+    // Prevent double submission
+    if (processing.value) {
+        console.warn('Order already being processed, ignoring duplicate request');
+        return;
+    }
 
     processing.value = true;
 
@@ -781,9 +906,12 @@ const placeOrder = () => {
         fulfilment_type: form.value.fulfilment_type,
         items: cartItems.value.map(item => ({
             product_id: item.product.id,
-            quantity: item.quantity,
+            qty: item.quantity,
+            customizations: item.customizations || [],
+            addons: item.addons || [],
         })),
-        payment_method: form.value.payment_method,
+        payment_method: 'card',
+        payment_intent_id: paymentIntentId.value,
         apply_loyalty_reward: applyLoyaltyReward.value && props.loyaltyReward?.eligible,
     };
 
@@ -797,16 +925,17 @@ const placeOrder = () => {
         orderData.shipping_method_id = form.value.shipping_method_id;
     }
 
-    router.post(`/store/${props.store.id}/checkout/process`, orderData, {
-        onSuccess: () => {
+    // Use axios for API call instead of Inertia router
+    axios.post(`/api/v1/stores/${props.store.id}/checkout`, orderData)
+        .then((response) => {
+            // Clear cart and redirect to success page
             clearCart();
+            window.location.href = `/store/${props.store.id}/order/success/${response.data.public_id}`;
+        })
+        .catch((error) => {
+            console.error('Checkout error:', error);
+            paymentError.value = error.response?.data?.message || 'Failed to complete order. Please contact support.';
             processing.value = false;
-        },
-        onError: (errors) => {
-            console.error('Checkout errors:', errors);
-            alert('Failed to place order. Please check your information and try again.');
-            processing.value = false;
-        },
-    });
+        });
 };
 </script>

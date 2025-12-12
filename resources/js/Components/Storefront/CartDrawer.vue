@@ -291,6 +291,40 @@
                                                                     </div>
                                                                 </div>
 
+                                                                <!-- Addons -->
+                                                                <div
+                                                                    v-if="
+                                                                        item.addons &&
+                                                                        item.addons.length > 0
+                                                                    "
+                                                                    class="mt-2 text-sm"
+                                                                    :class="
+                                                                        store.theme ===
+                                                                        'bold'
+                                                                            ? 'text-gray-400'
+                                                                            : 'text-gray-500'
+                                                                    "
+                                                                >
+                                                                    <div class="font-medium text-xs mb-1" :class="store.theme === 'bold' ? 'text-gray-300' : 'text-gray-600'">
+                                                                        Addons:
+                                                                    </div>
+                                                                    <div
+                                                                        v-for="(addon, addonIdx) in item.addons"
+                                                                        :key="addonIdx"
+                                                                        class="flex justify-between pl-2"
+                                                                    >
+                                                                        <span class="text-xs">
+                                                                            + {{ addon.addon_name }}: {{ addon.option_name }}
+                                                                        </span>
+                                                                        <span
+                                                                            v-if="addon.price_adjustment > 0"
+                                                                            class="text-xs"
+                                                                        >
+                                                                            +{{ formatCurrency(addon.price_adjustment) }}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+
                                                                 <!-- Unit Price -->
                                                                 <p
                                                                     class="mt-1 text-sm"
@@ -540,5 +574,13 @@ const getImageUrl = (imagePath) => {
     }
     // Otherwise, add the /storage/ prefix
     return `/storage/${imagePath}`;
+};
+
+// Helper to format currency from dollar amount
+const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-AU', {
+        style: 'currency',
+        currency: 'AUD',
+    }).format(amount);
 };
 </script>

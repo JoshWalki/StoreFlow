@@ -41,6 +41,7 @@ class ProductDisplayService
                 ->join('products', 'products.id', '=', 'order_items.product_id')
                 ->where('orders.merchant_id', $merchantId)
                 ->where('orders.store_id', $storeId)
+                ->where('products.merchant_id', $merchantId) // CRITICAL: Filter products by merchant
                 ->where('orders.payment_status', Order::PAYMENT_PAID)
                 ->where('orders.created_at', '>=', now()->subDays($daysBack))
                 ->where('products.is_active', true)
@@ -70,6 +71,7 @@ class ProductDisplayService
 
             // Fetch full product models with relationships
             return Product::with(['category', 'images'])
+                ->where('merchant_id', $merchantId) // CRITICAL: Ensure merchant isolation
                 ->whereIn('id', $productIds)
                 ->get()
                 ->sortBy(function ($product) use ($productIds) {
@@ -120,13 +122,42 @@ class ProductDisplayService
     }
 
     /**
-     * Get complete storefront data (frequent products + categorized products)
+     * Get featured products for a store (is_featured = 1)
+     *
+     * @param int $merchantId
+     * @param int $storeId
+     * @return Collection<Product>
+     */
+    public function getFeaturedProducts(int $merchantId, int $storeId): Collection
+    {
+        $cacheKey = "storefront:featured:{$merchantId}:{$storeId}";
+
+        return Cache::remember($cacheKey, 3600, function () use ($merchantId, $storeId) {
+            return Product::with(['category', 'images'])
+                ->where('merchant_id', $merchantId)
+                ->where(function ($q) use ($storeId) {
+                    $q->where('store_id', $storeId)->orWhereNull('store_id');
+                })
+                ->where('is_active', true)
+                ->where('is_featured', true)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        });
+    }
+
+    /**
+     * Get complete storefront data (featured + frequent products + categorized products)
      *
      * @param \App\Models\Store $store
      * @return array
      */
     public function getStorefrontData($store): array
     {
+        $featuredProducts = $this->getFeaturedProducts(
+            $store->merchant_id,
+            $store->id
+        );
+
         $frequentProducts = $this->getFrequentProducts(
             $store->merchant_id,
             $store->id,
@@ -136,10 +167,11 @@ class ProductDisplayService
         $categorizedProducts = $this->getProductsByCategory(
             $store->merchant_id,
             $store->id,
-            12  // Show up to 12 products per category
+            null  // Show all products (unlimited)
         );
 
         return [
+            'featured_products' => $this->formatProductsForFrontend($featuredProducts),
             'frequent_products' => $this->formatProductsForFrontend($frequentProducts),
             'categories' => $this->formatCategoriesForFrontend($categorizedProducts),
         ];
@@ -168,7 +200,51 @@ class ProductDisplayService
                 'image' => $primaryImage ? '/storage/' . $primaryImage->image_path : null,
                 'images' => $allImages,
             ];
-        });
+        })->values();  // Reset keys to ensure array serialization
+    }
+
+    /**
+     * Get more products for a specific category (for lazy loading)
+     *
+     * @param int $categoryId
+     * @param int $merchantId
+     * @param int $storeId
+     * @param int $offset
+     * @param int $limit
+     * @return array
+     */
+    public function getMoreProducts(
+        int $categoryId,
+        int $merchantId,
+        int $storeId,
+        int $offset = 0,
+        int $limit = 10
+    ): array {
+        $products = Product::where('category_id', $categoryId)
+            ->where('merchant_id', $merchantId)
+            ->where(function ($q) use ($storeId) {
+                $q->where('store_id', $storeId)->orWhereNull('store_id');
+            })
+            ->where('is_active', true)
+            ->with('images')
+            ->orderBy('created_at', 'desc')
+            ->skip($offset)
+            ->take($limit)
+            ->get();
+
+        $totalCount = Product::where('category_id', $categoryId)
+            ->where('merchant_id', $merchantId)
+            ->where(function ($q) use ($storeId) {
+                $q->where('store_id', $storeId)->orWhereNull('store_id');
+            })
+            ->where('is_active', true)
+            ->count();
+
+        return [
+            'products' => $this->formatProductsForFrontend($products),
+            'has_more' => ($offset + $limit) < $totalCount,
+            'total' => $totalCount,
+        ];
     }
 
     /**
@@ -180,14 +256,19 @@ class ProductDisplayService
     private function formatCategoriesForFrontend(Collection $categories): Collection
     {
         return $categories->map(function ($category) {
+            $totalCount = $category->products()->count();
+            $loadedCount = $category->products->count();
+
             return [
                 'id' => $category->id,
                 'name' => $category->name,
                 'slug' => $category->slug,
                 'description' => $category->description,
                 'products' => $this->formatProductsForFrontend($category->products),
+                'total_count' => $totalCount,
+                'has_more' => $loadedCount < $totalCount,
             ];
-        });
+        })->values();  // Reset keys to 0, 1, 2... so it serializes as JSON array
     }
 
     /**
@@ -200,6 +281,7 @@ class ProductDisplayService
      */
     public function clearStorefrontCache(int $merchantId, int $storeId): void
     {
+        Cache::forget("storefront:featured:{$merchantId}:{$storeId}");
         Cache::forget("storefront:frequent:{$merchantId}:{$storeId}");
 
         // Clear all category cache variations

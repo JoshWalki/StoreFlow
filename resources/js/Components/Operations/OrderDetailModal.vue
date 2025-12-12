@@ -193,7 +193,14 @@
                                                 <td
                                                     class="px-4 py-3 text-sm text-gray-900 dark:text-white"
                                                 >
-                                                    {{ item.product_name }}
+                                                    <div>{{ item.product_name }}</div>
+                                                    <!-- Addons -->
+                                                    <div v-if="item.addons && item.addons.length > 0" class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                                                        <div v-for="(addon, addonIdx) in item.addons" :key="addonIdx" class="flex items-center gap-1">
+                                                            <span>+ {{ addon.addon_name }}: {{ addon.option_name }}</span>
+                                                            <span v-if="addon.price_adjustment > 0" class="text-gray-500">(+{{ formatCurrency(Math.round(addon.price_adjustment * 100)) }})</span>
+                                                        </div>
+                                                    </div>
                                                 </td>
                                                 <td
                                                     class="px-4 py-3 text-sm text-gray-900 dark:text-white text-center"
@@ -302,15 +309,27 @@
                                 </div>
 
                                 <!-- Action Buttons -->
-                                <div class="flex flex-wrap gap-2">
+                                <div class="flex flex-wrap gap-3">
                                     <button
                                         v-for="action in availableActions"
                                         :key="action.status"
                                         @click="updateStatus(action.status)"
-                                        class="px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                                        class="px-6 py-3 rounded-lg text-base font-semibold transition-colors shadow-md hover:shadow-lg"
                                         :class="action.class"
                                     >
                                         {{ action.label }}
+                                    </button>
+
+                                    <!-- Print Receipt Button (only shown when in_progress) -->
+                                    <button
+                                        v-if="order.status === 'in_progress'"
+                                        @click="printReceipt"
+                                        class="px-6 py-3 rounded-lg text-base font-semibold transition-colors shadow-md hover:shadow-lg bg-gray-600 text-white hover:bg-gray-700 flex items-center gap-2"
+                                    >
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                        </svg>
+                                        Print Receipt
                                     </button>
                                 </div>
                             </div>
@@ -354,14 +373,14 @@
                                         order.status !== 'refunded'
                                     "
                                     @click="initiateRefund"
-                                    class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                                    class="px-3 py-1.5 text-xs font-medium text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 hover:border-red-400 hover:text-red-600 transition-colors"
                                 >
-                                    Refund Order
+                                    ⚠️ Refund Order
                                 </button>
                                 <div v-else></div>
                                 <button
                                     @click="closeModal"
-                                    class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+                                    class="px-6 py-2.5 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors font-medium"
                                 >
                                     Close
                                 </button>
@@ -489,6 +508,11 @@ const updateStatus = (newStatus) => {
             onSuccess: (page) => {
                 console.log("Status update successful", page);
                 emit("status-updated", newStatus);
+
+                // Auto-print receipt when status changes to in_progress
+                if (newStatus === 'in_progress') {
+                    setTimeout(() => printReceipt(), 500);
+                }
             },
             onError: (errors) => {
                 console.error("Status update failed:", errors);
@@ -502,6 +526,15 @@ const updateStatus = (newStatus) => {
             },
         }
     );
+};
+
+const printReceipt = () => {
+    const receiptUrl = route('orders.receipt', props.order.id);
+    const printWindow = window.open(receiptUrl, '_blank', 'width=800,height=600');
+
+    if (!printWindow || printWindow.closed || typeof printWindow.closed === 'undefined') {
+        alert('Please allow pop-ups to print receipts.');
+    }
 };
 
 const formatCurrency = (cents) => {

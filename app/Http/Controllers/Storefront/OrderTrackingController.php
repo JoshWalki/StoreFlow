@@ -71,6 +71,13 @@ class OrderTrackingController extends Controller
             'order' => $orderData,
             'publicId' => $publicId,
             'websocketChannel' => "customer.{$publicId}.order",
+            'store' => [
+                'name' => $order->store->name,
+                'address_primary' => $order->store->address_primary,
+                'address_city' => $order->store->address_city,
+                'address_state' => $order->store->address_state,
+                'address_postcode' => $order->store->address_postcode,
+            ],
         ]);
     }
 

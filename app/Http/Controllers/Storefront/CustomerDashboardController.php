@@ -34,7 +34,7 @@ class CustomerDashboardController extends Controller
             'orders' => function ($query) {
                 $query->orderBy('created_at', 'desc')
                     ->limit(10)
-                    ->with('items.product');
+                    ->with(['items.product', 'items.addons']);
             },
             'loyaltyAccount',
         ]);
@@ -68,6 +68,13 @@ class CustomerDashboardController extends Controller
                         'product_name' => $item->product->name ?? 'Product Removed',
                         'quantity' => $item->quantity,
                         'price' => $item->unit_price_cents / 100,
+                        'addons' => $item->addons ? $item->addons->map(function ($addon) {
+                            return [
+                                'name' => $addon->name,
+                                'quantity' => $addon->quantity,
+                                'unit_price_cents' => $addon->unit_price_cents,
+                            ];
+                        })->toArray() : [],
                     ];
                 }),
             ];
@@ -107,7 +114,7 @@ class CustomerDashboardController extends Controller
 
         // Get all customer orders with pagination
         $orders = $customer->orders()
-            ->with('items.product')
+            ->with(['items.product', 'items.addons'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
@@ -127,6 +134,13 @@ class CustomerDashboardController extends Controller
                         'product_name' => $item->product->name ?? 'Product Removed',
                         'quantity' => $item->quantity,
                         'price' => $item->unit_price_cents / 100,
+                        'addons' => $item->addons ? $item->addons->map(function ($addon) {
+                            return [
+                                'name' => $addon->name,
+                                'quantity' => $addon->quantity,
+                                'unit_price_cents' => $addon->unit_price_cents,
+                            ];
+                        })->toArray() : [],
                     ];
                 }),
             ];
@@ -162,7 +176,7 @@ class CustomerDashboardController extends Controller
             'orders' => function ($query) {
                 $query->orderBy('created_at', 'desc')
                     ->limit(10)
-                    ->with('items.product');
+                    ->with(['items.product', 'items.addons']);
             },
             'loyaltyAccount',
         ]);
@@ -208,6 +222,13 @@ class CustomerDashboardController extends Controller
                         'product_name' => $item->product->name ?? 'Product Removed',
                         'quantity' => $item->quantity,
                         'price' => $item->unit_price_cents / 100,
+                        'addons' => $item->addons ? $item->addons->map(function ($addon) {
+                            return [
+                                'name' => $addon->name,
+                                'quantity' => $addon->quantity,
+                                'unit_price_cents' => $addon->unit_price_cents,
+                            ];
+                        })->toArray() : [],
                     ];
                 }),
             ];

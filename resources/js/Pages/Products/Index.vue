@@ -1,6 +1,5 @@
 <template>
-    <DashboardLayout :store="store" :user="user">
-        <div class="space-y-6">
+    <div class="space-y-6">
             <!-- Header -->
             <div class="flex justify-between items-center">
                 <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Products</h1>
@@ -23,42 +22,46 @@
                 </div>
             </div>
 
-            <!-- Bulk Actions Toolbar -->
-            <div v-if="selectedProducts.length > 0" class="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg shadow-sm p-4">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <span class="text-sm font-medium text-blue-900 dark:text-blue-100">
-                            {{ selectedProducts.length }} product{{ selectedProducts.length > 1 ? 's' : '' }} selected
-                        </span>
-                        <button
-                            @click="selectedProducts = []"
-                            class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-                        >
-                            Clear selection
-                        </button>
-                    </div>
-                    <div v-if="user && user.role !== 'staff'" class="flex gap-3">
-                        <button
-                            @click="openBulkEdit"
-                            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
-                        >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                            Bulk Edit
-                        </button>
-                        <button
-                            @click="bulkDelete"
-                            class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors flex items-center gap-2"
-                        >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                            Delete Selected
-                        </button>
+            <!-- Bulk Actions Toolbar (Fixed at top when items selected) -->
+            <Transition name="slide-down">
+                <div v-if="selectedProducts.length > 0" class="fixed top-0 left-0 right-0 z-50 bg-blue-50 dark:bg-blue-900 border-b border-blue-200 dark:border-blue-700 shadow-lg">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <span class="text-sm font-medium text-blue-900 dark:text-blue-100">
+                                    {{ selectedProducts.length }} product{{ selectedProducts.length > 1 ? 's' : '' }} selected
+                                </span>
+                                <button
+                                    @click="selectedProducts = []"
+                                    class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+                                >
+                                    Clear selection
+                                </button>
+                            </div>
+                            <div v-if="user && user.role !== 'staff'" class="flex gap-3">
+                                <button
+                                    @click="openBulkEdit"
+                                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                    Bulk Edit
+                                </button>
+                                <button
+                                    @click="bulkDelete"
+                                    class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors flex items-center gap-2"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    Delete Selected
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </Transition>
 
             <!-- Search & Filters -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
@@ -80,7 +83,7 @@
                         @input="debouncedSearch"
                     />
                     <select
-                        v-model="searchForm.category"
+                        v-model="searchForm.category_id"
                         class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
                         @change="applyFilters"
                     >
@@ -90,23 +93,23 @@
                         </option>
                     </select>
                     <select
-                        v-model="searchForm.status"
+                        v-model="searchForm.is_active"
                         class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
                         @change="applyFilters"
                     >
                         <option value="">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
+                        <option value="1">Active</option>
+                        <option value="0">Inactive</option>
                     </select>
                 </div>
             </div>
 
-            <!-- Products Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Products List -->
+            <div class="space-y-3">
                 <div
                     v-for="product in products.data"
                     :key="product.id"
-                    class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow relative"
+                    class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow relative flex h-28 border border-gray-200 dark:border-gray-700"
                     :class="{ 'ring-2 ring-blue-500': isProductSelected(product.id) }"
                 >
                     <!-- Selection Checkbox -->
@@ -115,54 +118,68 @@
                             type="checkbox"
                             :checked="isProductSelected(product.id)"
                             @change="toggleProductSelection(product.id)"
-                            class="w-5 h-5 text-blue-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 cursor-pointer shadow-md"
+                            class="w-4 h-4 text-blue-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 cursor-pointer shadow-sm"
                         />
                     </div>
 
-                    <div class="aspect-square bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                        <img
-                            v-if="product.image"
-                            :src="product.image"
-                            :alt="product.name"
-                            class="w-full h-full object-cover"
-                        />
-                        <span v-else class="text-gray-400 dark:text-gray-500 text-4xl">📦</span>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="font-semibold text-gray-900 dark:text-white mb-1 truncate">{{ product.name }}</h3>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">{{ product.category?.name || 'No category' }}</p>
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="text-lg font-bold text-gray-900 dark:text-white">{{ formatCurrency(product.price_cents) }}</span>
-                            <span v-if="product.images_count" class="text-sm text-gray-600 dark:text-gray-400">
-                                {{ product.images_count }} {{ product.images_count === 1 ? 'image' : 'images' }}
-                            </span>
+                    <!-- Left Side: Product Info (Flex 1) -->
+                    <div class="flex-1 p-3 flex flex-col justify-between min-w-0" :class="{ 'pl-10': user && user.role !== 'staff' }">
+                        <!-- Product Name and Category -->
+                        <div>
+                            <h3 class="font-semibold text-gray-900 dark:text-white text-sm mb-0.5 truncate">
+                                {{ product.name }}
+                            </h3>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 truncate">
+                                {{ product.category?.name || 'No category' }}
+                            </p>
                         </div>
-                        <div class="flex items-center justify-between">
-                            <span
-                                class="px-2 py-1 text-xs font-semibold rounded-full"
-                                :class="product.is_active ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'"
-                            >
-                                {{ product.is_active ? 'Active' : 'Inactive' }}
-                            </span>
-                            <div v-if="user && user.role !== 'staff'" class="flex space-x-2">
+
+                        <!-- Price, Status, and Actions -->
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-base font-bold text-gray-900 dark:text-white">
+                                    {{ formatCurrency(product.price_cents) }}
+                                </span>
+                                <span
+                                    class="px-2 py-0.5 text-xs font-semibold rounded-full flex-shrink-0"
+                                    :class="product.is_active ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'"
+                                >
+                                    {{ product.is_active ? 'Active' : 'Inactive' }}
+                                </span>
+                            </div>
+                            <div v-if="user && user.role !== 'staff'" class="flex items-center gap-2 flex-shrink-0">
                                 <Link
                                     :href="route('products.edit', product.id)"
-                                    class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
+                                    class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-xs font-medium"
                                 >
                                     Edit
                                 </Link>
                                 <button
                                     @click="deleteProduct(product)"
-                                    class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 text-sm"
+                                    class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 text-xs font-medium"
                                 >
                                     Delete
                                 </button>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Right Side: Product Image (Fixed Width) -->
+                    <div class="w-28 sm:w-32 bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 relative">
+                        <img
+                            v-if="product.image"
+                            :src="product.image"
+                            :alt="product.name"
+                            class="w-full h-full object-cover"
+                        />
+                        <span v-else class="text-gray-400 dark:text-gray-500 text-3xl">📦</span>
+                        <div v-if="product.images_count > 1" class="absolute bottom-1 right-1 bg-black bg-opacity-60 text-white text-xs px-1.5 py-0.5 rounded">
+                            {{ product.images_count }} images
+                        </div>
+                    </div>
                 </div>
 
-                <div v-if="products.data.length === 0" class="col-span-full">
+                <div v-if="products.data.length === 0">
                     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-12 text-center text-gray-500 dark:text-gray-400">
                         No products found. Create your first product to get started.
                     </div>
@@ -201,20 +218,31 @@
                     </div>
                     <div>
                         <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                            <Link
-                                v-for="(link, index) in products.links"
-                                :key="index"
-                                :href="link.url"
-                                :class="[
-                                    'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
-                                    link.active
-                                        ? 'z-10 bg-blue-50 dark:bg-blue-900 border-blue-500 dark:border-blue-600 text-blue-600 dark:text-blue-200'
-                                        : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600',
-                                    index === 0 ? 'rounded-l-md' : '',
-                                    index === products.links.length - 1 ? 'rounded-r-md' : '',
-                                ]"
-                                v-html="link.label"
-                            />
+                            <template v-for="(link, index) in products.links" :key="index">
+                                <Link
+                                    v-if="link.url"
+                                    :href="link.url"
+                                    :class="[
+                                        'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
+                                        link.active
+                                            ? 'z-10 bg-blue-50 dark:bg-blue-900 border-blue-500 dark:border-blue-600 text-blue-600 dark:text-blue-200'
+                                            : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600',
+                                        index === 0 ? 'rounded-l-md' : '',
+                                        index === products.links.length - 1 ? 'rounded-r-md' : '',
+                                    ]"
+                                    v-html="link.label"
+                                />
+                                <span
+                                    v-else
+                                    :class="[
+                                        'relative inline-flex items-center px-4 py-2 border text-sm font-medium cursor-not-allowed',
+                                        'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500',
+                                        index === 0 ? 'rounded-l-md' : '',
+                                        index === products.links.length - 1 ? 'rounded-r-md' : '',
+                                    ]"
+                                    v-html="link.label"
+                                />
+                            </template>
                         </nav>
                     </div>
                 </div>
@@ -395,6 +423,24 @@
                         </select>
                     </div>
 
+                    <!-- Featured Status -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Featured Status
+                        </label>
+                        <select
+                            v-model="bulkEditForm.is_featured"
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                        >
+                            <option value="">-- No Change --</option>
+                            <option value="1">⭐ Featured</option>
+                            <option value="0">Not Featured</option>
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            Featured products appear prominently at the top of your storefront
+                        </p>
+                    </div>
+
                     <!-- Category -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -429,13 +475,11 @@
                 </div>
             </div>
         </div>
-    </DashboardLayout>
 </template>
 
 <script setup>
 import { reactive, ref } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
-import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 
 const page = usePage();
 
@@ -449,8 +493,8 @@ const props = defineProps({
 
 const searchForm = reactive({
     search: props.filters.search || '',
-    category: props.filters.category || '',
-    status: props.filters.status || '',
+    category_id: props.filters.category_id || '',
+    is_active: props.filters.is_active || '',
 });
 
 // CSV Import state
@@ -465,6 +509,7 @@ const selectedProducts = ref([]);
 const showBulkEditModal = ref(false);
 const bulkEditForm = ref({
     is_active: '',
+    is_featured: '',
     category_id: '',
 });
 
@@ -480,8 +525,8 @@ const debouncedSearch = () => {
 const applyFilters = () => {
     router.get(route('products.index'), {
         search: searchForm.search,
-        category: searchForm.category,
-        status: searchForm.status,
+        category_id: searchForm.category_id,
+        is_active: searchForm.is_active,
     }, {
         preserveState: true,
         replace: true,
@@ -640,6 +685,8 @@ const bulkDelete = () => {
     if (confirm(`Are you sure you want to delete ${count} product${count > 1 ? 's' : ''}?`)) {
         router.delete(route('products.bulk-delete'), {
             data: { product_ids: selectedProducts.value },
+            preserveState: true,
+            preserveScroll: true,
             onSuccess: () => {
                 selectedProducts.value = [];
             },
@@ -650,6 +697,7 @@ const bulkDelete = () => {
 const openBulkEdit = () => {
     bulkEditForm.value = {
         is_active: '',
+        is_featured: '',
         category_id: '',
     };
     showBulkEditModal.value = true;
@@ -659,6 +707,7 @@ const closeBulkEditModal = () => {
     showBulkEditModal.value = false;
     bulkEditForm.value = {
         is_active: '',
+        is_featured: '',
         category_id: '',
     };
 };
@@ -670,6 +719,8 @@ const submitBulkEdit = () => {
         product_ids: selectedProducts.value,
         ...bulkEditForm.value,
     }, {
+        preserveState: true,
+        preserveScroll: true,
         onSuccess: () => {
             closeBulkEditModal();
             selectedProducts.value = [];
@@ -693,5 +744,21 @@ const submitBulkEdit = () => {
 
 .animate-progress {
     animation: progress 2s ease-in-out infinite;
+}
+
+/* Slide down transition for bulk actions toolbar */
+.slide-down-enter-active,
+.slide-down-leave-active {
+    transition: all 0.3s ease-out;
+}
+
+.slide-down-enter-from {
+    transform: translateY(-100%);
+    opacity: 0;
+}
+
+.slide-down-leave-to {
+    transform: translateY(-100%);
+    opacity: 0;
 }
 </style>

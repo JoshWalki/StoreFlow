@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\OrderItemAddon;
 use App\Models\Product;
 use App\Models\LoyaltyConfig;
 use App\Models\Store;
@@ -18,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -31,6 +33,20 @@ class StorefrontController extends Controller
     {
         // Get storefront data (frequent products + products by category)
         $storefrontData = $productDisplayService->getStorefrontData($store);
+
+        // DIAGNOSTIC LOGGING - Remove after debugging
+        \Log::info('Storefront Index - Data Isolation Check', [
+            'store_id' => $store->id,
+            'store_name' => $store->name,
+            'merchant_id' => $store->merchant_id,
+            'featured_count' => count($storefrontData['featured_products']),
+            'frequent_count' => count($storefrontData['frequent_products']),
+            'category_count' => count($storefrontData['categories']),
+            'featured_product_ids' => collect($storefrontData['featured_products'])->pluck('id')->toArray(),
+            'frequent_product_ids' => collect($storefrontData['frequent_products'])->pluck('id')->toArray(),
+            'request_url' => request()->url(),
+            'timestamp' => now()->toDateTimeString(),
+        ]);
 
         // Get authenticated customer if logged in
         $customer = Auth::guard('customer')->user();
@@ -55,10 +71,18 @@ class StorefrontController extends Controller
                 'is_active' => $store->is_active ?? true,
                 'open_time' => $store->open_time ? substr($store->open_time, 0, 5) : null,
                 'close_time' => $store->close_time ? substr($store->close_time, 0, 5) : null,
+                'address_primary' => $store->address_primary,
+                'address_city' => $store->address_city,
+                'address_state' => $store->address_state,
+                'address_postcode' => $store->address_postcode,
             ],
+            'featured_products' => $storefrontData['featured_products'],
             'frequent_products' => $storefrontData['frequent_products'],
             'categories' => $storefrontData['categories'],
             'customer' => $customerData,
+
+        ])->withViewData([
+            'cache_buster' => now()->timestamp, // Force fresh render
         ]);
     }
 
@@ -71,7 +95,7 @@ class StorefrontController extends Controller
             ->where('merchant_id', $store->merchant_id)
             ->where(function ($q) use ($store) {
                 $q->where('store_id', $store->id)
-                  ->orWhereNull('store_id');
+                    ->orWhereNull('store_id');
             })
             ->where('is_active', true);
 
@@ -158,7 +182,7 @@ class StorefrontController extends Controller
     /**
      * Display a single product.
      */
-    public function showProduct(Store $store, Product $product): Response
+    public function showProduct(Request $request, Store $store, Product $product)
     {
         // Ensure product belongs to this store or is merchant-wide
         if ($product->merchant_id !== $store->merchant_id) {
@@ -177,7 +201,7 @@ class StorefrontController extends Controller
             ->where('merchant_id', $store->merchant_id)
             ->where(function ($q) use ($store) {
                 $q->where('store_id', $store->id)
-                  ->orWhereNull('store_id');
+                    ->orWhereNull('store_id');
             })
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
@@ -196,6 +220,30 @@ class StorefrontController extends Controller
             });
 
         $primaryImage = $product->images->where('is_primary', true)->first();
+
+        // Build product data
+        $productData = [
+            'id' => $product->id,
+            'name' => $product->name,
+            'description' => $product->description,
+            'price_cents' => $product->price_cents,
+            'category' => $product->category ? $product->category->name : null,
+            'is_active' => $product->is_active,
+            'is_shippable' => $product->is_shippable,
+            'weight_grams' => $product->weight_grams,
+            'image' => $primaryImage ? '/storage/' . $primaryImage->image_path : null,
+            'images' => $product->images->map(fn($img) => [
+                'id' => $img->id,
+                'path' => '/storage/' . $img->image_path,
+                'is_primary' => $img->is_primary,
+            ]),
+            'addons' => $product->addon_data ?? [],
+        ];
+
+        // Return JSON for AJAX requests
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json($productData);
+        }
 
         // Get authenticated customer if logged in
         $customer = Auth::guard('customer')->user();
@@ -218,22 +266,7 @@ class StorefrontController extends Controller
                 'logo_url' => $store->logo_path ? asset('storage/' . $store->logo_path) : null,
                 'is_active' => $store->is_active ?? true,
             ],
-            'product' => [
-                'id' => $product->id,
-                'name' => $product->name,
-                'description' => $product->description,
-                'price_cents' => $product->price_cents,
-                'category' => $product->category ? $product->category->name : null,
-                'is_active' => $product->is_active,
-                'is_shippable' => $product->is_shippable,
-                'weight_grams' => $product->weight_grams,
-                'image' => $primaryImage ? '/storage/' . $primaryImage->image_path : null,
-                'images' => $product->images->map(fn($img) => [
-                    'id' => $img->id,
-                    'path' => '/storage/' . $img->image_path,
-                    'is_primary' => $img->is_primary,
-                ]),
-            ],
+            'product' => $productData,
             'relatedProducts' => $relatedProducts,
             'customer' => $customerData,
         ]);
@@ -321,6 +354,8 @@ class StorefrontController extends Controller
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1|max:1000',
+            'items.*.customizations' => 'nullable|array',
+            'items.*.addons' => 'nullable|array',
             'fulfilment_type' => 'required|in:pickup,shipping',
             'shipping_address' => 'required_if:fulfilment_type,shipping|array',
             'shipping_address.name' => 'required_if:fulfilment_type,shipping|string',
@@ -391,7 +426,29 @@ class StorefrontController extends Controller
             foreach ($validated['items'] as $item) {
                 $product = Product::findOrFail($item['product_id']);
                 $lineTotal = $product->price_cents * $item['quantity'];
+
+                // Add addon costs to line total
+                if (!empty($item['addons'])) {
+                    foreach ($item['addons'] as $addonData) {
+                        $addonQty = $addonData['quantity'] ?? 1;
+                        $priceAdjustmentCents = isset($addonData['price_adjustment'])
+                            ? (int) round($addonData['price_adjustment'] * 100)
+                            : 0;
+                        $lineTotal += ($priceAdjustmentCents * $addonQty * $item['quantity']);
+                    }
+                }
+
                 $itemsTotalCents += $lineTotal;
+
+                // Debug logging
+                \Log::info('Order item total calculation', [
+                    'product_id' => $product->id,
+                    'product_name' => $product->name,
+                    'base_price' => $product->price_cents,
+                    'quantity' => $item['quantity'],
+                    'has_addons' => !empty($item['addons']),
+                    'line_total_cents' => $lineTotal,
+                ]);
 
                 $cartItems[] = [
                     'product' => $product,
@@ -430,6 +487,12 @@ class StorefrontController extends Controller
             }
 
             $totalCents = $itemsTotalCents + $shippingCostCents;
+
+            \Log::info('Order totals calculated', [
+                'items_total_cents' => $itemsTotalCents,
+                'shipping_cost_cents' => $shippingCostCents,
+                'total_cents' => $totalCents,
+            ]);
 
             // Apply loyalty discount if requested and eligible
             $loyaltyDiscountCents = 0;
@@ -491,8 +554,8 @@ class StorefrontController extends Controller
             ]);
 
             // Create order items
-            foreach ($cartItems as $item) {
-                OrderItem::create([
+            foreach ($cartItems as $index => $item) {
+                $orderItem = OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $item['product']->id,
                     'name' => $item['product']->name,
@@ -503,6 +566,26 @@ class StorefrontController extends Controller
                     'tax_cents' => 0,
                     'total_cents' => $item['line_total_cents'],
                 ]);
+
+                // Create addons for this order item
+                if (!empty($validated['items'][$index]['addons'])) {
+                    foreach ($validated['items'][$index]['addons'] as $addonData) {
+                        $addonQty = $addonData['quantity'] ?? 1;
+                        $priceAdjustmentCents = isset($addonData['price_adjustment'])
+                            ? (int) round($addonData['price_adjustment'] * 100)
+                            : 0;
+
+                        OrderItemAddon::create([
+                            'order_item_id' => $orderItem->id,
+                            'product_addon_id' => null,
+                            'name' => ($addonData['addon_name'] ?? 'Addon') . ': ' . ($addonData['option_name'] ?? ''),
+                            'description' => null,
+                            'quantity' => $addonQty,
+                            'unit_price_cents' => $priceAdjustmentCents,
+                            'total_price_cents' => $priceAdjustmentCents * $addonQty,
+                        ]);
+                    }
+                }
             }
 
             DB::commit();
@@ -521,8 +604,18 @@ class StorefrontController extends Controller
                 ]);
             }
 
-            // Broadcast order created event (for websocket)
-            event(new OrderCreated($order));
+            // Reload order with relationships for broadcasting
+            $order->load(['items.product', 'items.addons', 'customer']);
+
+            // Broadcast order created event (for real-time dashboard updates)
+            try {
+                event(new OrderCreated($order));
+            } catch (\Exception $e) {
+                Log::error('Failed to broadcast order event', [
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
 
             // If customer created account, log them in automatically
             if ($createAccount) {
@@ -532,7 +625,6 @@ class StorefrontController extends Controller
             }
 
             return redirect()->route('storefront.order.success', ['store' => $store->id, 'order' => $order->public_id]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => 'Failed to process order: ' . $e->getMessage()]);
@@ -545,7 +637,7 @@ class StorefrontController extends Controller
     public function orderSuccess(Store $store, string $order): Response
     {
         // Find order by public_id
-        $orderRecord = Order::with(['items.product.images', 'customer'])
+        $orderRecord = Order::with(['items.product.images', 'items.addons', 'customer'])
             ->where('public_id', $order)
             ->where('store_id', $store->id)
             ->firstOrFail();
@@ -601,6 +693,13 @@ class StorefrontController extends Controller
                         'unit_price_cents' => $item->unit_price_cents,
                         'total_cents' => $item->line_subtotal_cents,
                         'image' => $imageUrl,
+                        'addons' => $item->addons ? $item->addons->map(function ($addon) {
+                            return [
+                                'name' => $addon->name,
+                                'quantity' => $addon->quantity,
+                                'unit_price_cents' => $addon->unit_price_cents,
+                            ];
+                        })->toArray() : [],
                     ];
                 }),
                 'subtotal_cents' => $orderRecord->items_total_cents,
@@ -615,5 +714,28 @@ class StorefrontController extends Controller
                 'estimated_delivery' => null, // Can be calculated based on shipping method if needed
             ],
         ]);
+    }
+
+    /**
+     * Load more products for a specific category (AJAX endpoint for infinite scroll)
+     */
+    public function loadMoreProducts(
+        Request $request,
+        Store $store,
+        ProductDisplayService $productDisplayService
+    ) {
+        $categoryId = $request->input('category_id');
+        $offset = $request->input('offset', 0);
+        $limit = $request->input('limit', 10);
+
+        $result = $productDisplayService->getMoreProducts(
+            $categoryId,
+            $store->merchant_id,
+            $store->id,
+            $offset,
+            $limit
+        );
+
+        return response()->json($result);
     }
 }

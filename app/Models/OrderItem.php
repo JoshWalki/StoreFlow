@@ -51,4 +51,44 @@ class OrderItem extends Model
     {
         return $this->hasMany(OrderItemOption::class);
     }
+
+    /**
+     * Get the addons for this order item.
+     */
+    public function addons(): HasMany
+    {
+        return $this->hasMany(OrderItemAddon::class);
+    }
+
+    /**
+     * Accessor to always return the relationship instead of the JSON column.
+     * This ensures $item->addons returns the OrderItemAddon collection.
+     */
+    public function getAddonsAttribute()
+    {
+        // If the relationship is already loaded, return it
+        if ($this->relationLoaded('addons')) {
+            return $this->getRelation('addons');
+        }
+
+        // Otherwise load and return the relationship
+        return $this->addons()->get();
+    }
+
+    /**
+     * Calculate the total price including addons.
+     */
+    public function calculateTotalWithAddons(): int
+    {
+        $addonsTotal = $this->addons()->sum('total_price_cents');
+        return $this->total_cents + $addonsTotal;
+    }
+
+    /**
+     * Get the total price including addons in dollars.
+     */
+    public function getTotalWithAddonsAttribute(): float
+    {
+        return $this->calculateTotalWithAddons() / 100;
+    }
 }

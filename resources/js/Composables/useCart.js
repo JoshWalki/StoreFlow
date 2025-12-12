@@ -25,16 +25,24 @@ export function useCart() {
     };
 
     // Add item to cart
-    const addToCart = (product, quantity = 1, customizations = []) => {
-        // Check if item already exists (same product + same customizations)
+    const addToCart = (product, quantity = 1, customizations = [], addons = []) => {
+        console.log('useCart - Adding to cart:', { product: product.name, quantity, customizations, addons });
+
+        // Check if item already exists (same product + same customizations + same addons)
         const existingIndex = cartItems.value.findIndex(item => {
             if (item.product.id !== product.id) return false;
             if (item.customizations.length !== customizations.length) return false;
+            if ((item.addons?.length || 0) !== addons.length) return false;
 
             // Check if customizations match
             const itemCustomizationIds = item.customizations.map(c => c.option_id).sort();
             const newCustomizationIds = customizations.map(c => c.option_id).sort();
-            return JSON.stringify(itemCustomizationIds) === JSON.stringify(newCustomizationIds);
+            if (JSON.stringify(itemCustomizationIds) !== JSON.stringify(newCustomizationIds)) return false;
+
+            // Check if addons match
+            const itemAddonIds = (item.addons || []).map(a => `${a.addon_index}-${a.option_index}`).sort();
+            const newAddonIds = addons.map(a => `${a.addon_index}-${a.option_index}`).sort();
+            return JSON.stringify(itemAddonIds) === JSON.stringify(newAddonIds);
         });
 
         if (existingIndex !== -1) {
@@ -59,6 +67,13 @@ export function useCart() {
                     option_id: c.option_id,
                     option_name: c.option_name,
                     price_delta_cents: c.price_delta_cents || 0,
+                })),
+                addons: addons.map(a => ({
+                    addon_name: a.addon_name,
+                    addon_index: a.addon_index,
+                    option_name: a.option_name,
+                    option_index: a.option_index,
+                    price_adjustment: a.price_adjustment || 0,
                 })),
             });
         }
@@ -93,14 +108,18 @@ export function useCart() {
         localStorage.removeItem('storeflow_cart');
     };
 
-    // Calculate item price (base + customizations)
+    // Calculate item price (base + customizations + addons)
     const getItemPrice = (item) => {
         const basePrice = item.product.price_cents;
         const customizationsPrice = item.customizations.reduce(
             (sum, c) => sum + (c.price_delta_cents || 0),
             0
         );
-        return basePrice + customizationsPrice;
+        const addonsPrice = (item.addons || []).reduce(
+            (sum, a) => sum + Math.round((a.price_adjustment || 0) * 100),
+            0
+        );
+        return basePrice + customizationsPrice + addonsPrice;
     };
 
     // Calculate item total (price * quantity)

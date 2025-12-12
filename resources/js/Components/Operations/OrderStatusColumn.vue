@@ -1,15 +1,15 @@
 <template>
-    <div class="min-w-[280px] sm:min-w-[320px] w-full">
+    <div class="min-w-[240px] sm:min-w-[280px] w-full">
         <!-- Column Header -->
-        <div class="bg-white dark:bg-gray-800 rounded-t-lg px-4 py-3 border-b-2 border-gray-200 dark:border-gray-700 shadow-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-t-lg px-3 py-2 border-b-2 border-gray-200 dark:border-gray-700 shadow-sm mt-1.5">
             <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-1.5">
                     <div
-                        class="w-3 h-3 rounded-full"
+                        class="w-2.5 h-2.5 rounded-full"
                         :class="statusColor"
                     ></div>
-                    <h3 class="font-semibold text-gray-900 dark:text-white">{{ title }}</h3>
-                    <span class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-medium px-2 py-1 rounded-full">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{ title }}</h3>
+                    <span class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-[10px] font-medium px-1.5 py-0.5 rounded-full">
                         {{ orders.length }}
                     </span>
                 </div>
@@ -18,7 +18,7 @@
 
         <!-- Orders List -->
         <div
-            class="bg-white dark:bg-gray-800 rounded-b-lg p-3 space-y-3 min-h-[calc(100vh-350px)] max-h-[calc(100vh-350px)] overflow-y-auto transition-colors shadow-sm border border-t-0 border-gray-200 dark:border-gray-700"
+            class="bg-white dark:bg-gray-800 rounded-b-lg p-2 space-y-2 min-h-[calc(100vh-350px)] max-h-[calc(100vh-350px)] overflow-y-auto transition-colors shadow-sm border border-t-0 border-gray-200 dark:border-gray-700"
             :class="{ 'bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-400 dark:ring-blue-500 border-blue-400 dark:border-blue-500': isDropTarget }"
             @dragover.prevent="handleDragOver"
             @dragenter.prevent="handleDragEnter"
@@ -35,12 +35,12 @@
             <!-- Empty State -->
             <div
                 v-if="orders.length === 0"
-                class="flex flex-col items-center justify-center py-12 text-gray-400 dark:text-gray-500"
+                class="flex flex-col items-center justify-center py-8 text-gray-400 dark:text-gray-500"
             >
-                <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-10 h-10 mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <p class="text-sm">No orders</p>
+                <p class="text-xs">No orders</p>
             </div>
         </div>
     </div>

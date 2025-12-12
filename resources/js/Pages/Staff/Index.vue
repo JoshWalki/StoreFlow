@@ -1,9 +1,8 @@
 <template>
-    <DashboardLayout>
-        <!-- Toast Notifications -->
-        <ToastContainer />
+    <!-- Toast Notifications -->
+    <ToastContainer />
 
-        <div class="py-12">
+    <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <!-- Header -->
                 <div class="flex justify-between items-center mb-6">
@@ -255,13 +254,11 @@
                 </div>
             </div>
         </div>
-    </DashboardLayout>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
-import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import ToastContainer from '@/Components/Notifications/ToastContainer.vue';
 import { useNotifications } from '@/Composables/useNotifications';
 

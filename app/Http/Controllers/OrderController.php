@@ -125,6 +125,7 @@ class OrderController extends Controller
                     'quantity' => $item->quantity,
                     'price_cents' => $item->price_cents,
                     'total_cents' => $item->total_cents,
+                    'addons' => $item->addons ?? [],
                 ];
             }),
 
@@ -274,10 +275,10 @@ class OrderController extends Controller
 
         $stats = [
             'total_orders' => $allOrders->count(),
-            'total_revenue' => number_format($allOrders->sum('total_cents') / 100, 2),
+            'total_revenue' => $allOrders->sum('total_cents') / 100,
             'average_order' => $allOrders->count() > 0
-                ? number_format($allOrders->avg('total_cents') / 100, 2)
-                : '0.00',
+                ? $allOrders->avg('total_cents') / 100
+                : 0,
             'cancelled_orders' => Order::where('store_id', $storeId)
                 ->where('status', 'cancelled')
                 ->count(),

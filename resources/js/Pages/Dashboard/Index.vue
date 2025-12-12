@@ -1,114 +1,144 @@
 <template>
-    <DashboardLayout :store="store" :user="user">
-        <!-- Full-width container with custom padding -->
-        <div class="-m-8 min-h-screen bg-gray-50 dark:bg-gray-900">
-            <div class="px-4 sm:px-6 lg:px-8 py-6">
-                <div
-                    class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4"
-                >
-                    <h1
-                        class="text-2xl font-bold text-gray-800 dark:text-white"
-                    >
-                        Operations Dashboard
-                    </h1>
+    <!-- Full-width container with custom padding -->
+    <div class="-m-8 min-h-screen bg-gray-50 dark:bg-gray-900">
+            <div class="px-4 sm:px-5 lg:px-6 py-4">
+                <!-- Header with Status Indicators -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-white">
+                            Operations Dashboard
+                        </h1>
 
-                    <!-- Real-time Connection Indicator -->
-                    <div v-if="store" class="flex items-center space-x-4">
-                        <div class="flex items-center space-x-2">
-                            <div
-                                class="w-2 h-2 rounded-full"
-                                :class="[
-                                    !store.is_active
-                                        ? 'bg-red-500'
-                                        : isConnected
-                                        ? 'bg-green-500 animate-pulse-subtle'
-                                        : 'bg-red-500',
-                                ]"
-                            ></div>
-                            <span
-                                class="text-sm"
-                                :class="
-                                    !store.is_active
-                                        ? 'text-red-600 font-semibold'
-                                        : 'text-gray-600'
-                                "
-                            >
-                                {{
-                                    !store.is_active
-                                        ? "Store Offline"
-                                        : isConnected
-                                        ? "Live"
-                                        : "Disconnected"
-                                }}
-                            </span>
-                        </div>
+                        <!-- Real-time Connection Indicator (light only) -->
+                        <div
+                            v-if="store"
+                            class="w-2 h-2 rounded-full"
+                            :class="[
+                                !store.is_active
+                                    ? 'bg-red-500'
+                                    : isConnected
+                                    ? 'bg-green-500 animate-pulse-subtle'
+                                    : 'bg-red-500',
+                            ]"
+                            :title="!store.is_active ? 'Store Offline' : isConnected ? 'Live' : 'Disconnected'"
+                        ></div>
 
                         <!-- Countdown to Closing -->
                         <div
-                            v-if="store.is_active && store.close_time && timeUntilClose"
-                            class="flex items-center space-x-2 px-3 py-1 bg-orange-50 dark:bg-orange-900/20 rounded-md border border-orange-200 dark:border-orange-800"
+                            v-if="store && store.is_active && store.close_time && timeUntilClose"
+                            class="flex items-center space-x-1 px-2 py-0.5 bg-orange-50 dark:bg-orange-900/20 rounded border border-orange-200 dark:border-orange-800"
                         >
-                            <svg class="w-4 h-4 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-3 h-3 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span class="text-sm font-medium text-orange-700 dark:text-orange-300">
+                            <span class="text-[10px] font-medium text-orange-700 dark:text-orange-300">
                                 Closes in {{ timeUntilClose }}
                             </span>
                         </div>
                     </div>
+
+                    <!-- Full Screen Display Button -->
+                    <button
+                        @click="openFullScreenDisplay"
+                        class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md"
+                        title="Open full-screen display view"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                        </svg>
+                        <span class="hidden sm:inline text-sm font-medium">Display View</span>
+                    </button>
                 </div>
 
-                <!-- Tabs for Pickup/Shipping -->
-                <div class="flex space-x-2 mb-6">
-                    <button
-                        @click="activeTab = 'shipping'"
-                        class="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
-                        :class="
-                            activeTab === 'shipping'
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'
-                        "
-                    >
-                        <svg
-                            class="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
-                            />
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
-                            />
-                        </svg>
-                        <span>Shipping</span>
-                        <span
-                            v-if="shippingPendingCount > 0"
-                            class="inline-flex items-center justify-center w-6 h-6 text-xs font-bold rounded-full"
+                <!-- Tabs for Pickup/Shipping with Search Toggle -->
+                <div class="flex justify-between items-center mb-3">
+                    <div class="flex space-x-1.5">
+                        <button
+                            @click="activeTab = 'shipping'"
+                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
                             :class="
                                 activeTab === 'shipping'
-                                    ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400'
-                                    : 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-200'
+                                    ? 'bg-blue-600 text-white'
+                                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'
                             "
                         >
-                            {{ shippingPendingCount }}
-                        </span>
-                    </button>
+                            <svg
+                                class="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
+                                />
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
+                                />
+                            </svg>
+                            <span>Shipping</span>
+                            <span
+                                v-if="shippingPendingCount > 0"
+                                class="inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold rounded-full"
+                                :class="
+                                    activeTab === 'shipping'
+                                        ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400'
+                                        : 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-200'
+                                "
+                            >
+                                {{ shippingPendingCount }}
+                            </span>
+                        </button>
+                        <button
+                            @click="activeTab = 'pickup'"
+                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                            :class="
+                                activeTab === 'pickup'
+                                    ? 'bg-blue-600 text-white'
+                                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'
+                            "
+                        >
+                            <svg
+                                class="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                                />
+                            </svg>
+                            <span>Pickup</span>
+                            <span
+                                v-if="pickupPendingCount > 0"
+                                class="inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold rounded-full"
+                                :class="
+                                    activeTab === 'pickup'
+                                        ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400'
+                                        : 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-200'
+                                "
+                            >
+                                {{ pickupPendingCount }}
+                            </span>
+                        </button>
+                    </div>
+
+                    <!-- Search Toggle Button -->
                     <button
-                        @click="activeTab = 'pickup'"
-                        class="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
-                        :class="
-                            activeTab === 'pickup'
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'
-                        "
+                        @click="showSearch = !showSearch"
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors border"
+                        :class="showSearch
+                            ? 'bg-blue-600 text-white border-blue-600'
+                            : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'"
+                        title="Toggle search"
                     >
                         <svg
-                            class="w-5 h-5"
+                            class="w-4 h-4"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -117,78 +147,69 @@
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                                 stroke-width="2"
-                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                             />
                         </svg>
-                        <span>Pickup</span>
-                        <span
-                            v-if="pickupPendingCount > 0"
-                            class="inline-flex items-center justify-center w-6 h-6 text-xs font-bold rounded-full"
-                            :class="
-                                activeTab === 'pickup'
-                                    ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400'
-                                    : 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-200'
-                            "
-                        >
-                            {{ pickupPendingCount }}
-                        </span>
+                        <span class="hidden sm:inline">Search</span>
                     </button>
                 </div>
 
-                <!-- Search Box -->
-                <div class="mb-6">
-                    <div class="relative max-w-2xl">
-                        <input
-                            v-model="searchQuery"
-                            type="text"
-                            placeholder="Search by order ID, customer name, or email..."
-                            class="w-full px-4 py-2 pl-10 pr-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        <div
-                            class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
-                        >
-                            <svg
-                                class="w-5 h-5 text-gray-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
+                <!-- Search Box (Toggleable) -->
+                <Transition name="search">
+                    <div v-if="showSearch" class="mb-3">
+                        <div class="relative max-w-2xl">
+                            <input
+                                v-model="searchQuery"
+                                type="text"
+                                placeholder="Search by order ID, customer, product..."
+                                class="w-full px-3 py-1.5 pl-8 pr-3 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                            <div
+                                class="absolute inset-y-0 left-0 flex items-center pl-2.5 pointer-events-none"
                             >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                                />
-                            </svg>
+                                <svg
+                                    class="w-4 h-4 text-gray-400"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                    />
+                                </svg>
+                            </div>
+                            <button
+                                v-if="searchQuery"
+                                @click="searchQuery = ''"
+                                class="absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-400 hover:text-gray-600"
+                            >
+                                <svg
+                                    class="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12"
+                                    />
+                                </svg>
+                            </button>
                         </div>
-                        <button
-                            v-if="searchQuery"
-                            @click="searchQuery = ''"
-                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
-                        >
-                            <svg
-                                class="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12"
-                                />
-                            </svg>
-                        </button>
                     </div>
-                </div>
+                </Transition>
 
                 <!-- Mobile Status Tabs (visible on mobile only) -->
                 <div class="lg:hidden mb-4">
-                    <div class="flex gap-2 overflow-x-auto pb-2">
+                    <div class="flex gap-1.5 overflow-x-auto pb-2">
                         <button
                             @click="mobileStatusView = 'pending'"
-                            class="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors"
+                            class="px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors"
                             :class="mobileStatusView === 'pending'
                                 ? 'bg-blue-600 text-white'
                                 : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200'"
@@ -197,7 +218,7 @@
                         </button>
                         <button
                             @click="mobileStatusView = 'in_progress'"
-                            class="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors"
+                            class="px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors"
                             :class="mobileStatusView === 'in_progress'
                                 ? 'bg-blue-600 text-white'
                                 : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200'"
@@ -207,7 +228,7 @@
                         <button
                             v-if="activeTab === 'shipping'"
                             @click="mobileStatusView = 'shipped'"
-                            class="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors"
+                            class="px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors"
                             :class="mobileStatusView === 'shipped'
                                 ? 'bg-blue-600 text-white'
                                 : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200'"
@@ -217,7 +238,7 @@
                         <button
                             v-else
                             @click="mobileStatusView = 'ready_for_pickup'"
-                            class="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors"
+                            class="px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors"
                             :class="mobileStatusView === 'ready_for_pickup'
                                 ? 'bg-blue-600 text-white'
                                 : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200'"
@@ -226,7 +247,7 @@
                         </button>
                         <button
                             @click="mobileStatusView = 'completed'"
-                            class="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors"
+                            class="px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors"
                             :class="mobileStatusView === 'completed'
                                 ? 'bg-blue-600 text-white'
                                 : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200'"
@@ -281,7 +302,7 @@
                 </div>
 
                 <!-- Desktop Kanban Board (4 columns) -->
-                <div class="hidden lg:grid gap-4 pb-4 lg:grid-cols-4">
+                <div class="hidden lg:grid gap-3 pb-3 lg:grid-cols-4 mt-1.5">
                     <!-- Pending Orders -->
                     <OrderStatusColumn
                         status="pending"
@@ -338,13 +359,11 @@
                 />
             </div>
         </div>
-    </DashboardLayout>
 </template>
 
 <script setup>
 import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
 import { router } from "@inertiajs/vue3";
-import DashboardLayout from "@/Layouts/DashboardLayout.vue";
 import OrderStatusColumn from "@/Components/Operations/OrderStatusColumn.vue";
 import OrderDetailModal from "@/Components/Operations/OrderDetailModal.vue";
 import { useToast } from "@/Composables/useToast";
@@ -362,6 +381,7 @@ const isConnected = ref(false);
 
 // Search query
 const searchQuery = ref("");
+const showSearch = ref(false);
 
 // Active tab (shipping or pickup)
 const activeTab = ref("pickup");
@@ -469,11 +489,19 @@ const filterOrders = (orders) => {
     if (searchQuery.value) {
         const query = searchQuery.value.toLowerCase();
         filtered = filtered.filter((order) => {
-            return (
+            // Search in order details
+            const matchesOrder =
                 order.public_id?.toLowerCase().includes(query) ||
                 order.customer_name?.toLowerCase().includes(query) ||
-                order.customer_email?.toLowerCase().includes(query)
+                order.customer_email?.toLowerCase().includes(query);
+
+            // Search in order items (product names)
+            const matchesProducts = order.items?.some(item =>
+                item.product_name?.toLowerCase().includes(query) ||
+                item.name?.toLowerCase().includes(query)
             );
+
+            return matchesOrder || matchesProducts;
         });
     }
 
@@ -541,6 +569,11 @@ const initializeOrders = () => {
 
 // Modal handlers
 const openOrderDetail = (order) => {
+    console.log('Dashboard - Opening order detail:', order);
+    console.log('Dashboard - Order items:', order.items);
+    if (order.items && order.items.length > 0) {
+        console.log('Dashboard - First item addons:', order.items[0].addons);
+    }
     selectedOrder.value = order;
     isModalOpen.value = true;
 };
@@ -624,16 +657,26 @@ const handleOrderDrop = ({ orderId, fromStatus, toStatus }) => {
                 console.error("Status update error:", errors);
             },
             onSuccess: (page) => {
-                // Show success toast
-                toast.success("Order status updated successfully");
+                // Success is silent - real-time updates will handle UI changes
+                // Only show errors to avoid notification overload
 
-                // Show flash message if available
-                if (page.props?.flash?.success) {
-                    toast.success(page.props.flash.success);
+                // Auto-print receipt when status changes to in_progress
+                if (actualStatus === 'in_progress') {
+                    setTimeout(() => printReceipt(orderId), 500);
                 }
             },
         }
     );
+};
+
+// Print receipt function
+const printReceipt = (orderId) => {
+    const receiptUrl = route('orders.receipt', orderId);
+    const printWindow = window.open(receiptUrl, '_blank', 'width=800,height=600');
+
+    if (!printWindow || printWindow.closed || typeof printWindow.closed === 'undefined') {
+        console.warn('Print window was blocked. Please allow pop-ups.');
+    }
 };
 
 // Polling setup
@@ -707,45 +750,46 @@ const setupWebSocket = () => {
     if (!props.store) return;
 
     if (!window.Echo) {
-        console.log("WebSocket not available, using polling instead");
         startPolling();
         return;
     }
 
     try {
-        // Subscribe to store orders channel
-        storeChannel = window.Echo.private(`store.${props.store.id}.orders`)
-            .listen("OrderCreated", (event) => {
-                console.log("New order received:", event.order);
+        const channelName = `store.${props.store.id}.orders`;
+
+        // Subscribe to store orders channel and listen for events
+        storeChannel = window.Echo.private(channelName)
+            .listen(".OrderCreated", (event) => {
                 addOrUpdateOrder(event.order);
             })
-            .listen("OrderStatusUpdated", (event) => {
-                console.log("Order status updated:", event.order);
+            .listen(".OrderStatusUpdated", (event) => {
                 updateOrderStatus(
                     event.order,
                     event.old_status,
                     event.new_status
                 );
             })
-            .listen("ShippingStatusUpdated", (event) => {
-                console.log("Shipping status updated:", event.order);
+            .listen(".ShippingStatusUpdated", (event) => {
                 addOrUpdateOrder(event.order);
             });
+
+        // Add subscription error handler
+        storeChannel.subscription.bind('pusher:subscription_error', (status) => {
+            console.error("Failed to subscribe to order updates:", status.status);
+        });
 
         // Connection status handlers
         window.Echo.connector.pusher.connection.bind("connected", () => {
             isConnected.value = true;
-            console.log("WebSocket connected");
         });
 
         window.Echo.connector.pusher.connection.bind("disconnected", () => {
             isConnected.value = false;
-            console.log("WebSocket disconnected");
         });
 
         window.Echo.connector.pusher.connection.bind("error", (err) => {
             isConnected.value = false;
-            console.error("WebSocket error:", err);
+            console.error("WebSocket connection error:", err);
         });
 
         // Set initial connection state
@@ -805,9 +849,20 @@ const updateOrderStatus = (order, oldStatus, newStatus) => {
         }
     }
 
-    // Add to new status
+    // Add to new status (only if not already there to prevent duplicates)
     if (ordersByStatus[newStatus]) {
-        ordersByStatus[newStatus].unshift(order);
+        const exists = ordersByStatus[newStatus].some(
+            (o) => o.id === order.id
+        );
+        if (!exists) {
+            ordersByStatus[newStatus].unshift(order);
+        } else {
+            // Update existing order data
+            const index = ordersByStatus[newStatus].findIndex(
+                (o) => o.id === order.id
+            );
+            ordersByStatus[newStatus][index] = order;
+        }
     }
 
     // Update selected order if it's open in modal
@@ -821,6 +876,12 @@ const cleanupWebSocket = () => {
     if (storeChannel && props.store) {
         window.Echo.leave(`store.${props.store.id}.orders`);
     }
+};
+
+// Open full-screen display view in new window
+const openFullScreenDisplay = () => {
+    const displayUrl = route('dashboard.display');
+    window.open(displayUrl, '_blank', 'width=1920,height=1080,menubar=no,toolbar=no,location=no,status=no');
 };
 
 // Lifecycle hooks
@@ -858,5 +919,21 @@ onUnmounted(() => {
 
 .animate-pulse-subtle {
     animation: pulse-subtle 1.5s ease-in-out infinite;
+}
+
+/* Search transition */
+.search-enter-active,
+.search-leave-active {
+    transition: all 0.3s ease;
+}
+
+.search-enter-from {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.search-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
 }
 </style>

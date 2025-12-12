@@ -17,17 +17,30 @@ export default defineConfig({
             },
         }),
     ],
+    build: {
+        chunkSizeWarningLimit: 1000,
+        rollupOptions: {
+            output: {
+                manualChunks: undefined,
+            },
+        },
+    },
     resolve: {
         alias: {
             "@": "/resources/js",
         },
     },
     server: {
+        host: "0.0.0.0", // Listen on all network interfaces
+        port: 5173,
+        strictPort: true,
         hmr: {
-            host: "localhost",
+            host: "172.21.145.17", // Use localhost for local development
+            protocol: "ws",
         },
         watch: {
-            usePolling: true,
+            usePolling: false, // Disabled for better performance
+            // Only use polling if file changes aren't detected
         },
     },
     // Fix for WSL2 crypto.hash issue

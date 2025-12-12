@@ -69,14 +69,29 @@
                             <div
                                 v-for="(item, index) in order.items"
                                 :key="index"
-                                class="flex justify-between text-sm"
                             >
-                                <span :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-600'">
-                                    {{ item.quantity }}x {{ item.product_name }}
-                                </span>
-                                <span :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
-                                    ${{ (item.price * item.quantity).toFixed(2) }}
-                                </span>
+                                <div class="flex justify-between text-sm">
+                                    <span :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-600'">
+                                        {{ item.quantity }}x {{ item.product_name }}
+                                    </span>
+                                    <span :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
+                                        ${{ (item.price * item.quantity).toFixed(2) }}
+                                    </span>
+                                </div>
+                                <!-- Addons -->
+                                <div v-if="item.addons && item.addons.length > 0" class="ml-6 mt-1 space-y-0.5">
+                                    <div
+                                        v-for="(addon, addonIdx) in item.addons"
+                                        :key="addonIdx"
+                                        class="text-xs"
+                                        :class="store.theme === 'bold' ? 'text-gray-500' : 'text-gray-500'"
+                                    >
+                                        + {{ addon.name }}
+                                        <span v-if="addon.unit_price_cents > 0">
+                                            (+${{ (addon.unit_price_cents / 100).toFixed(2) }})
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

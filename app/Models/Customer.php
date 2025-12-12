@@ -20,6 +20,7 @@ class Customer extends Authenticatable
         'email',
         'mobile',
         'password',
+        'stripe_customer_id',
         'address_line1',
         'address_line2',
         'address_city',

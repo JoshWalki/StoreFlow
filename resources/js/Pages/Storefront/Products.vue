@@ -40,21 +40,41 @@
                             </h1>
                         </div>
                     </div>
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <!-- Track Order Button -->
+                        <a
+                            :href="`/store/${store.id}/track-order`"
+                            :class="['hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-lg transition-colors text-sm font-medium', buttonClasses.outline]"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                            </svg>
+                            Track Order
+                        </a>
+
+                        <!-- Profile/Login Button -->
                         <a
                             v-if="!customer"
                             :href="`/store/${store.id}/login`"
-                            class="text-sm font-medium text-gray-700 hover:text-gray-900"
+                            :class="['hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-lg transition-colors text-sm font-medium', buttonClasses.primary]"
                         >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                            </svg>
                             Login
                         </a>
                         <a
                             v-else
                             :href="`/store/${store.id}/profile`"
-                            class="text-sm font-medium text-blue-600 hover:text-blue-700"
+                            :class="['hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-lg transition-colors text-sm font-medium', buttonClasses.primary]"
                         >
-                            {{ customer.first_name }}'s Profile
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            {{ customer.first_name }}
                         </a>
+
+                        <!-- Cart Button -->
                         <CartButton />
                     </div>
                 </div>
@@ -192,6 +212,7 @@ import { ref, computed } from 'vue';
 import CartButton from "@/Components/Storefront/CartButton.vue";
 import CartDrawer from "@/Components/Storefront/CartDrawer.vue";
 import ProductCardGrid from "@/Components/Storefront/ProductCardGrid.vue";
+import { useTheme } from '@/Composables/useTheme';
 
 const props = defineProps({
     store: {
@@ -210,6 +231,22 @@ const props = defineProps({
         type: Object,
         default: null,
     },
+});
+
+// Initialize theme
+const { config: themeConfig } = useTheme(props.store.theme_key);
+
+// Theme-based button colors
+const buttonClasses = computed(() => {
+    const theme = props.store.theme_key || 'classic';
+    return {
+        primary: themeConfig.value.buttonPrimary,
+        outline: theme === 'modern'
+            ? 'border-2 border-purple-600 text-purple-600 hover:bg-purple-50 bg-white'
+            : theme === 'bold'
+            ? 'border-2 border-orange-500 text-orange-500 hover:bg-orange-50 bg-gray-900'
+            : 'border-2 border-blue-600 text-blue-600 hover:bg-blue-50 bg-white',
+    };
 });
 
 const searchQuery = ref('');

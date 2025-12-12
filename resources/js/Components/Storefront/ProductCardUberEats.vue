@@ -1,6 +1,6 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps({
     product: {
@@ -25,43 +25,65 @@ const formatCurrency = (cents) => {
 const productUrl = computed(() => {
     return `/store/${props.store.id}/products/${props.product.id}`;
 });
+
+// Tilt effect state
+const rotateX = ref(0);
+const rotateY = ref(0);
+const isHovered = ref(false);
+
+const cardStyle = computed(() => {
+    if (!isHovered.value) return {};
+    return {
+        transform: `perspective(1000px) rotateX(${rotateX.value}deg) rotateY(${rotateY.value}deg) scale(1.02)`,
+    };
+});
+
+const handleMouseEnter = () => {
+    isHovered.value = true;
+};
+
+const handleMouseMove = (e) => {
+    if (!isHovered.value) return;
+
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    const rotateXValue = ((y - centerY) / centerY) * -10;
+    const rotateYValue = ((x - centerX) / centerX) * 10;
+
+    rotateX.value = rotateXValue;
+    rotateY.value = rotateYValue;
+};
+
+const handleMouseLeave = () => {
+    isHovered.value = false;
+    rotateX.value = 0;
+    rotateY.value = 0;
+};
 </script>
 
 <template>
     <Link
         :href="productUrl"
-        class="product-card-ubereats flex-shrink-0 w-full sm:w-[420px] h-40 flex rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 group bg-white"
+        class="product-card-ubereats flex-shrink-0 w-full sm:w-[420px] h-40 flex rounded-xl overflow-hidden shadow-md hover:shadow-glow transition-all duration-500 group bg-white relative"
+        @mouseenter="handleMouseEnter"
+        @mousemove="handleMouseMove"
+        @mouseleave="handleMouseLeave"
+        :style="cardStyle"
     >
         <!-- Product Image Section (Left Side - 40% width) -->
-        <div class="relative w-40 h-full overflow-hidden bg-gray-100 flex-shrink-0">
-            <!-- Image -->
+        <div v-if="product.image" class="relative w-40 h-full overflow-hidden bg-gray-100 flex-shrink-0">
             <img
-                v-if="product.image"
                 :src="product.image"
                 :alt="product.name"
                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 loading="lazy"
             />
-            <!-- Placeholder if no image -->
-            <div
-                v-else
-                class="w-full h-full flex items-center justify-center text-gray-400"
-            >
-                <svg
-                    class="w-20 h-20"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="1.5"
-                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                </svg>
-            </div>
-
         </div>
 
         <!-- Product Info Section (Right Side - 60% width) -->
@@ -69,7 +91,7 @@ const productUrl = computed(() => {
             <!-- Top Row: Category and Badges -->
             <div class="flex items-start justify-between mb-2">
                 <!-- Category Tag -->
-                <span v-if="product.category" class="text-xs text-gray-500 uppercase tracking-wide">
+                <span v-if="product.category" class="category-badge text-xs text-gray-500 uppercase tracking-wide">
                     {{ product.category }}
                 </span>
 
@@ -97,7 +119,7 @@ const productUrl = computed(() => {
             </div>
 
             <!-- Product Name -->
-            <h3 class="font-bold text-base text-gray-900 mb-1 line-clamp-2 leading-tight">
+            <h3 class="font-medium text-base text-gray-900 mb-1 leading-tight">
                 {{ product.name }}
             </h3>
 
@@ -126,13 +148,63 @@ const productUrl = computed(() => {
 </template>
 
 <style scoped>
-/* Custom smooth transform on hover */
-.product-card-ubereats:hover {
-    transform: translateY(-4px);
-}
-
-/* Ensure smooth scrolling for horizontal sections */
+/* 3D Tilt and Glow Effect */
 .product-card-ubereats {
     scroll-snap-align: start;
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.5s ease;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+/* Animated Glow Shadow */
+.shadow-glow {
+    box-shadow:
+        0 10px 30px -10px rgba(99, 102, 241, 0.3),
+        0 20px 60px -15px rgba(139, 92, 246, 0.2),
+        0 0 0 1px rgba(99, 102, 241, 0.1);
+}
+
+/* Pulsing glow animation */
+@keyframes glow-pulse {
+    0%, 100% {
+        box-shadow:
+            0 10px 30px -10px rgba(99, 102, 241, 0.3),
+            0 20px 60px -15px rgba(139, 92, 246, 0.2),
+            0 0 0 1px rgba(99, 102, 241, 0.1);
+    }
+    50% {
+        box-shadow:
+            0 15px 40px -10px rgba(99, 102, 241, 0.5),
+            0 25px 70px -15px rgba(139, 92, 246, 0.4),
+            0 0 0 1px rgba(99, 102, 241, 0.2);
+    }
+}
+
+.product-card-ubereats:hover {
+    animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* Floating Category Badge */
+@keyframes float-badge {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+@keyframes pulse-subtle {
+    0%, 100% {
+        opacity: 0.7;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+.category-badge {
+    animation: float-badge 3s ease-in-out infinite, pulse-subtle 2s ease-in-out infinite;
+    display: inline-block;
 }
 </style>

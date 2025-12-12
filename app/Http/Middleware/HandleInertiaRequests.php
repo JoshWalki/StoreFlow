@@ -39,16 +39,21 @@ class HandleInertiaRequests extends Middleware
         $storeId = $request->session()->get('store_id');
 
         if ($storeId) {
-            $selectedStore = \App\Models\Store::find($storeId);
+            $selectedStore = \App\Models\Store::with('merchant')->find($storeId);
         }
 
         // Check if onboarding is needed
         $needsOnboarding = false;
+        $needsStripeOnboarding = false;
         if ($request->user() && $request->user()->merchant) {
             $merchant = $request->user()->merchant;
             $needsOnboarding = $request->user()->isOwner()
                 && $request->user()->id === $merchant->owner_user_id
                 && !$merchant->onboarding_complete;
+
+            // Check if Stripe Connect onboarding is needed
+            $needsStripeOnboarding = $request->user()->isOwner()
+                && !$merchant->stripe_onboarding_complete;
         }
 
         return [
@@ -70,11 +75,15 @@ class HandleInertiaRequests extends Middleware
                 'is_active' => $selectedStore->is_active ?? true,
             ] : null,
             'needsOnboarding' => $needsOnboarding,
+            'needsStripeOnboarding' => $needsStripeOnboarding,
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
                 'warning' => $request->session()->get('warning'),
                 'info' => $request->session()->get('info'),
+            ],
+            'stripe' => [
+                'publishableKey' => config('services.stripe.key'),
             ],
         ];
     }

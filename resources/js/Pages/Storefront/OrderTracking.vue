@@ -150,11 +150,34 @@
                     </div>
                 </div>
 
-                <div v-else-if="order.fulfilment_type === 'pickup' && order.pickup_time" class="bg-white rounded-lg shadow-sm p-6">
+                <div v-else-if="order.fulfilment_type === 'pickup'" class="bg-white rounded-lg shadow-sm p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Pickup Details</h3>
-                    <div>
+
+                    <!-- Pickup Time -->
+                    <div v-if="order.pickup_time" class="mb-6">
                         <p class="text-sm text-gray-600">Scheduled Pickup Time</p>
-                        <p class="text-base text-gray-900">{{ formatDateTime(order.pickup_time) }}</p>
+                        <p class="text-base text-gray-900 font-medium">{{ formatDateTime(order.pickup_time) }}</p>
+                    </div>
+
+                    <!-- Pickup Location -->
+                    <div v-if="hasStoreAddress">
+                        <p class="text-sm text-gray-600 mb-2">Pickup Location</p>
+                        <div class="text-gray-900 mb-4">
+                            <p class="font-medium">{{ store.name }}</p>
+                            <p>{{ store.address_primary }}</p>
+                            <p>{{ store.address_city }}, {{ store.address_state }} {{ store.address_postcode }}</p>
+                        </div>
+                        <a
+                            :href="googleMapsUrl"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                        >
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                            </svg>
+                            Open in Google Maps
+                        </a>
                     </div>
                 </div>
 
@@ -181,6 +204,7 @@ const props = defineProps({
     publicId: String,
     error: String,
     websocketChannel: String,
+    store: Object,
 });
 
 const orderNumber = ref(props.publicId || '');
@@ -233,6 +257,26 @@ const formatDateTime = (datetime) => {
         minute: '2-digit',
     });
 };
+
+// Store address helpers
+const hasStoreAddress = computed(() => {
+    return props.store && props.store.address_primary && props.store.address_city;
+});
+
+const fullAddress = computed(() => {
+    if (!props.store) return '';
+    const parts = [
+        props.store.address_primary,
+        props.store.address_city,
+        props.store.address_state,
+        props.store.address_postcode
+    ].filter(Boolean);
+    return parts.join(', ');
+});
+
+const googleMapsUrl = computed(() => {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress.value)}`;
+});
 
 // WebSocket setup for real-time updates
 let orderChannel = null;

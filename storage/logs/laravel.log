@@ -1,0 +1,142 @@
+[2025-12-12 23:44:24] local.INFO: Checkout session created {"merchant_id":2,"session_id":"cs_test_a1lNkQnPc8UT28eZbSEc99RSdofH2v7PbJ9LvQeR55k9O7onDwSbvDxvBL"} 
+[2025-12-12 23:44:24] local.INFO: Checkout session created {"merchant_id":2,"session_id":"cs_test_a1lNkQnPc8UT28eZbSEc99RSdofH2v7PbJ9LvQeR55k9O7onDwSbvDxvBL"} 
+[2025-12-12 23:47:44] local.ERROR: Failed to create checkout session {"merchant_id":2,"error":"The minimum number of trial period days is 1."} 
+[2025-12-12 23:47:44] local.ERROR: Checkout session creation failed {"merchant_id":2,"error":"The minimum number of trial period days is 1."} 
+[2025-12-12 23:49:15] local.INFO: Checkout session created {"merchant_id":2,"session_id":"cs_test_a19EPPu4zvwDQb1I2odUVcgiuiGzjZppGaSzmd9AIY6WCwzqi4n8jfHVYc"} 
+[2025-12-12 23:49:15] local.INFO: Checkout session created {"merchant_id":2,"session_id":"cs_test_a19EPPu4zvwDQb1I2odUVcgiuiGzjZppGaSzmd9AIY6WCwzqi4n8jfHVYc"} 
+[2025-12-12 23:49:39] local.INFO: Unhandled webhook event type {"type":"payment_method.attached"} 
+[2025-12-12 23:49:39] local.INFO: Webhook processed successfully {"event_id":"evt_1SdVmuGWY8SI9PdauAxPuXwM","type":"payment_method.attached"} 
+[2025-12-12 23:49:44] local.INFO: Unhandled webhook event type {"type":"checkout.session.completed"} 
+[2025-12-12 23:49:44] local.INFO: Webhook processed successfully {"event_id":"evt_1SdVmuGWY8SI9Pda8joP1Blx","type":"checkout.session.completed"} 
+[2025-12-12 23:49:46] local.INFO: Subscription synced from Stripe {"merchant_id":2,"status":"incomplete"} 
+[2025-12-12 23:49:46] local.INFO: Subscription created {"merchant_id":2,"subscription_id":"sub_1SdVmqGWY8SI9PdagIa4mP4d","status":"incomplete"} 
+[2025-12-12 23:49:46] local.INFO: Webhook processed successfully {"event_id":"evt_1SdVmuGWY8SI9PdawycXk7kN","type":"customer.subscription.created"} 
+[2025-12-12 23:49:46] local.INFO: Subscription synced from Stripe {"merchant_id":2,"status":"active"} 
+[2025-12-12 23:49:46] local.INFO: Subscription updated {"merchant_id":2,"subscription_id":"sub_1SdVmqGWY8SI9PdagIa4mP4d","status":"active"} 
+[2025-12-12 23:49:46] local.INFO: Webhook processed successfully {"event_id":"evt_1SdVmvGWY8SI9PdaObGpwTky","type":"customer.subscription.updated"} 
+[2025-12-12 23:49:46] local.WARNING: Payment succeeded for unknown order {"payment_intent_id":"pi_3SdVmqGWY8SI9Pda2up5CSiI"} 
+[2025-12-12 23:49:46] local.INFO: Webhook processed successfully {"event_id":"evt_3SdVmqGWY8SI9Pda28VWgBvb","type":"payment_intent.succeeded"} 
+[2025-12-12 23:49:49] local.INFO: Unhandled webhook event type {"type":"payment_intent.created"} 
+[2025-12-12 23:49:49] local.INFO: Webhook processed successfully {"event_id":"evt_3SdVmqGWY8SI9Pda2tm190DE","type":"payment_intent.created"} 
+[2025-12-12 23:49:49] local.INFO: Unhandled webhook event type {"type":"invoice.created"} 
+[2025-12-12 23:49:49] local.INFO: Webhook processed successfully {"event_id":"evt_1SdVmvGWY8SI9PdaKHFSBTn1","type":"invoice.created"} 
+[2025-12-12 23:49:49] local.INFO: Unhandled webhook event type {"type":"invoice.finalized"} 
+[2025-12-12 23:49:49] local.INFO: Webhook processed successfully {"event_id":"evt_1SdVmvGWY8SI9PdaNAC3ySSS","type":"invoice.finalized"} 
+[2025-12-12 23:49:49] local.INFO: Unhandled webhook event type {"type":"charge.succeeded"} 
+[2025-12-12 23:49:49] local.INFO: Webhook processed successfully {"event_id":"evt_3SdVmqGWY8SI9Pda2NUTazJZ","type":"charge.succeeded"} 
+[2025-12-12 23:49:49] local.INFO: Unhandled webhook event type {"type":"invoice.updated"} 
+[2025-12-12 23:49:49] local.INFO: Webhook processed successfully {"event_id":"evt_1SdVmvGWY8SI9Pda0X0fVvWU","type":"invoice.updated"} 
+[2025-12-12 23:49:50] local.INFO: Unhandled webhook event type {"type":"invoice.paid"} 
+[2025-12-12 23:49:50] local.INFO: Webhook processed successfully {"event_id":"evt_1SdVmvGWY8SI9PdaVkwfVLqG","type":"invoice.paid"} 
+[2025-12-12 23:49:52] local.INFO: Webhook processed successfully {"event_id":"evt_1SdVmvGWY8SI9PdaCTGz6s5j","type":"invoice.payment_succeeded"} 
+[2025-12-12 23:49:53] local.INFO: Checkout completed successfully {"session_id":"cs_test_a19EPPu4zvwDQb1I2odUVcgiuiGzjZppGaSzmd9AIY6WCwzqi4n8jfHVYc","subscription_id":"sub_1SdVmqGWY8SI9PdagIa4mP4d"} 
+[2025-12-12 23:50:16] local.INFO: Unhandled webhook event type {"type":"invoice_payment.paid"} 
+[2025-12-12 23:50:16] local.INFO: Webhook processed successfully {"event_id":"evt_1SdVnXGWY8SI9PdaS9c1t3B4","type":"invoice_payment.paid"} 
+[2025-12-12 23:53:43] local.ERROR: Command "subscriptions:sync-stripe" is not defined.
+
+Did you mean one of these?
+    subscriptions:check-overdue
+    subscriptions:sync {"exception":"[object] (Symfony\\Component\\Console\\Exception\\CommandNotFoundException(code: 0): Command \"subscriptions:sync-stripe\" is not defined.
+
+Did you mean one of these?
+    subscriptions:check-overdue
+    subscriptions:sync at /mnt/c/xampp/htdocs/StoreFlow/vendor/symfony/console/Application.php:745)
+[stacktrace]
+#0 /mnt/c/xampp/htdocs/StoreFlow/vendor/symfony/console/Application.php(266): Symfony\\Component\\Console\\Application->find()
+#1 /mnt/c/xampp/htdocs/StoreFlow/vendor/symfony/console/Application.php(175): Symfony\\Component\\Console\\Application->doRun()
+#2 /mnt/c/xampp/htdocs/StoreFlow/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(201): Symfony\\Component\\Console\\Application->run()
+#3 /mnt/c/xampp/htdocs/StoreFlow/artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle()
+#4 {main}
+"} 
+[2025-12-12 23:53:56] local.ERROR: The "--merchant" option does not exist. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\RuntimeException(code: 0): The \"--merchant\" option does not exist. at /mnt/c/xampp/htdocs/StoreFlow/vendor/symfony/console/Input/ArgvInput.php:223)
+[stacktrace]
+#0 /mnt/c/xampp/htdocs/StoreFlow/vendor/symfony/console/Input/ArgvInput.php(150): Symfony\\Component\\Console\\Input\\ArgvInput->addLongOption()
+#1 /mnt/c/xampp/htdocs/StoreFlow/vendor/symfony/console/Input/ArgvInput.php(85): Symfony\\Component\\Console\\Input\\ArgvInput->parseLongOption()
+#2 /mnt/c/xampp/htdocs/StoreFlow/vendor/symfony/console/Input/ArgvInput.php(74): Symfony\\Component\\Console\\Input\\ArgvInput->parseToken()
+#3 /mnt/c/xampp/htdocs/StoreFlow/vendor/symfony/console/Input/Input.php(56): Symfony\\Component\\Console\\Input\\ArgvInput->parse()
+#4 /mnt/c/xampp/htdocs/StoreFlow/vendor/symfony/console/Command/Command.php(285): Symfony\\Component\\Console\\Input\\Input->bind()
+#5 /mnt/c/xampp/htdocs/StoreFlow/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#6 /mnt/c/xampp/htdocs/StoreFlow/vendor/symfony/console/Application.php(1106): Illuminate\\Console\\Command->run()
+#7 /mnt/c/xampp/htdocs/StoreFlow/vendor/symfony/console/Application.php(324): Symfony\\Component\\Console\\Application->doRunCommand()
+#8 /mnt/c/xampp/htdocs/StoreFlow/vendor/symfony/console/Application.php(175): Symfony\\Component\\Console\\Application->doRun()
+#9 /mnt/c/xampp/htdocs/StoreFlow/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(201): Symfony\\Component\\Console\\Application->run()
+#10 /mnt/c/xampp/htdocs/StoreFlow/artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle()
+#11 {main}
+"} 
+[2025-12-12 23:54:20] local.INFO: Subscription synced from Stripe {"merchant_id":2,"status":"active"} 
+[2025-12-12 23:58:01] local.INFO: Unhandled webhook event type {"type":"customer.updated"} 
+[2025-12-12 23:58:01] local.INFO: Webhook processed successfully {"event_id":"evt_1SdVv0GWY8SI9PdaSgHNQ3GW","type":"customer.updated"} 
+[2025-12-12 23:58:06] local.INFO: Unhandled webhook event type {"type":"test_helpers.test_clock.created"} 
+[2025-12-12 23:58:06] local.INFO: Webhook processed successfully {"event_id":"evt_1SdVv0GWY8SI9Pda1LU37dVN","type":"test_helpers.test_clock.created"} 
+[2025-12-12 23:58:08] local.INFO: Unhandled webhook event type {"type":"invoice.upcoming"} 
+[2025-12-12 23:58:08] local.INFO: Webhook processed successfully {"event_id":"evt_1SdVv4GWY8SI9PdaOw7Yu4Q5","type":"invoice.upcoming"} 
+[2025-12-12 23:58:11] local.INFO: Unhandled webhook event type {"type":"invoice.created"} 
+[2025-12-12 23:58:11] local.INFO: Webhook processed successfully {"event_id":"evt_1SdVv5GWY8SI9PdadB4osrm5","type":"invoice.created"} 
+[2025-12-12 23:58:11] local.INFO: Subscription synced from Stripe {"merchant_id":2,"status":"active"} 
+[2025-12-12 23:58:11] local.INFO: Subscription updated {"merchant_id":2,"subscription_id":"sub_1SdVmqGWY8SI9PdagIa4mP4d","status":"active"} 
+[2025-12-12 23:58:11] local.INFO: Webhook processed successfully {"event_id":"evt_1SdVv5GWY8SI9Pda71L6L3xB","type":"customer.subscription.updated"} 
+[2025-12-12 23:58:11] local.INFO: Unhandled webhook event type {"type":"test_helpers.test_clock.ready"} 
+[2025-12-12 23:58:11] local.INFO: Webhook processed successfully {"event_id":"evt_1SdVv7GWY8SI9PdaoRGzUj6R","type":"test_helpers.test_clock.ready"} 
+[2025-12-13 00:00:42] local.INFO: Subscription canceled {"merchant_id":2,"subscription_id":"sub_1SdVmqGWY8SI9PdagIa4mP4d"} 
+[2025-12-13 00:00:42] local.INFO: Subscription canceled {"merchant_id":2,"subscription_id":"sub_1SdVmqGWY8SI9PdagIa4mP4d"} 
+[2025-12-13 00:00:42] local.INFO: Webhook processed successfully {"event_id":"evt_1SdVxZGWY8SI9PdaSHqz1QC9","type":"customer.subscription.deleted"} 
+[2025-12-13 00:00:50] local.INFO: Unhandled webhook event type {"type":"invoice.updated"} 
+[2025-12-13 00:00:50] local.INFO: Webhook processed successfully {"event_id":"evt_1SdVxeGWY8SI9PdaHHCSrWQQ","type":"invoice.updated"} 
+[2025-12-13 00:15:36] local.INFO: === ONBOARDING START ===  
+[2025-12-13 00:15:36] local.INFO: User ID: 9  
+[2025-12-13 00:15:36] local.INFO: Merchant ID: 6  
+[2025-12-13 00:15:36] local.INFO: Owner User ID: 9  
+[2025-12-13 00:15:36] local.INFO: Onboarding Complete: false  
+[2025-12-13 00:15:36] local.INFO: Starting transaction...  
+[2025-12-13 00:15:36] local.INFO: Validated data: {"name":"test","description":null,"logo":null,"email":null,"phone":null,"address":null,"city":null,"state":null,"postcode":null,"country":null} 
+[2025-12-13 00:15:36] local.INFO: Creating store with data: {"merchant_id":6,"name":"test","description":null,"contact_email":null,"contact_phone":null,"address_primary":null,"address_city":null,"address_state":null,"address_postcode":null,"logo_path":null,"is_active":true} 
+[2025-12-13 00:15:36] local.INFO: Store created with ID: 13  
+[2025-12-13 00:15:36] local.INFO: Attaching user to store...  
+[2025-12-13 00:15:36] local.INFO: User attached to store  
+[2025-12-13 00:15:36] local.INFO: Marking onboarding as complete...  
+[2025-12-13 00:15:36] local.INFO: Onboarding marked complete  
+[2025-12-13 00:15:36] local.INFO: Session store_id set to: 13  
+[2025-12-13 00:15:36] local.INFO: Transaction completed successfully  
+[2025-12-13 00:15:36] local.INFO: Redirecting to dashboard...  
+[2025-12-13 00:34:32] local.INFO: Stripe customer created {"merchant_id":6,"customer_id":"cus_TahuCn8eYhS88b"} 
+[2025-12-13 00:34:33] local.INFO: Checkout session created {"merchant_id":6,"session_id":"cs_test_a1cKycQTIXXJTxviloEkPE6AXk8U2WCXK37kioh4TrXCZx1c8RomFGFg1E"} 
+[2025-12-13 00:34:33] local.INFO: Checkout session created {"merchant_id":6,"session_id":"cs_test_a1cKycQTIXXJTxviloEkPE6AXk8U2WCXK37kioh4TrXCZx1c8RomFGFg1E"} 
+[2025-12-13 00:34:36] local.INFO: Unhandled webhook event type {"type":"customer.created"} 
+[2025-12-13 00:34:36] local.INFO: Webhook processed successfully {"event_id":"evt_1SdWUNGWY8SI9PdasjK5fUAP","type":"customer.created"} 
+[2025-12-13 00:35:04] local.INFO: Unhandled webhook event type {"type":"payment_method.attached"} 
+[2025-12-13 00:35:04] local.INFO: Webhook processed successfully {"event_id":"evt_1SdWUrGWY8SI9PdaXCkq2VtV","type":"payment_method.attached"} 
+[2025-12-13 00:35:06] local.INFO: Unhandled webhook event type {"type":"setup_intent.succeeded"} 
+[2025-12-13 00:35:06] local.INFO: Webhook processed successfully {"event_id":"evt_1SdWUsGWY8SI9Pda9ENwk0hG","type":"setup_intent.succeeded"} 
+[2025-12-13 00:35:06] local.INFO: Unhandled webhook event type {"type":"setup_intent.created"} 
+[2025-12-13 00:35:06] local.INFO: Webhook processed successfully {"event_id":"evt_1SdWUsGWY8SI9PdaXyPiPA8r","type":"setup_intent.created"} 
+[2025-12-13 00:35:06] local.INFO: Unhandled webhook event type {"type":"checkout.session.completed"} 
+[2025-12-13 00:35:06] local.INFO: Webhook processed successfully {"event_id":"evt_1SdWUvGWY8SI9PdaxB3HSxVL","type":"checkout.session.completed"} 
+[2025-12-13 00:35:06] local.INFO: Unhandled webhook event type {"type":"customer.updated"} 
+[2025-12-13 00:35:06] local.INFO: Webhook processed successfully {"event_id":"evt_1SdWUvGWY8SI9PdatLfP4aHv","type":"customer.updated"} 
+[2025-12-13 00:35:07] local.INFO: Unhandled webhook event type {"type":"invoice.created"} 
+[2025-12-13 00:35:07] local.INFO: Webhook processed successfully {"event_id":"evt_1SdWUvGWY8SI9Pda8m7Uq39r","type":"invoice.created"} 
+[2025-12-13 00:35:09] local.INFO: Unhandled webhook event type {"type":"invoice.finalized"} 
+[2025-12-13 00:35:09] local.INFO: Webhook processed successfully {"event_id":"evt_1SdWUvGWY8SI9Pdarv5oSXKX","type":"invoice.finalized"} 
+[2025-12-13 00:35:09] local.INFO: Unhandled webhook event type {"type":"invoice.paid"} 
+[2025-12-13 00:35:09] local.INFO: Webhook processed successfully {"event_id":"evt_1SdWUwGWY8SI9Pda1kEAN0i9","type":"invoice.paid"} 
+[2025-12-13 00:35:09] local.INFO: Webhook processed successfully {"event_id":"evt_1SdWUwGWY8SI9PdaKKZm9YlF","type":"invoice.payment_succeeded"} 
+[2025-12-13 00:35:09] local.INFO: Subscription synced from Stripe {"merchant_id":6,"status":"trialing"} 
+[2025-12-13 00:35:09] local.INFO: Subscription created {"merchant_id":6,"subscription_id":"sub_1SdWUsGWY8SI9PdahFkORbZa","status":"trialing"} 
+[2025-12-13 00:35:09] local.INFO: Webhook processed successfully {"event_id":"evt_1SdWUwGWY8SI9PdaXjLyMLIt","type":"customer.subscription.created"} 
+[2025-12-13 00:35:10] local.INFO: Checkout completed successfully {"session_id":"cs_test_a1cKycQTIXXJTxviloEkPE6AXk8U2WCXK37kioh4TrXCZx1c8RomFGFg1E","subscription_id":"sub_1SdWUsGWY8SI9PdahFkORbZa"} 
+[2025-12-13 00:37:41] local.INFO: Unhandled webhook event type {"type":"test_helpers.test_clock.created"} 
+[2025-12-13 00:37:41] local.INFO: Webhook processed successfully {"event_id":"evt_1SdWXNGWY8SI9Pdab3RNo97X","type":"test_helpers.test_clock.created"} 
+[2025-12-13 00:37:46] local.INFO: Unhandled webhook event type {"type":"customer.updated"} 
+[2025-12-13 00:37:46] local.INFO: Webhook processed successfully {"event_id":"evt_1SdWXNGWY8SI9PdaiFoTzvhg","type":"customer.updated"} 
+[2025-12-13 00:37:49] local.INFO: Unhandled webhook event type {"type":"invoice.upcoming"} 
+[2025-12-13 00:37:49] local.INFO: Webhook processed successfully {"event_id":"evt_1SdWXRGWY8SI9Pda7uom5nGQ","type":"invoice.upcoming"} 
+[2025-12-13 00:37:51] local.INFO: Trial will end soon {"merchant_id":6,"trial_end":"2025-12-27 00:35:02"} 
+[2025-12-13 00:37:51] local.INFO: Trial ending soon {"merchant_id":6,"subscription_id":"sub_1SdWUsGWY8SI9PdahFkORbZa","trial_end":1766756102} 
+[2025-12-13 00:37:51] local.INFO: Webhook processed successfully {"event_id":"evt_1SdWXRGWY8SI9PdaCc0ge2ZB","type":"customer.subscription.trial_will_end"} 
+[2025-12-13 00:37:51] local.INFO: Subscription synced from Stripe {"merchant_id":6,"status":"active"} 
+[2025-12-13 00:37:51] local.INFO: Subscription updated {"merchant_id":6,"subscription_id":"sub_1SdWUsGWY8SI9PdahFkORbZa","status":"active"} 
+[2025-12-13 00:37:51] local.INFO: Webhook processed successfully {"event_id":"evt_1SdWXTGWY8SI9PdacJJ6QQ07","type":"customer.subscription.updated"} 
+[2025-12-13 00:37:51] local.INFO: Unhandled webhook event type {"type":"invoice.created"} 
+[2025-12-13 00:37:51] local.INFO: Webhook processed successfully {"event_id":"evt_1SdWXTGWY8SI9PdaV42jrgQP","type":"invoice.created"} 
+[2025-12-13 00:37:51] local.INFO: Unhandled webhook event type {"type":"test_helpers.test_clock.ready"} 
+[2025-12-13 00:37:51] local.INFO: Webhook processed successfully {"event_id":"evt_1SdWXZGWY8SI9Pdax6CokGcU","type":"test_helpers.test_clock.ready"} 

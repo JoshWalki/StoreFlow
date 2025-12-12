@@ -57,6 +57,10 @@ class OrderStatusUpdated implements ShouldBroadcast
                 'customer_name' => $this->order->customer->first_name . ' ' . $this->order->customer->last_name,
                 'customer_email' => $this->order->customer->email,
                 'customer_phone' => $this->order->customer->phone ?? '',
+                'customer_order_count' => Order::where('customer_id', $this->order->customer_id)
+                    ->where('store_id', $this->order->store_id)
+                    ->where('status', '!=', 'cancelled')
+                    ->count(),
                 'pickup_time' => $this->order->pickup_time,
                 'shipping_name' => $this->order->shipping_name,
                 'line1' => $this->order->line1,
@@ -71,10 +75,17 @@ class OrderStatusUpdated implements ShouldBroadcast
                     return [
                         'id' => $item->id,
                         'product_id' => $item->product_id,
-                        'product_name' => $item->product->name ?? 'Unknown Product',
-                        'quantity' => $item->qty,
+                        'product_name' => $item->product?->name ?? 'Unknown Product',
+                        'quantity' => $item->quantity,
                         'price_cents' => $item->unit_price_cents,
-                        'total_cents' => $item->qty * $item->unit_price_cents,
+                        'total_cents' => $item->total_cents,
+                        'addons' => $item->addons ? $item->addons->map(function ($addon) {
+                            return [
+                                'addon_name' => $addon->name,
+                                'option_name' => '',
+                                'price_adjustment' => $addon->unit_price_cents / 100,
+                            ];
+                        })->toArray() : [],
                     ];
                 }),
                 'created_at' => $this->order->created_at,

@@ -1,255 +1,415 @@
 <template>
-    <DashboardLayout :store="store" :user="user">
-        <div class="max-w-3xl">
-            <div class="mb-6">
-                <Link :href="route('products.index')" class="text-blue-600 hover:text-blue-800">
-                    ← Back to Products
-                </Link>
-            </div>
+    <div class="max-w-3xl">
+        <div class="mb-6">
+            <Link
+                :href="route('products.index')"
+                class="text-blue-600 hover:text-blue-800"
+            >
+                ← Back to Products
+            </Link>
+        </div>
 
-            <div class="bg-white rounded-lg shadow-sm p-6">
-                <h1 class="text-2xl font-bold text-gray-800 mb-6">Create Product</h1>
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">
+                Create Product
+            </h1>
 
-                <form @submit.prevent="submitForm" class="space-y-6">
-                    <!-- Name -->
-                    <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-                            Name <span class="text-red-500">*</span>
-                        </label>
+            <form @submit.prevent="submitForm" class="space-y-6">
+                <!-- Featured Status -->
+                <div
+                    class="bg-yellow-50 border border-yellow-200 rounded-lg p-4"
+                >
+                    <div class="flex items-center">
                         <input
-                            id="name"
-                            v-model="form.name"
-                            type="text"
+                            id="is_featured"
+                            v-model="form.is_featured"
+                            type="checkbox"
+                            class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+                        />
+                        <label
+                            for="is_featured"
+                            class="ml-2 block text-sm font-medium text-gray-700"
+                        >
+                            Featured Product
+                        </label>
+                    </div>
+                    <p class="mt-1 ml-6 text-xs text-gray-600">
+                        Featured products will be displayed prominently at the
+                        top of your storefront
+                    </p>
+                </div>
+
+                <!-- Name -->
+                <div>
+                    <label
+                        for="name"
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                        Name <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                        id="name"
+                        v-model="form.name"
+                        type="text"
+                        required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <p
+                        v-if="form.errors.name"
+                        class="mt-1 text-sm text-red-600"
+                    >
+                        {{ form.errors.name }}
+                    </p>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label
+                        for="description"
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                        Description
+                    </label>
+                    <textarea
+                        id="description"
+                        v-model="form.description"
+                        rows="4"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <p
+                        v-if="form.errors.description"
+                        class="mt-1 text-sm text-red-600"
+                    >
+                        {{ form.errors.description }}
+                    </p>
+                </div>
+
+                <!-- Category -->
+                <div>
+                    <label
+                        for="category_id"
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                        Category
+                    </label>
+                    <select
+                        id="category_id"
+                        v-model="form.category_id"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    >
+                        <option value="">Select a category</option>
+                        <option
+                            v-for="category in categories"
+                            :key="category.id"
+                            :value="category.id"
+                        >
+                            {{ category.name }}
+                        </option>
+                    </select>
+                    <p
+                        v-if="form.errors.category_id"
+                        class="mt-1 text-sm text-red-600"
+                    >
+                        {{ form.errors.category_id }}
+                    </p>
+                </div>
+
+                <!-- Store Assignment -->
+                <div>
+                    <label
+                        for="store_id"
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                        Available In Store
+                    </label>
+                    <select
+                        id="store_id"
+                        v-model="form.store_id"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    >
+                        <option :value="null">
+                            All Stores (Merchant-Wide)
+                        </option>
+                        <option
+                            v-for="store in stores"
+                            :key="store.id"
+                            :value="store.id"
+                        >
+                            {{ store.name }}
+                        </option>
+                    </select>
+                    <p class="mt-1 text-sm text-gray-500">
+                        Choose "All Stores" to make this product available
+                        across all your store locations, or select a specific
+                        store.
+                    </p>
+                    <p
+                        v-if="form.errors.store_id"
+                        class="mt-1 text-sm text-red-600"
+                    >
+                        {{ form.errors.store_id }}
+                    </p>
+                </div>
+
+                <!-- Price -->
+                <div>
+                    <label
+                        for="price"
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                        Price <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-2 text-gray-600"
+                            >$</span
+                        >
+                        <input
+                            id="price"
+                            v-model.number="form.price"
+                            type="number"
+                            step="0.01"
+                            min="0"
                             required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                            class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                         />
-                        <p v-if="form.errors.name" class="mt-1 text-sm text-red-600">{{ form.errors.name }}</p>
                     </div>
+                    <p
+                        v-if="form.errors.price"
+                        class="mt-1 text-sm text-red-600"
+                    >
+                        {{ form.errors.price }}
+                    </p>
+                </div>
 
-                    <!-- Description -->
-                    <div>
-                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-                            Description
-                        </label>
-                        <textarea
-                            id="description"
-                            v-model="form.description"
-                            rows="4"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                <!-- Product Images -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Product Images
+                    </label>
+                    <div class="mt-2">
+                        <input
+                            type="file"
+                            @change="handleImageChange"
+                            multiple
+                            accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                         />
-                        <p v-if="form.errors.description" class="mt-1 text-sm text-red-600">{{ form.errors.description }}</p>
+                        <p class="mt-1 text-sm text-gray-500">
+                            Upload up to 5 images (JPEG, PNG, GIF, WebP - Max
+                            2MB each)
+                        </p>
                     </div>
+                    <p
+                        v-if="form.errors.images"
+                        class="mt-1 text-sm text-red-600"
+                    >
+                        {{ form.errors.images }}
+                    </p>
 
-                    <!-- Category -->
-                    <div>
-                        <label for="category_id" class="block text-sm font-medium text-gray-700 mb-2">
-                            Category
-                        </label>
-                        <select
-                            id="category_id"
-                            v-model="form.category_id"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    <!-- Image Preview -->
+                    <div
+                        v-if="imagePreviews.length > 0"
+                        class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"
+                    >
+                        <div
+                            v-for="(preview, index) in imagePreviews"
+                            :key="index"
+                            class="relative"
                         >
-                            <option value="">Select a category</option>
-                            <option v-for="category in categories" :key="category.id" :value="category.id">
-                                {{ category.name }}
-                            </option>
-                        </select>
-                        <p v-if="form.errors.category_id" class="mt-1 text-sm text-red-600">{{ form.errors.category_id }}</p>
-                    </div>
-
-                    <!-- Store Assignment -->
-                    <div>
-                        <label for="store_id" class="block text-sm font-medium text-gray-700 mb-2">
-                            Available In Store
-                        </label>
-                        <select
-                            id="store_id"
-                            v-model="form.store_id"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                        >
-                            <option :value="null">All Stores (Merchant-Wide)</option>
-                            <option v-for="store in stores" :key="store.id" :value="store.id">
-                                {{ store.name }}
-                            </option>
-                        </select>
-                        <p class="mt-1 text-sm text-gray-500">Choose "All Stores" to make this product available across all your store locations, or select a specific store.</p>
-                        <p v-if="form.errors.store_id" class="mt-1 text-sm text-red-600">{{ form.errors.store_id }}</p>
-                    </div>
-
-                    <!-- Price -->
-                    <div>
-                        <label for="price" class="block text-sm font-medium text-gray-700 mb-2">
-                            Price <span class="text-red-500">*</span>
-                        </label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-2 text-gray-600">$</span>
-                            <input
-                                id="price"
-                                v-model.number="form.price"
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                required
-                                class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                            <img
+                                :src="preview"
+                                class="w-full h-32 object-cover rounded-lg border border-gray-300"
                             />
-                        </div>
-                        <p v-if="form.errors.price" class="mt-1 text-sm text-red-600">{{ form.errors.price }}</p>
-                    </div>
-
-                    <!-- Product Images -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Product Images
-                        </label>
-                        <div class="mt-2">
-                            <input
-                                type="file"
-                                @change="handleImageChange"
-                                multiple
-                                accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                            />
-                            <p class="mt-1 text-sm text-gray-500">Upload up to 5 images (JPEG, PNG, GIF, WebP - Max 2MB each)</p>
-                        </div>
-                        <p v-if="form.errors.images" class="mt-1 text-sm text-red-600">{{ form.errors.images }}</p>
-
-                        <!-- Image Preview -->
-                        <div v-if="imagePreviews.length > 0" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div v-for="(preview, index) in imagePreviews" :key="index" class="relative">
-                                <img :src="preview" class="w-full h-32 object-cover rounded-lg border border-gray-300" />
-                                <button
-                                    type="button"
-                                    @click="removeImage(index)"
-                                    class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                            <button
+                                type="button"
+                                @click="removeImage(index)"
+                                class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                            >
+                                <svg
+                                    class="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
                                 >
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            </div>
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12"
+                                    />
+                                </svg>
+                            </button>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Shippable Status -->
-                    <div class="border-t pt-6">
-                        <div class="flex items-center mb-4">
-                            <input
-                                id="is_shippable"
-                                v-model="form.is_shippable"
-                                type="checkbox"
-                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                            />
-                            <label for="is_shippable" class="ml-2 block text-sm font-medium text-gray-700">
-                                This product is shippable
+                <!-- Shippable Status -->
+                <div class="border-t pt-6">
+                    <div class="flex items-center mb-4">
+                        <input
+                            id="is_shippable"
+                            v-model="form.is_shippable"
+                            type="checkbox"
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <label
+                            for="is_shippable"
+                            class="ml-2 block text-sm font-medium text-gray-700"
+                        >
+                            This product is shippable
+                        </label>
+                    </div>
+
+                    <!-- Shipping Dimensions (shown only if shippable) -->
+                    <div
+                        v-if="form.is_shippable"
+                        class="space-y-4 pl-6 border-l-2 border-blue-200"
+                    >
+                        <h3 class="text-sm font-medium text-gray-700 mb-3">
+                            Shipping Information
+                        </h3>
+                        <h4>optional</h4>
+
+                        <!-- Weight -->
+                        <div>
+                            <label
+                                for="weight_grams"
+                                class="block text-sm font-medium text-gray-700 mb-2"
+                            >
+                                Weight (grams)
                             </label>
+                            <input
+                                id="weight_grams"
+                                v-model.number="form.weight_grams"
+                                type="number"
+                                min="0"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                            />
+                            <p
+                                v-if="form.errors.weight_grams"
+                                class="mt-1 text-sm text-red-600"
+                            >
+                                {{ form.errors.weight_grams }}
+                            </p>
                         </div>
 
-                        <!-- Shipping Dimensions (shown only if shippable) -->
-                        <div v-if="form.is_shippable" class="space-y-4 pl-6 border-l-2 border-blue-200">
-                            <h3 class="text-sm font-medium text-gray-700 mb-3">Shipping Information</h3>
-
-                            <!-- Weight -->
+                        <!-- Dimensions -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label for="weight_grams" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Weight (grams)
+                                <label
+                                    for="length_cm"
+                                    class="block text-sm font-medium text-gray-700 mb-2"
+                                >
+                                    Length (cm)
                                 </label>
                                 <input
-                                    id="weight_grams"
-                                    v-model.number="form.weight_grams"
+                                    id="length_cm"
+                                    v-model.number="form.length_cm"
                                     type="number"
                                     min="0"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                                 />
-                                <p v-if="form.errors.weight_grams" class="mt-1 text-sm text-red-600">{{ form.errors.weight_grams }}</p>
+                                <p
+                                    v-if="form.errors.length_cm"
+                                    class="mt-1 text-sm text-red-600"
+                                >
+                                    {{ form.errors.length_cm }}
+                                </p>
                             </div>
 
-                            <!-- Dimensions -->
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div>
-                                    <label for="length_cm" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Length (cm)
-                                    </label>
-                                    <input
-                                        id="length_cm"
-                                        v-model.number="form.length_cm"
-                                        type="number"
-                                        min="0"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                    <p v-if="form.errors.length_cm" class="mt-1 text-sm text-red-600">{{ form.errors.length_cm }}</p>
-                                </div>
+                            <div>
+                                <label
+                                    for="width_cm"
+                                    class="block text-sm font-medium text-gray-700 mb-2"
+                                >
+                                    Width (cm)
+                                </label>
+                                <input
+                                    id="width_cm"
+                                    v-model.number="form.width_cm"
+                                    type="number"
+                                    min="0"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                />
+                                <p
+                                    v-if="form.errors.width_cm"
+                                    class="mt-1 text-sm text-red-600"
+                                >
+                                    {{ form.errors.width_cm }}
+                                </p>
+                            </div>
 
-                                <div>
-                                    <label for="width_cm" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Width (cm)
-                                    </label>
-                                    <input
-                                        id="width_cm"
-                                        v-model.number="form.width_cm"
-                                        type="number"
-                                        min="0"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                    <p v-if="form.errors.width_cm" class="mt-1 text-sm text-red-600">{{ form.errors.width_cm }}</p>
-                                </div>
-
-                                <div>
-                                    <label for="height_cm" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Height (cm)
-                                    </label>
-                                    <input
-                                        id="height_cm"
-                                        v-model.number="form.height_cm"
-                                        type="number"
-                                        min="0"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                    <p v-if="form.errors.height_cm" class="mt-1 text-sm text-red-600">{{ form.errors.height_cm }}</p>
-                                </div>
+                            <div>
+                                <label
+                                    for="height_cm"
+                                    class="block text-sm font-medium text-gray-700 mb-2"
+                                >
+                                    Height (cm)
+                                </label>
+                                <input
+                                    id="height_cm"
+                                    v-model.number="form.height_cm"
+                                    type="number"
+                                    min="0"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                />
+                                <p
+                                    v-if="form.errors.height_cm"
+                                    class="mt-1 text-sm text-red-600"
+                                >
+                                    {{ form.errors.height_cm }}
+                                </p>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Active Status -->
-                    <div class="flex items-center">
-                        <input
-                            id="is_active"
-                            v-model="form.is_active"
-                            type="checkbox"
-                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                        />
-                        <label for="is_active" class="ml-2 block text-sm text-gray-700">
-                            Active
-                        </label>
-                    </div>
+                <!-- Active Status -->
+                <div class="flex items-center">
+                    <input
+                        id="is_active"
+                        v-model="form.is_active"
+                        type="checkbox"
+                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <label
+                        for="is_active"
+                        class="ml-2 block text-sm text-gray-700"
+                    >
+                        Active
+                    </label>
+                </div>
 
-                    <!-- Actions -->
-                    <div class="flex justify-end space-x-3">
-                        <Link
-                            :href="route('products.index')"
-                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                        >
-                            Cancel
-                        </Link>
-                        <button
-                            type="submit"
-                            :disabled="form.processing"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-                        >
-                            {{ form.processing ? 'Creating...' : 'Create Product' }}
-                        </button>
-                    </div>
-                </form>
-            </div>
+                <!-- Product Addons -->
+                <div class="border-t pt-6">
+                    <ProductAddonManager v-model:addons="form.addons" />
+                </div>
+
+                <!-- Actions -->
+                <div class="flex justify-end space-x-3">
+                    <Link
+                        :href="route('products.index')"
+                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                    >
+                        Cancel
+                    </Link>
+                    <button
+                        type="submit"
+                        :disabled="form.processing"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                    >
+                        {{ form.processing ? "Creating..." : "Create Product" }}
+                    </button>
+                </div>
+            </form>
         </div>
-    </DashboardLayout>
+    </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { Link, useForm } from '@inertiajs/vue3';
-import DashboardLayout from '@/Layouts/DashboardLayout.vue';
+import { ref } from "vue";
+import { Link, useForm } from "@inertiajs/vue3";
+import ProductAddonManager from "@/Components/Admin/ProductAddonManager.vue";
 
 const props = defineProps({
     categories: Array,
@@ -259,18 +419,20 @@ const props = defineProps({
 });
 
 const form = useForm({
-    name: '',
-    description: '',
-    category_id: '',
+    name: "",
+    description: "",
+    category_id: "",
     store_id: null,
-    price: '',
+    price: "",
     is_active: true,
+    is_featured: false,
     is_shippable: true,
     weight_grams: null,
     length_cm: null,
     width_cm: null,
     height_cm: null,
     images: [],
+    addons: [],
 });
 
 const imagePreviews = ref([]);
@@ -279,13 +441,13 @@ const handleImageChange = (event) => {
     const files = Array.from(event.target.files);
 
     if (files.length + form.images.length > 5) {
-        alert('You can only upload up to 5 images');
+        alert("You can only upload up to 5 images");
         return;
     }
 
     form.images = [...form.images, ...files];
 
-    files.forEach(file => {
+    files.forEach((file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
             imagePreviews.value.push(e.target.result);
@@ -300,7 +462,7 @@ const removeImage = (index) => {
 };
 
 const submitForm = () => {
-    form.post(route('products.store'), {
+    form.post(route("products.store"), {
         forceFormData: true,
     });
 };

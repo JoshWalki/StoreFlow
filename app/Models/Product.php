@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
@@ -20,6 +21,8 @@ class Product extends Model
         'price_cents',
         'image_path',
         'is_active',
+        'is_featured',
+        'addon_data',
         'weight_grams',
         'length_cm',
         'width_cm',
@@ -34,8 +37,12 @@ class Product extends Model
         'width_cm' => 'integer',
         'height_cm' => 'integer',
         'is_active' => 'boolean',
+        'is_featured' => 'boolean',
         'is_shippable' => 'boolean',
+        'addon_data' => 'array',
     ];
+
+    protected $appends = ['addons'];
 
     public function merchant(): BelongsTo
     {
@@ -65,5 +72,15 @@ class Product extends Model
     public function primaryImage()
     {
         return $this->hasOne(ProductImage::class)->where('is_primary', true);
+    }
+
+    /**
+     * Get addons attribute - returns addon_data for compatibility.
+     */
+    public function getAddonsAttribute()
+    {
+        // Access the casted addon_data value through the array access
+        $data = $this->getAttributeValue('addon_data');
+        return $data ?? [];
     }
 }

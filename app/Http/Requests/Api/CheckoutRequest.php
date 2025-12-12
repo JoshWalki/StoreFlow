@@ -35,6 +35,17 @@ class CheckoutRequest extends FormRequest
             'items.*.customizations' => ['nullable', 'array'],
             'items.*.customizations.*.group_id' => ['required', 'integer', 'exists:customization_groups,id'],
             'items.*.customizations.*.option_id' => ['required', 'integer', 'exists:customization_options,id'],
+            'items.*.addons' => ['nullable', 'array'],
+            'items.*.addons.*.addon_id' => ['nullable', 'integer', 'exists:product_addons,id'],
+            'items.*.addons.*.addon_name' => ['nullable', 'string'],
+            'items.*.addons.*.option_name' => ['nullable', 'string'],
+            'items.*.addons.*.price_adjustment' => ['nullable', 'numeric'],
+            'items.*.addons.*.quantity' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'payment_intent_id' => ['nullable', 'string', 'starts_with:pi_'],
+            'payment_method' => ['nullable', 'string', 'max:50'],
+            'account' => ['nullable', 'array'],
+            'account.password' => ['nullable', 'string', 'min:8'],
+            'account.password_confirmation' => ['nullable', 'string', 'same:account.password'],
         ];
 
         // Add delivery-specific validation rules

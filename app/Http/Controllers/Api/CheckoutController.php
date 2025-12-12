@@ -9,10 +9,14 @@ use App\Models\Customer;
 use App\Models\CustomizationOption;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\OrderItemAddon;
 use App\Models\OrderItemOption;
 use App\Models\Product;
+use App\Models\ProductAddon;
 use App\Models\Store;
+use App\Services\AddonPricingService;
 use App\Services\Shipping\ShippingEngine;
+use App\Services\StripeConnectService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -20,10 +24,125 @@ use Illuminate\Support\Str;
 class CheckoutController extends Controller
 {
     protected ShippingEngine $shippingEngine;
+    protected AddonPricingService $addonPricingService;
+    protected StripeConnectService $stripeConnectService;
 
-    public function __construct(ShippingEngine $shippingEngine)
-    {
+    public function __construct(
+        ShippingEngine $shippingEngine,
+        AddonPricingService $addonPricingService,
+        StripeConnectService $stripeConnectService
+    ) {
         $this->shippingEngine = $shippingEngine;
+        $this->addonPricingService = $addonPricingService;
+        $this->stripeConnectService = $stripeConnectService;
+    }
+
+    /**
+     * Create a Stripe PaymentIntent for checkout.
+     *
+     * @param CheckoutRequest $request
+     * @param Store $store
+     * @return JsonResponse
+     */
+    public function createPaymentIntent(CheckoutRequest $request, Store $store): JsonResponse
+    {
+        $validated = $request->validated();
+
+        try {
+            // Calculate order totals
+            $calculationResult = $this->calculateOrderTotals(
+                $validated['items'],
+                $validated['fulfilment_type'],
+                $store,
+                $validated['shipping_method_id'] ?? null,
+                $validated['shipping_address'] ?? null
+            );
+
+            if (isset($calculationResult['error'])) {
+                return response()->json([
+                    'message' => $calculationResult['error'],
+                ], 422);
+            }
+
+            $totalCents = $calculationResult['total_cents'];
+
+            // Add discount/tax if provided
+            if (isset($validated['discount_cents'])) {
+                $totalCents += $validated['discount_cents'];
+            }
+            if (isset($validated['tax_cents'])) {
+                $totalCents += $validated['tax_cents'];
+            }
+
+            // Find or create customer and potentially Stripe Customer
+            $customer = $this->findOrCreateCustomer(
+                $store->merchant_id,
+                $validated['contact']
+            );
+
+            $stripeCustomerId = null;
+
+            // If creating account with password, create Stripe Customer
+            if (!empty($validated['account']['password']) && !$customer->stripe_customer_id) {
+                try {
+                    $stripeCustomer = $this->stripeConnectService->createStripeCustomer(
+                        $store->merchant,
+                        $validated['contact']
+                    );
+
+                    $customer->update([
+                        'stripe_customer_id' => $stripeCustomer['id'],
+                    ]);
+
+                    $stripeCustomerId = $stripeCustomer['id'];
+
+                    \Log::info('Stripe Customer created during checkout', [
+                        'customer_id' => $customer->id,
+                        'stripe_customer_id' => $stripeCustomerId,
+                    ]);
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to create Stripe Customer, continuing as guest', [
+                        'customer_id' => $customer->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                    // Continue as guest if Stripe Customer creation fails
+                }
+            } else if ($customer->stripe_customer_id) {
+                // Use existing Stripe Customer ID
+                $stripeCustomerId = $customer->stripe_customer_id;
+            }
+
+            // Create Stripe PaymentIntent with destination charge
+            $merchant = $store->merchant;
+
+            $paymentIntent = $this->stripeConnectService->createPaymentIntent(
+                $merchant,
+                $totalCents,
+                [
+                    'store_id' => $store->id,
+                    'order_type' => 'checkout',
+                    'customer_id' => $customer->id,
+                ],
+                $stripeCustomerId
+            );
+
+            return response()->json([
+                'client_secret' => $paymentIntent['client_secret'],
+                'amount_cents' => $totalCents,
+                'payment_intent_id' => $paymentIntent['id'],
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Failed to create payment intent', [
+                'store_id' => $store->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'message' => 'Failed to initialize payment.',
+                'error' => config('app.debug') ? $e->getMessage() : null,
+            ], 500);
+        }
     }
 
     /**
@@ -37,7 +156,89 @@ class CheckoutController extends Controller
     {
         $validated = $request->validated();
 
+        \Log::info('Checkout request received', [
+            'store_id' => $store->id,
+            'items' => $validated['items'] ?? [],
+            'payment_intent_id' => $validated['payment_intent_id'] ?? null
+        ]);
+
+        // DEBUG: Write to file
+        file_put_contents(
+            storage_path('logs/checkout-debug.txt'),
+            date('Y-m-d H:i:s') . " - Checkout request:\n" .
+            json_encode($validated['items'], JSON_PRETTY_PRINT) . "\n\n",
+            FILE_APPEND
+        );
+
         try {
+            // Verify payment intent if provided
+            $paymentIntentId = $validated['payment_intent_id'] ?? null;
+            $paymentStatus = 'unpaid';
+            $paymentReference = null;
+
+            if ($paymentIntentId) {
+                try {
+                    // Retry logic to handle race conditions with payment processing
+                    $maxRetries = 3;
+                    $retryDelay = 500; // milliseconds
+                    $paymentIntent = null;
+
+                    for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+                        try {
+                            $paymentIntent = $this->stripeConnectService->retrievePaymentIntent($paymentIntentId);
+                            break; // Success, exit retry loop
+                        } catch (\Exception $e) {
+                            $errorCode = $e->getCode();
+                            $errorMessage = $e->getMessage();
+
+                            \Log::warning('Payment intent retrieval attempt failed', [
+                                'attempt' => $attempt,
+                                'payment_intent_id' => $paymentIntentId,
+                                'error' => $errorMessage,
+                                'error_code' => $errorCode,
+                            ]);
+
+                            // If this is not the last attempt and error is retriable, wait and retry
+                            if ($attempt < $maxRetries && str_contains($errorMessage, 'unexpected_state')) {
+                                usleep($retryDelay * 1000); // Convert to microseconds
+                                $retryDelay *= 2; // Exponential backoff
+                                continue;
+                            }
+
+                            // If last attempt or non-retriable error, throw exception
+                            throw $e;
+                        }
+                    }
+
+                    if (!$paymentIntent) {
+                        throw new \Exception('Failed to retrieve payment intent after retries');
+                    }
+
+                    // Verify payment is successful
+                    if ($paymentIntent['status'] !== 'succeeded') {
+                        return response()->json([
+                            'message' => 'Payment has not been completed. Please complete payment before checkout.',
+                            'payment_status' => $paymentIntent['status'],
+                        ], 422);
+                    }
+
+                    $paymentStatus = 'paid';
+                    $paymentReference = $paymentIntentId;
+
+                } catch (\Exception $e) {
+                    \Log::error('Failed to verify payment intent', [
+                        'payment_intent_id' => $paymentIntentId,
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
+                    ]);
+
+                    return response()->json([
+                        'message' => 'Failed to verify payment. Please try again.',
+                        'error' => config('app.debug') ? $e->getMessage() : null,
+                    ], 422);
+                }
+            }
+
             DB::beginTransaction();
 
             // Validate fulfilment type specific requirements
@@ -86,12 +287,14 @@ class CheckoutController extends Controller
                 ], 422);
             }
 
-            // Create order
+            // Create order with payment status
             $order = $this->createOrder(
                 $store,
                 $customer,
                 $validated,
-                $calculationResult
+                $calculationResult,
+                $paymentStatus,
+                $paymentReference
             );
 
             // Create order items
@@ -207,7 +410,29 @@ class CheckoutController extends Controller
                 }
             }
 
-            $itemTotal += $customizationCost;
+            // Add addon costs
+            $addonCost = 0;
+            $processedAddons = [];
+            if (!empty($item['addons'])) {
+                foreach ($item['addons'] as $addon) {
+                    // Addon data comes from cart with price_adjustment in dollars
+                    $priceAdjustmentCents = isset($addon['price_adjustment'])
+                        ? (int) round($addon['price_adjustment'] * 100)
+                        : 0;
+
+                    $addonQty = $addon['quantity'] ?? 1;
+                    $addonCost += $priceAdjustmentCents * $addonQty * $item['qty'];
+
+                    $processedAddons[] = [
+                        'addon_name' => $addon['addon_name'] ?? 'Addon',
+                        'option_name' => $addon['option_name'] ?? '',
+                        'price_adjustment' => $addon['price_adjustment'] ?? 0,
+                        'quantity' => $addonQty,
+                    ];
+                }
+            }
+
+            $itemTotal += $customizationCost + $addonCost;
             $itemsTotal += $itemTotal;
 
             $processedItems[] = [
@@ -215,6 +440,7 @@ class CheckoutController extends Controller
                 'qty' => $item['qty'],
                 'unit_price_cents' => $product->price_cents,
                 'customizations' => $item['customizations'] ?? [],
+                'addons' => $processedAddons,
             ];
         }
 
@@ -255,13 +481,17 @@ class CheckoutController extends Controller
      * @param Customer $customer
      * @param array $validated
      * @param array $calculationResult
+     * @param string $paymentStatus
+     * @param string|null $paymentReference
      * @return Order
      */
     protected function createOrder(
         Store $store,
         Customer $customer,
         array $validated,
-        array $calculationResult
+        array $calculationResult,
+        string $paymentStatus = 'unpaid',
+        ?string $paymentReference = null
     ): Order {
         $orderData = [
             'public_id' => 'ORD-' . strtoupper(Str::random(12)),
@@ -279,9 +509,9 @@ class CheckoutController extends Controller
             'status' => 'pending',
 
             // Payment tracking
-            'payment_status' => 'unpaid',
+            'payment_status' => $paymentStatus,
             'payment_method' => $validated['payment_method'] ?? 'card',
-            'payment_reference' => null, // Will be set by payment gateway
+            'payment_reference' => $paymentReference,
 
             // Financial breakdown
             'items_total_cents' => $calculationResult['items_total_cents'],
@@ -326,6 +556,12 @@ class CheckoutController extends Controller
      */
     protected function createOrderItems(Order $order, array $requestItems, array $processedItems): void
     {
+        \Log::info('createOrderItems called', [
+            'order_id' => $order->id,
+            'processedItems_count' => count($processedItems),
+            'processedItems' => $processedItems
+        ]);
+
         foreach ($processedItems as $index => $item) {
             $product = $item['product'];
             $quantity = $item['qty'];
@@ -385,6 +621,40 @@ class CheckoutController extends Controller
                         ]);
                     }
                 }
+            }
+
+            // Create addon selections (frozen snapshot)
+            if (!empty($item['addons'])) {
+                \Log::info('Creating addon records', [
+                    'order_item_id' => $orderItem->id,
+                    'addons' => $item['addons']
+                ]);
+
+                foreach ($item['addons'] as $addonData) {
+                    $addonQty = $addonData['quantity'] ?? 1;
+                    $priceAdjustmentCents = isset($addonData['price_adjustment'])
+                        ? (int) round($addonData['price_adjustment'] * 100)
+                        : 0;
+
+                    $addonRecord = [
+                        'order_item_id' => $orderItem->id,
+                        'product_addon_id' => null,
+                        'name' => ($addonData['addon_name'] ?? 'Addon') . ': ' . ($addonData['option_name'] ?? ''),
+                        'description' => null,
+                        'quantity' => $addonQty,
+                        'unit_price_cents' => $priceAdjustmentCents,
+                        'total_price_cents' => $priceAdjustmentCents * $addonQty,
+                    ];
+
+                    \Log::info('Creating OrderItemAddon', $addonRecord);
+
+                    // Store addon selection with frozen data
+                    $created = OrderItemAddon::create($addonRecord);
+
+                    \Log::info('Created OrderItemAddon', ['id' => $created->id]);
+                }
+            } else {
+                \Log::info('No addons to create for order item', ['order_item_id' => $orderItem->id]);
             }
         }
     }

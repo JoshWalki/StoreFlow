@@ -1,13 +1,92 @@
 <template>
-    <DashboardLayout :store="store" :user="user">
-        <div class="space-y-6">
+    <div class="space-y-6">
             <!-- Header -->
             <div class="flex justify-between items-center">
                 <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Store Settings</h1>
             </div>
 
+            <!-- Sub-navigation Tabs -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                <nav class="flex overflow-x-auto">
+                    <button
+                        @click="navigateToSection('basic')"
+                        class="px-6 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors"
+                        :class="activeSection === 'basic'
+                            ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                            : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600'"
+                    >
+                        Basic Information
+                    </button>
+                    <button
+                        @click="navigateToSection('logo')"
+                        class="px-6 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors"
+                        :class="activeSection === 'logo'
+                            ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                            : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600'"
+                    >
+                        Store Logo
+                    </button>
+                    <button
+                        @click="navigateToSection('contact')"
+                        class="px-6 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors"
+                        :class="activeSection === 'contact'
+                            ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                            : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600'"
+                    >
+                        Contact Information
+                    </button>
+                    <button
+                        @click="navigateToSection('business')"
+                        class="px-6 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors"
+                        :class="activeSection === 'business'
+                            ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                            : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600'"
+                    >
+                        Business Settings
+                    </button>
+                    <button
+                        @click="navigateToSection('theme')"
+                        class="px-6 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors"
+                        :class="activeSection === 'theme'
+                            ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                            : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600'"
+                    >
+                        Storefront Theme
+                    </button>
+                    <button
+                        v-if="user && user.role === 'owner'"
+                        @click="navigateToSection('stripe')"
+                        class="px-6 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors"
+                        :class="activeSection === 'stripe'
+                            ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                            : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600'"
+                    >
+                        Stripe Connect
+                    </button>
+                    <button
+                        v-if="user && user.role === 'owner'"
+                        @click="navigateToSection('subscription')"
+                        class="px-6 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors"
+                        :class="activeSection === 'subscription'
+                            ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                            : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600'"
+                    >
+                        Subscription
+                    </button>
+                    <button
+                        @click="navigateToSection('migration')"
+                        class="px-6 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors"
+                        :class="activeSection === 'migration'
+                            ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                            : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600'"
+                    >
+                        Data Migration
+                    </button>
+                </nav>
+            </div>
+
             <!-- Basic Information -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <div v-if="activeSection === 'basic'" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
                 <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
                     Basic Information
                 </h2>
@@ -126,20 +205,10 @@
                         </div>
                     </div>
 
-                    <div class="flex items-center">
-                        <input
-                            id="is_active"
-                            v-model="basicForm.is_active"
-                            type="checkbox"
-                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                        />
-                        <label
-                            for="is_active"
-                            class="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                        >
-                            Store is active and accepting orders
-                        </label>
-                    </div>
+                    <ToggleSwitch
+                        v-model="basicForm.is_active"
+                        label="Store is active and accepting orders"
+                    />
 
                     <div class="flex justify-end">
                         <button
@@ -158,7 +227,7 @@
             </div>
 
             <!-- Store Logo -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <div v-if="activeSection === 'logo'" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
                 <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
                     Store Logo
                 </h2>
@@ -255,7 +324,7 @@
             </div>
 
             <!-- Contact Information -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <div v-if="activeSection === 'contact'" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
                 <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
                     Contact Information
                 </h2>
@@ -371,7 +440,7 @@
             </div>
 
             <!-- Business Settings -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <div v-if="activeSection === 'business'" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
                 <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
                     Business Settings
                 </h2>
@@ -450,20 +519,10 @@
                         />
                     </div>
 
-                    <div class="flex items-center">
-                        <input
-                            id="auto_fulfill"
-                            v-model="businessForm.auto_fulfill"
-                            type="checkbox"
-                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                        />
-                        <label
-                            for="auto_fulfill"
-                            class="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-                        >
-                            Automatically fulfill orders when paid
-                        </label>
-                    </div>
+                    <ToggleSwitch
+                        v-model="businessForm.auto_fulfill"
+                        label="Automatically fulfill orders when paid"
+                    />
 
                     <div class="flex justify-end">
                         <button
@@ -482,7 +541,7 @@
             </div>
 
             <!-- Storefront Theme -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <div v-if="activeSection === 'theme'" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
                 <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
                     Storefront Theme
                 </h2>
@@ -493,10 +552,10 @@
                         More coming soon, for free!
                     </p>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <!-- Classic Theme -->
                         <label
-                            class="relative cursor-pointer rounded-lg border-2 p-4 hover:shadow-md transition-all"
+                            class="relative cursor-pointer rounded-lg border-2 p-3 hover:shadow-md transition-all"
                             :class="
                                 themeForm.theme_key === 'classic'
                                     ? 'border-blue-600 bg-blue-50'
@@ -578,7 +637,7 @@
 
                         <!-- Modern Theme -->
                         <label
-                            class="relative cursor-pointer rounded-lg border-2 p-4 hover:shadow-md transition-all"
+                            class="relative cursor-pointer rounded-lg border-2 p-3 hover:shadow-md transition-all"
                             :class="
                                 themeForm.theme_key === 'modern'
                                     ? 'border-purple-600 bg-purple-50'
@@ -659,7 +718,7 @@
 
                         <!-- Bold Theme -->
                         <label
-                            class="relative cursor-pointer rounded-lg border-2 p-4 hover:shadow-md transition-all"
+                            class="relative cursor-pointer rounded-lg border-2 p-3 hover:shadow-md transition-all"
                             :class="
                                 themeForm.theme_key === 'bold'
                                     ? 'border-orange-600 bg-orange-50'
@@ -737,6 +796,86 @@
                                 </div>
                             </div>
                         </label>
+
+                        <!-- Monochrome Theme -->
+                        <label
+                            class="relative cursor-pointer rounded-lg border-2 p-3 hover:shadow-md transition-all"
+                            :class="
+                                themeForm.theme_key === 'monochrome'
+                                    ? 'border-gray-900 bg-gray-50'
+                                    : 'border-gray-300'
+                            "
+                        >
+                            <input
+                                type="radio"
+                                v-model="themeForm.theme_key"
+                                value="monochrome"
+                                class="sr-only"
+                            />
+                            <div class="space-y-3">
+                                <!-- Theme Preview -->
+                                <div
+                                    class="aspect-video bg-white rounded-md border border-gray-200 flex items-center justify-center"
+                                >
+                                    <div class="text-center">
+                                        <div
+                                            class="w-16 h-16 mx-auto bg-gray-900/90 backdrop-blur-xl rounded-lg mb-2 flex items-center justify-center shadow-2xl"
+                                        >
+                                            <svg
+                                                class="w-8 h-8 text-white"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <div class="space-y-1">
+                                            <div
+                                                class="h-2 w-20 bg-gray-900 rounded mx-auto"
+                                            ></div>
+                                            <div
+                                                class="h-1.5 w-16 bg-gray-400 rounded mx-auto"
+                                            ></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Theme Info -->
+                                <div>
+                                    <h3
+                                        class="font-semibold text-gray-900 flex items-center"
+                                    >
+                                        Monochrome
+                                        <span
+                                            v-if="
+                                                themeForm.theme_key === 'monochrome'
+                                            "
+                                            class="ml-2"
+                                        >
+                                            <svg
+                                                class="w-5 h-5 text-gray-900"
+                                                fill="currentColor"
+                                                viewBox="0 0 20 20"
+                                            >
+                                                <path
+                                                    fill-rule="evenodd"
+                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                    clip-rule="evenodd"
+                                                />
+                                            </svg>
+                                        </span>
+                                    </h3>
+                                    <p class="text-sm text-gray-600 mt-1">
+                                        Clean white theme with iOS-style glass buttons
+                                    </p>
+                                </div>
+                            </div>
+                        </label>
                     </div>
 
                     <div class="flex justify-end">
@@ -754,20 +893,68 @@
                     </div>
                 </form>
             </div>
+
+            <!-- Stripe Connect -->
+            <div v-if="activeSection === 'stripe' && user && user.role === 'owner'" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+                    Stripe Connect
+                </h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                    Connect your Stripe account to accept payments from customers. This is required before you can process orders.
+                </p>
+                <StripeConnectWidget />
+            </div>
+
+            <!-- Subscription Management -->
+            <div v-if="activeSection === 'subscription' && user && user.role === 'owner'">
+                <SubscriptionTab />
+            </div>
+
+            <!-- Data Migration -->
+            <div v-if="activeSection === 'migration'" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+                <DataMigrationTab :store="store" />
+            </div>
         </div>
-    </DashboardLayout>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useForm, router } from "@inertiajs/vue3";
-import DashboardLayout from "@/Layouts/DashboardLayout.vue";
+import ToggleSwitch from "@/Components/ToggleSwitch.vue";
+import StripeConnectWidget from "@/Components/StripeConnectWidget.vue";
+import DataMigrationTab from "@/Components/DataMigration/DataMigrationTab.vue";
+import SubscriptionTab from "@/Components/Settings/SubscriptionTab.vue";
 
 const props = defineProps({
     storeSettings: Object,
     store: Object,
     user: Object,
 });
+
+// Active section for sub-navigation
+const activeSection = ref('basic');
+
+// Check for hash in URL on mount and when hash changes
+onMounted(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && ['basic', 'logo', 'contact', 'business', 'theme', 'stripe', 'subscription', 'migration'].includes(hash)) {
+        activeSection.value = hash;
+    }
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', () => {
+        const newHash = window.location.hash.replace('#', '');
+        if (newHash && ['basic', 'logo', 'contact', 'business', 'theme', 'stripe', 'subscription', 'migration'].includes(newHash)) {
+            activeSection.value = newHash;
+        }
+    });
+});
+
+// Navigate to section and update URL hash
+const navigateToSection = (section) => {
+    activeSection.value = section;
+    window.location.hash = section;
+};
 
 // Logo upload state
 const logoInput = ref(null);

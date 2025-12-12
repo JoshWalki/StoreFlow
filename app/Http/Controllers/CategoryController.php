@@ -55,9 +55,22 @@ class CategoryController extends Controller
         $storeId = session('store_id');
         $store = \App\Models\Store::find($storeId);
 
+        // Load all products for this merchant/store to allow assignment
+        $products = \App\Models\Product::where('merchant_id', $user->merchant_id)
+            ->where(function ($q) use ($storeId) {
+                $q->where('store_id', $storeId)->orWhereNull('store_id');
+            })
+            ->with(['category:id,name', 'images' => function ($query) {
+                $query->where('is_primary', true);
+            }])
+            ->select('id', 'name', 'category_id')
+            ->orderBy('name')
+            ->get();
+
         return Inertia::render('Categories/Create', [
             'store' => $store,
             'user' => $user,
+            'products' => $products,
         ]);
     }
 
@@ -71,11 +84,20 @@ class CategoryController extends Controller
             'description' => ['nullable', 'string'],
             'sort_order' => ['integer', 'min:0'],
             'is_active' => ['boolean'],
+            'product_ids' => ['nullable', 'array'],
+            'product_ids.*' => ['integer', 'exists:products,id'],
         ]);
 
         $validated['merchant_id'] = $request->user()->merchant_id;
 
-        Category::create($validated);
+        $category = Category::create($validated);
+
+        // Assign selected products to this category
+        if (!empty($validated['product_ids'])) {
+            \App\Models\Product::whereIn('id', $validated['product_ids'])
+                ->where('merchant_id', $request->user()->merchant_id)
+                ->update(['category_id' => $category->id]);
+        }
 
         return redirect()->route('categories.index')
             ->with('success', 'Category created successfully.');
@@ -97,10 +119,23 @@ class CategoryController extends Controller
 
         $category->load('products:id,name,category_id');
 
+        // Load all products for this merchant/store to allow reassignment
+        $allProducts = \App\Models\Product::where('merchant_id', $user->merchant_id)
+            ->where(function ($q) use ($storeId) {
+                $q->where('store_id', $storeId)->orWhereNull('store_id');
+            })
+            ->with(['category:id,name', 'images' => function ($query) {
+                $query->where('is_primary', true);
+            }])
+            ->select('id', 'name', 'category_id')
+            ->orderBy('name')
+            ->get();
+
         return Inertia::render('Categories/Edit', [
             'store' => $store,
             'user' => $user,
             'category' => $category,
+            'products' => $allProducts,
         ]);
     }
 
@@ -119,9 +154,25 @@ class CategoryController extends Controller
             'description' => ['nullable', 'string'],
             'sort_order' => ['integer', 'min:0'],
             'is_active' => ['boolean'],
+            'product_ids' => ['nullable', 'array'],
+            'product_ids.*' => ['integer', 'exists:products,id'],
         ]);
 
         $category->update($validated);
+
+        // Update product assignments
+        // First, remove this category from products that are no longer selected
+        \App\Models\Product::where('category_id', $category->id)
+            ->where('merchant_id', $request->user()->merchant_id)
+            ->whereNotIn('id', $validated['product_ids'] ?? [])
+            ->update(['category_id' => null]);
+
+        // Then, assign selected products to this category
+        if (!empty($validated['product_ids'])) {
+            \App\Models\Product::whereIn('id', $validated['product_ids'])
+                ->where('merchant_id', $request->user()->merchant_id)
+                ->update(['category_id' => $category->id]);
+        }
 
         return redirect()->route('categories.index')
             ->with('success', 'Category updated successfully.');
@@ -141,5 +192,37 @@ class CategoryController extends Controller
 
         return redirect()->route('categories.index')
             ->with('success', 'Category deleted successfully.');
+    }
+
+    /**
+     * Reorder categories.
+     */
+    public function reorder(Request $request)
+    {
+        $validated = $request->validate([
+            'category_ids' => ['required', 'array', 'min:1'],
+            'category_ids.*' => ['required', 'integer', 'exists:categories,id'],
+        ]);
+
+        $merchantId = $request->user()->merchant_id;
+        $categoryIds = $validated['category_ids'];
+
+        // Verify all categories belong to the merchant
+        $categories = Category::whereIn('id', $categoryIds)
+            ->where('merchant_id', $merchantId)
+            ->get();
+
+        if ($categories->count() !== count($categoryIds)) {
+            return back()->withErrors(['error' => 'Some categories could not be found or do not belong to your merchant.']);
+        }
+
+        // Update sort_order for each category based on position in array
+        foreach ($categoryIds as $index => $categoryId) {
+            Category::where('id', $categoryId)
+                ->where('merchant_id', $merchantId)
+                ->update(['sort_order' => $index]);
+        }
+
+        return back();
     }
 }

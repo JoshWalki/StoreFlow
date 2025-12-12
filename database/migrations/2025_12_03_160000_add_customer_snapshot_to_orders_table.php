@@ -16,9 +16,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // First, rename columns using raw SQL (MariaDB/MySQL compatibility)
-        DB::statement('ALTER TABLE orders CHANGE COLUMN line1 shipping_line1 VARCHAR(255) NULL');
-        DB::statement('ALTER TABLE orders CHANGE COLUMN line2 shipping_line2 VARCHAR(255) NULL');
+        $driver = Schema::getConnection()->getDriverName();
+
+        if ($driver === 'sqlite') {
+            // SQLite: Each rename must be in separate Schema::table() call
+            Schema::table('orders', function (Blueprint $table) {
+                $table->renameColumn('line1', 'shipping_line1');
+            });
+            Schema::table('orders', function (Blueprint $table) {
+                $table->renameColumn('line2', 'shipping_line2');
+            });
+        } else {
+            // MySQL/MariaDB: Use raw SQL
+            DB::statement('ALTER TABLE orders CHANGE COLUMN line1 shipping_line1 VARCHAR(255) NULL');
+            DB::statement('ALTER TABLE orders CHANGE COLUMN line2 shipping_line2 VARCHAR(255) NULL');
+        }
 
         // Then add new columns
         Schema::table('orders', function (Blueprint $table) {
@@ -72,8 +84,20 @@ return new class extends Migration
             ]);
         });
 
-        // Rename columns back using raw SQL
-        DB::statement('ALTER TABLE orders CHANGE COLUMN shipping_line1 line1 VARCHAR(255) NULL');
-        DB::statement('ALTER TABLE orders CHANGE COLUMN shipping_line2 line2 VARCHAR(255) NULL');
+        $driver = Schema::getConnection()->getDriverName();
+
+        if ($driver === 'sqlite') {
+            // SQLite: Each rename must be in separate Schema::table() call
+            Schema::table('orders', function (Blueprint $table) {
+                $table->renameColumn('shipping_line1', 'line1');
+            });
+            Schema::table('orders', function (Blueprint $table) {
+                $table->renameColumn('shipping_line2', 'line2');
+            });
+        } else {
+            // MySQL/MariaDB: Use raw SQL
+            DB::statement('ALTER TABLE orders CHANGE COLUMN shipping_line1 line1 VARCHAR(255) NULL');
+            DB::statement('ALTER TABLE orders CHANGE COLUMN shipping_line2 line2 VARCHAR(255) NULL');
+        }
     }
 };

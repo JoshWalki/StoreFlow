@@ -204,7 +204,7 @@ class StoreSettingsController extends Controller
         }
 
         $validated = $request->validate([
-            'theme_key' => ['required', 'string', 'in:classic,modern,bold'],
+            'theme_key' => ['required', 'string', 'in:classic,modern,bold,monochrome'],
         ]);
 
         $store->update([

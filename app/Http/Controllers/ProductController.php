@@ -39,7 +39,7 @@ class ProductController extends Controller
             ->with(['category', 'images']);
 
         // Search
-        if ($request->has('search')) {
+        if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -48,12 +48,12 @@ class ProductController extends Controller
         }
 
         // Filter by category
-        if ($request->has('category_id')) {
+        if ($request->filled('category_id')) {
             $query->where('category_id', $request->input('category_id'));
         }
 
         // Filter by status
-        if ($request->has('is_active')) {
+        if ($request->filled('is_active')) {
             $query->where('is_active', $request->boolean('is_active'));
         }
 
@@ -140,6 +140,7 @@ class ProductController extends Controller
             'store_id' => ['nullable', 'exists:stores,id'],
             'price' => ['required', 'numeric', 'min:0'],
             'is_active' => ['boolean'],
+            'is_featured' => ['boolean'],
             'is_shippable' => ['boolean'],
             'weight_grams' => ['nullable', 'integer', 'min:0'],
             'length_cm' => ['nullable', 'integer', 'min:0'],
@@ -147,6 +148,17 @@ class ProductController extends Controller
             'height_cm' => ['nullable', 'integer', 'min:0'],
             'images' => ['nullable', 'array', 'max:5'],
             'images.*' => ['image', 'mimes:jpeg,jpg,png,gif,webp', 'max:2048'],
+            'addons' => ['nullable', 'array'],
+            'addons.*.name' => ['required', 'string', 'max:255'],
+            'addons.*.description' => ['nullable', 'string'],
+            'addons.*.selection_type' => ['required', 'in:single,multiple'],
+            'addons.*.is_required' => ['boolean'],
+            'addons.*.min_selections' => ['nullable', 'integer', 'min:0'],
+            'addons.*.max_selections' => ['nullable', 'integer', 'min:1'],
+            'addons.*.options' => ['required', 'array', 'min:1'],
+            'addons.*.options.*.name' => ['required', 'string', 'max:255'],
+            'addons.*.options.*.price_adjustment' => ['required', 'numeric'],
+            'addons.*.options.*.is_default' => ['boolean'],
         ]);
 
         // Convert price to cents
@@ -173,6 +185,11 @@ class ProductController extends Controller
                     'is_primary' => $index === 0,
                 ]);
             }
+        }
+
+        // Handle addon data
+        if ($request->has('addons')) {
+            $this->syncProductAddons($product, $request->input('addons'), $request->user()->merchant_id);
         }
 
         // Log product creation
@@ -222,10 +239,14 @@ class ProductController extends Controller
 
         $product->load(['category', 'customizationGroups.options', 'images']);
 
+        // Prepare product data with addon_data
+        $productData = $product->toArray();
+        $productData['addons'] = $product->addon_data ?? [];
+
         return Inertia::render('Products/Edit', [
             'store' => $store,
             'user' => $user,
-            'product' => $product,
+            'product' => $productData,
             'categories' => $categories,
             'stores' => $stores,
         ]);
@@ -253,6 +274,7 @@ class ProductController extends Controller
             'store_id' => ['nullable', 'exists:stores,id'],
             'price' => ['required', 'numeric', 'min:0'],
             'is_active' => ['boolean'],
+            'is_featured' => ['boolean'],
             'is_shippable' => ['boolean'],
             'weight_grams' => ['nullable', 'integer', 'min:0'],
             'length_cm' => ['nullable', 'integer', 'min:0'],
@@ -262,6 +284,17 @@ class ProductController extends Controller
             'images.*' => ['image', 'mimes:jpeg,jpg,png,gif,webp', 'max:2048'],
             'delete_images' => ['nullable', 'array'],
             'delete_images.*' => ['integer', 'exists:product_images,id'],
+            'addons' => ['nullable', 'array'],
+            'addons.*.name' => ['required', 'string', 'max:255'],
+            'addons.*.description' => ['nullable', 'string'],
+            'addons.*.selection_type' => ['required', 'in:single,multiple'],
+            'addons.*.is_required' => ['boolean'],
+            'addons.*.min_selections' => ['nullable', 'integer', 'min:0'],
+            'addons.*.max_selections' => ['nullable', 'integer', 'min:1'],
+            'addons.*.options' => ['required', 'array', 'min:1'],
+            'addons.*.options.*.name' => ['required', 'string', 'max:255'],
+            'addons.*.options.*.price_adjustment' => ['required', 'numeric'],
+            'addons.*.options.*.is_default' => ['boolean'],
         ]);
 
         // Convert price to cents
@@ -313,6 +346,11 @@ class ProductController extends Controller
                     'is_primary' => $product->images()->count() === 0 && $index === 0,
                 ]);
             }
+        }
+
+        // Handle addon data
+        if ($request->has('addons')) {
+            $this->syncProductAddons($product, $request->input('addons'), $request->user()->merchant_id);
         }
 
         // Log product update if there were changes
@@ -639,6 +677,7 @@ class ProductController extends Controller
             'product_ids' => ['required', 'array', 'min:1'],
             'product_ids.*' => ['required', 'integer', 'exists:products,id'],
             'is_active' => ['nullable', 'boolean'],
+            'is_featured' => ['nullable', 'boolean'],
             'category_id' => ['nullable', 'exists:categories,id'],
         ]);
 
@@ -658,6 +697,9 @@ class ProductController extends Controller
         $updateData = [];
         if (isset($validated['is_active']) && $validated['is_active'] !== '') {
             $updateData['is_active'] = (bool) $validated['is_active'];
+        }
+        if (isset($validated['is_featured']) && $validated['is_featured'] !== '') {
+            $updateData['is_featured'] = (bool) $validated['is_featured'];
         }
         if (isset($validated['category_id']) && $validated['category_id'] !== '') {
             $updateData['category_id'] = $validated['category_id'];
@@ -703,5 +745,15 @@ class ProductController extends Controller
 
         return redirect()->route('products.index')
             ->with('success', "{$count} product" . ($count > 1 ? 's' : '') . " updated successfully.");
+    }
+
+    /**
+     * Sync product addons data.
+     */
+    private function syncProductAddons(Product $product, array $addons, int $merchantId): void
+    {
+        // Simply save the addon data as JSON to the product
+        $product->addon_data = $addons;
+        $product->save();
     }
 }

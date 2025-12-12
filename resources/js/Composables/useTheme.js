@@ -102,6 +102,37 @@ export function useTheme(themeKey = 'classic') {
             background: 'bg-gray-950',
             cardBackground: 'bg-gray-900',
         },
+        monochrome: {
+            // Primary colors
+            primary: 'gray-900',
+            primaryHover: 'gray-800',
+            primaryLight: 'gray-50',
+            primaryBorder: 'gray-300',
+
+            // Accent colors
+            accent: 'gray-800',
+            accentHover: 'gray-900',
+
+            // Button classes with glass effect (iOS-style)
+            buttonPrimary: 'bg-gray-900/90 backdrop-blur-xl text-white hover:bg-gray-900 shadow-lg',
+            buttonSecondary: 'bg-white/80 backdrop-blur-xl text-gray-900 hover:bg-white border border-gray-200 shadow-sm',
+
+            // Link colors
+            link: 'text-gray-900 hover:text-gray-700',
+
+            // Badge colors
+            badge: 'bg-gray-100 text-gray-900 border border-gray-200',
+            badgePickup: 'bg-gray-100 text-gray-900 border border-gray-200',
+            badgeDelivery: 'bg-gray-100 text-gray-900 border border-gray-200',
+
+            // Product card
+            productPrice: 'text-gray-900 font-semibold',
+            productCard: 'bg-white hover:shadow-xl border border-gray-100',
+
+            // Background
+            background: 'bg-white',
+            cardBackground: 'bg-white border border-gray-100',
+        },
     };
 
     // Get theme configuration

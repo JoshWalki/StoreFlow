@@ -1,6 +1,5 @@
 <template>
-    <DashboardLayout :store="store" :user="user">
-        <div class="space-y-6">
+    <div class="space-y-6">
             <!-- Header -->
             <div class="flex justify-between items-center">
                 <h1 class="text-2xl font-bold text-gray-800 dark:text-white">
@@ -456,12 +455,10 @@
                 </button>
             </div>
         </div>
-    </DashboardLayout>
 </template>
 
 <script setup>
 import { useForm } from "@inertiajs/vue3";
-import DashboardLayout from "@/Layouts/DashboardLayout.vue";
 
 const props = defineProps({
     settings: Object,

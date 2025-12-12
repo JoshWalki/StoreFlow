@@ -31,4 +31,22 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'stripe' => [
+        'key' => env('STRIPE_KEY'),
+        'secret' => env('STRIPE_SECRET'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+
+        // Subscription Price IDs
+        'price_basic' => env('STRIPE_PRICE_BASIC'),
+        'price_pro' => env('STRIPE_PRICE_PRO'),
+        'price_enterprise' => env('STRIPE_PRICE_ENTERPRISE'),
+
+        // Plan ID to Price ID mapping (for reverse lookup)
+        'plans' => [
+            'basic' => env('STRIPE_PRICE_BASIC'),
+            'pro' => env('STRIPE_PRICE_PRO'),
+            'enterprise' => env('STRIPE_PRICE_ENTERPRISE'),
+        ],
+    ],
+
 ];

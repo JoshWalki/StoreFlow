@@ -17,6 +17,8 @@ class Store extends Model
         'description',
         'subdomain',
         'is_active',
+        'deactivated_at',
+        'deactivation_reason',
         'theme_key',
         'timezone',
         'shipping_enabled',
@@ -34,6 +36,7 @@ class Store extends Model
     protected $casts = [
         'shipping_enabled' => 'boolean',
         'is_active' => 'boolean',
+        'deactivated_at' => 'datetime',
     ];
 
     /**

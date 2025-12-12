@@ -1,6 +1,5 @@
 <template>
-    <DashboardLayout :store="store" :user="user">
-        <div class="space-y-6">
+    <div class="space-y-6">
             <!-- Header -->
             <div class="flex justify-between items-center">
                 <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Shipping Management</h1>
@@ -152,13 +151,11 @@
                 </div>
             </div>
         </div>
-    </DashboardLayout>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
-import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import ShippingZones from '@/Components/Shipping/ShippingZones.vue';
 import ShippingMethods from '@/Components/Shipping/ShippingMethods.vue';
 import RateCalculator from '@/Components/Shipping/RateCalculator.vue';

@@ -1,6 +1,5 @@
 <template>
-    <DashboardLayout :store="store" :user="user">
-        <div class="space-y-6">
+    <div class="space-y-6">
             <!-- Header -->
             <div class="flex justify-between items-center">
                 <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Order History</h1>
@@ -165,15 +164,18 @@
                         </div>
                         <div>
                             <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                                <Link
+                                <component
                                     v-for="(link, index) in orders.links"
                                     :key="index"
+                                    :is="link.url ? Link : 'span'"
                                     :href="link.url"
                                     :class="[
                                         'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
                                         link.active
                                             ? 'z-10 bg-blue-50 dark:bg-blue-900 border-blue-500 dark:border-blue-600 text-blue-600 dark:text-blue-200'
-                                            : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700',
+                                            : link.url
+                                                ? 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                                                : 'bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed',
                                         index === 0 ? 'rounded-l-md' : '',
                                         index === orders.links.length - 1 ? 'rounded-r-md' : '',
                                     ]"
@@ -194,13 +196,11 @@
             @close="closeOrderDetails"
             @status-updated="handleStatusUpdated"
         />
-    </DashboardLayout>
 </template>
 
 <script setup>
 import { reactive, ref } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
-import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import OrderDetailsModal from '@/Components/Operations/OrderDetailModal.vue';
 
 const props = defineProps({

@@ -70,9 +70,16 @@ class OrderCreated implements ShouldBroadcast
                         'id' => $item->id,
                         'product_id' => $item->product_id,
                         'product_name' => $item->product->name ?? 'Unknown Product',
-                        'quantity' => $item->qty,
+                        'quantity' => $item->quantity,
                         'price_cents' => $item->unit_price_cents,
-                        'total_cents' => $item->qty * $item->unit_price_cents,
+                        'total_cents' => $item->total_cents,
+                        'addons' => $item->addons ? $item->addons->map(function ($addon) {
+                            return [
+                                'addon_name' => $addon->name,
+                                'option_name' => '',
+                                'price_adjustment' => $addon->unit_price_cents / 100,
+                            ];
+                        })->toArray() : [],
                     ];
                 }),
                 'created_at' => $this->order->created_at,

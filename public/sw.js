@@ -1,9 +1,16 @@
-const CACHE_NAME = 'storeflow-v1';
+const CACHE_NAME = 'storeflow-v2';  // Incremented version to force cache refresh
 const OFFLINE_URL = '/offline.html';
 
 const filesToCache = [
     OFFLINE_URL
 ];
+
+// Listen for SKIP_WAITING message
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
+});
 
 // Install event - cache offline page
 self.addEventListener("install", function (event) {

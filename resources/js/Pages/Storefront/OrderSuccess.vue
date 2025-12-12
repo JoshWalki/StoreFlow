@@ -215,6 +215,14 @@
                         <div class="ml-4 flex-1">
                             <p class="font-medium text-gray-900">{{ item.product_name }}</p>
                             <p class="text-sm text-gray-600">Quantity: {{ item.quantity }}</p>
+
+                            <!-- Addons -->
+                            <div v-if="item.addons && item.addons.length > 0" class="mt-1 text-xs text-gray-600">
+                                <div v-for="(addon, addonIdx) in item.addons" :key="addonIdx">
+                                    + {{ addon.name }}
+                                    <span v-if="addon.unit_price_cents > 0"> (+{{ formatPrice(addon.unit_price_cents) }})</span>
+                                </div>
+                            </div>
                         </div>
                         <p class="font-medium text-gray-900">{{ formatPrice(item.total_cents) }}</p>
                     </div>
@@ -334,7 +342,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useTheme } from '@/Composables/useTheme';
 
 const props = defineProps({
@@ -344,6 +352,15 @@ const props = defineProps({
 
 // Initialize theme
 const { config: themeConfig } = useTheme(props.store.theme);
+
+// Debug: Log order data on mount
+onMounted(() => {
+    console.log('OrderSuccess - Full order data:', props.order);
+    console.log('OrderSuccess - Order items:', props.order.items);
+    if (props.order.items && props.order.items.length > 0) {
+        console.log('OrderSuccess - First item addons:', props.order.items[0].addons);
+    }
+});
 
 // Check if store has address information
 const hasStoreAddress = computed(() => {

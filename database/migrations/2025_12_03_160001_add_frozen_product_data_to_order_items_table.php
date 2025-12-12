@@ -16,8 +16,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // First, rename qty to quantity using raw SQL (MariaDB compatibility)
-        DB::statement('ALTER TABLE order_items CHANGE COLUMN qty quantity INT NOT NULL');
+        $driver = Schema::getConnection()->getDriverName();
+
+        if ($driver === 'sqlite') {
+            // SQLite: Use Laravel's rename method
+            Schema::table('order_items', function (Blueprint $table) {
+                $table->renameColumn('qty', 'quantity');
+            });
+        } else {
+            // MySQL/MariaDB: Use raw SQL
+            DB::statement('ALTER TABLE order_items CHANGE COLUMN qty quantity INT NOT NULL');
+        }
 
         // Then add new columns
         Schema::table('order_items', function (Blueprint $table) {
@@ -55,7 +64,16 @@ return new class extends Migration
             ]);
         });
 
-        // Rename quantity back to qty using raw SQL
-        DB::statement('ALTER TABLE order_items CHANGE COLUMN quantity qty INT NOT NULL');
+        $driver = Schema::getConnection()->getDriverName();
+
+        if ($driver === 'sqlite') {
+            // SQLite: Use Laravel's rename method
+            Schema::table('order_items', function (Blueprint $table) {
+                $table->renameColumn('quantity', 'qty');
+            });
+        } else {
+            // MySQL/MariaDB: Use raw SQL
+            DB::statement('ALTER TABLE order_items CHANGE COLUMN quantity qty INT NOT NULL');
+        }
     }
 };
