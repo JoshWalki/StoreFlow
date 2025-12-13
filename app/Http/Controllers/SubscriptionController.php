@@ -22,6 +22,79 @@ class SubscriptionController extends Controller
     }
 
     /**
+     * Test endpoint to diagnose checkout issues.
+     */
+    public function testCheckout(Request $request)
+    {
+        $diagnostics = [];
+        $user = $request->user();
+
+        // Test 1: User exists
+        $diagnostics['user'] = [
+            'exists' => $user ? true : false,
+            'id' => $user?->id,
+            'email' => $user?->email,
+        ];
+
+        // Test 2: Merchant exists
+        $merchant = $user?->merchant;
+        $diagnostics['merchant'] = [
+            'exists' => $merchant ? true : false,
+            'id' => $merchant?->id,
+            'name' => $merchant?->name,
+            'owner_user_id' => $merchant?->owner_user_id ?? null,
+        ];
+
+        // Test 3: Owner relationship
+        if ($merchant) {
+            try {
+                $owner = $merchant->owner;
+                $diagnostics['owner'] = [
+                    'exists' => $owner ? true : false,
+                    'loaded' => $merchant->relationLoaded('owner'),
+                    'email' => $owner?->email,
+                ];
+            } catch (\Exception $e) {
+                $diagnostics['owner'] = [
+                    'error' => $e->getMessage(),
+                ];
+            }
+        }
+
+        // Test 4: Stripe configuration
+        $diagnostics['stripe'] = [
+            'secret_key_set' => config('services.stripe.secret') ? 'yes (hidden)' : 'no',
+            'price_basic' => config('services.stripe.price_basic'),
+            'webhook_secret_set' => config('services.stripe.webhook_secret') ? 'yes (hidden)' : 'no',
+        ];
+
+        // Test 5: Try to get or create customer
+        if ($merchant) {
+            try {
+                $stripeService = app(StripeService::class);
+                $customer = $stripeService->getOrCreateCustomer($merchant);
+                $diagnostics['stripe_customer'] = [
+                    'success' => true,
+                    'customer_id' => $customer->id,
+                    'email' => $customer->email,
+                ];
+            } catch (\Exception $e) {
+                $diagnostics['stripe_customer'] = [
+                    'success' => false,
+                    'error' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ];
+            }
+        }
+
+        return response()->json([
+            'status' => 'diagnostics_complete',
+            'diagnostics' => $diagnostics,
+        ]);
+    }
+
+    /**
      * Display available subscription plans.
      */
     public function index(Request $request)
@@ -83,6 +156,11 @@ class SubscriptionController extends Controller
      */
     public function createCheckout(Request $request)
     {
+        Log::info('Checkout request received', [
+            'user_id' => $request->user()?->id,
+            'has_merchant' => $request->user()?->merchant ? 'yes' : 'no',
+        ]);
+
         $validated = $request->validate([
             'plan_id' => 'nullable|string|exists:subscription_plans,plan_id',
         ]);
@@ -90,8 +168,17 @@ class SubscriptionController extends Controller
         $merchant = $request->user()->merchant;
 
         if (!$merchant) {
+            Log::error('Checkout failed: No merchant found', [
+                'user_id' => $request->user()?->id,
+            ]);
             return response()->json(['error' => 'No merchant found'], 404);
         }
+
+        Log::info('Merchant found for checkout', [
+            'merchant_id' => $merchant->id,
+            'merchant_name' => $merchant->name,
+            'has_owner' => $merchant->relationLoaded('owner') ? 'loaded' : 'not_loaded',
+        ]);
 
         // Check if already has active subscription
         // Allow checkout for:
@@ -115,6 +202,11 @@ class SubscriptionController extends Controller
         try {
             // Get price ID from config
             $priceId = config('services.stripe.price_basic') ?? env('STRIPE_PRICE_BASIC');
+
+            Log::info('Creating checkout session', [
+                'merchant_id' => $merchant->id,
+                'price_id' => $priceId,
+            ]);
 
             // Prepare checkout options
             $checkoutOptions = [
@@ -152,11 +244,18 @@ class SubscriptionController extends Controller
             Log::error('Checkout session creation failed', [
                 'merchant_id' => $merchant->id,
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
             ]);
 
             return response()->json([
                 'error' => 'Failed to create checkout session',
-                'message' => $e->getMessage(),
+                'message' => config('app.debug') ? $e->getMessage() : 'An error occurred',
+                'debug' => config('app.debug') ? [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ] : null,
             ], 500);
         }
     }

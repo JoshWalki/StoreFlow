@@ -223,6 +223,7 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
             Route::get('/status', [App\Http\Controllers\SubscriptionController::class, 'status'])->name('status');
             Route::get('/invoices', [App\Http\Controllers\SubscriptionController::class, 'invoices'])->name('invoices');
             Route::get('/success', [App\Http\Controllers\SubscriptionController::class, 'checkoutSuccess'])->name('success');
+            Route::get('/test-checkout', [App\Http\Controllers\SubscriptionController::class, 'testCheckout'])->name('test');
             Route::post('/', [App\Http\Controllers\SubscriptionController::class, 'store'])->name('store');
             Route::post('/checkout', [App\Http\Controllers\SubscriptionController::class, 'createCheckout'])->name('checkout');
             Route::post('/cancel', [App\Http\Controllers\SubscriptionController::class, 'cancel'])->name('cancel');
