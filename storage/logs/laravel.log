@@ -259,3 +259,20 @@ Did you mean one of these?
 [2025-12-13 13:04:36] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiCCGWY8SI9PdaESmTFmID","type":"invoice.payment_succeeded"} 
 [2025-12-13 13:04:36] local.WARNING: Subscription created for unknown customer {"customer_id":"cus_TatzitaYtiF20F"} 
 [2025-12-13 13:04:36] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiCCGWY8SI9Pda74djGpUg","type":"customer.subscription.created"} 
+[2025-12-13 13:31:47] local.INFO: Unhandled webhook event type {"type":"payment_method.attached"} 
+[2025-12-13 13:31:47] local.INFO: Webhook processed successfully {"event_id":"evt_1SdicTGWY8SI9Pdarir4qLmE","type":"payment_method.attached"} 
+[2025-12-13 13:31:51] local.INFO: Unhandled webhook event type {"type":"setup_intent.created"} 
+[2025-12-13 13:31:51] local.INFO: Webhook processed successfully {"event_id":"evt_1SdicTGWY8SI9Pdaeo8FT20m","type":"setup_intent.created"} 
+[2025-12-13 13:31:53] local.INFO: Unhandled webhook event type {"type":"setup_intent.succeeded"} 
+[2025-12-13 13:31:53] local.INFO: Webhook processed successfully {"event_id":"evt_1SdicTGWY8SI9PdaL9rONxX9","type":"setup_intent.succeeded"} 
+[2025-12-13 13:31:53] local.INFO: Unhandled webhook event type {"type":"checkout.session.completed"} 
+[2025-12-13 13:31:53] local.INFO: Webhook processed successfully {"event_id":"evt_1SdicWGWY8SI9PdaAZGnnNE8","type":"checkout.session.completed"} 
+[2025-12-13 13:31:54] local.INFO: Unhandled webhook event type {"type":"invoice.created"} 
+[2025-12-13 13:31:54] local.INFO: Webhook processed successfully {"event_id":"evt_1SdicXGWY8SI9Pda01GcCxQc","type":"invoice.created"} 
+[2025-12-13 13:31:56] local.INFO: Unhandled webhook event type {"type":"invoice.finalized"} 
+[2025-12-13 13:31:56] local.INFO: Webhook processed successfully {"event_id":"evt_1SdicXGWY8SI9PdaWBCCAG41","type":"invoice.finalized"} 
+[2025-12-13 13:31:56] local.INFO: Unhandled webhook event type {"type":"invoice.paid"} 
+[2025-12-13 13:31:56] local.INFO: Webhook processed successfully {"event_id":"evt_1SdicXGWY8SI9Pda8WUPMJ12","type":"invoice.paid"} 
+[2025-12-13 13:31:56] local.INFO: Webhook processed successfully {"event_id":"evt_1SdicXGWY8SI9PdazUj3UYHu","type":"invoice.payment_succeeded"} 
+[2025-12-13 13:31:56] local.WARNING: Subscription created for unknown customer {"customer_id":"cus_TatzitaYtiF20F"} 
+[2025-12-13 13:31:56] local.INFO: Webhook processed successfully {"event_id":"evt_1SdicXGWY8SI9PdaFrRMlZWf","type":"customer.subscription.created"} 

@@ -57,8 +57,13 @@ class StripeService
         }
 
         // Create new customer
+        // Load owner relationship if not already loaded
+        if (!$merchant->relationLoaded('owner')) {
+            $merchant->load('owner');
+        }
+
         $customer = $this->stripe->customers->create([
-            'email' => $merchant->owner->email,
+            'email' => $merchant->owner?->email ?? $merchant->email ?? 'noreply@storeflow.app',
             'name' => $merchant->name,
             'metadata' => [
                 'merchant_id' => $merchant->id,
