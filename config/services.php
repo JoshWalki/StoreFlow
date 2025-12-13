@@ -49,4 +49,9 @@ return [
         ],
     ],
 
+    'scraper' => [
+        'url' => env('SCRAPER_SERVICE_URL', 'http://localhost:3000'),
+        'timeout' => env('SCRAPER_SERVICE_TIMEOUT', 300),
+    ],
+
 ];

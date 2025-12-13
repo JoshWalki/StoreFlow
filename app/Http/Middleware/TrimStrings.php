@@ -16,4 +16,47 @@ class TrimStrings extends Middleware
         'password',
         'password_confirmation',
     ];
+
+    /**
+     * The URIs that should be excluded from trimming.
+     *
+     * @var array<int, string>
+     */
+    protected $exceptUrls = [
+        'api/webhooks/*',
+        'webhooks/*',
+    ];
+
+    /**
+     * Determine if the request has a URI that should be excluded.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return bool
+     */
+    protected function shouldTrimRequest($request): bool
+    {
+        foreach ($this->exceptUrls as $pattern) {
+            if ($request->is($pattern)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @return mixed
+     */
+    public function handle($request, $next)
+    {
+        if (!$this->shouldTrimRequest($request)) {
+            return $next($request);
+        }
+
+        return parent::handle($request, $next);
+    }
 }

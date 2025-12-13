@@ -42,7 +42,8 @@ class ScrapeRestaurantMenu implements ShouldQueue
             ]);
 
             // Call scraper service
-            $response = Http::timeout(300)->post('http://localhost:3000/scrape', [
+            $scraperUrl = config('services.scraper.url', env('SCRAPER_SERVICE_URL', 'http://localhost:3000'));
+            $response = Http::timeout(300)->post($scraperUrl . '/scrape', [
                 'platform' => $this->migration->platform,
                 'url' => $this->migration->source_url,
             ]);

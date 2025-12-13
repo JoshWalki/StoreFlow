@@ -154,7 +154,7 @@ class DataMigrationController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Data migration API is working!',
-            'scraper_service' => 'http://localhost:3000',
+            'scraper_service' => config('services.scraper.url', env('SCRAPER_SERVICE_URL', 'http://localhost:3000')),
         ]);
     }
 }

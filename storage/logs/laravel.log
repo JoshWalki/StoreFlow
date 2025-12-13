@@ -140,3 +140,122 @@ Did you mean one of these?
 [2025-12-13 00:37:51] local.INFO: Webhook processed successfully {"event_id":"evt_1SdWXTGWY8SI9PdaV42jrgQP","type":"invoice.created"} 
 [2025-12-13 00:37:51] local.INFO: Unhandled webhook event type {"type":"test_helpers.test_clock.ready"} 
 [2025-12-13 00:37:51] local.INFO: Webhook processed successfully {"event_id":"evt_1SdWXZGWY8SI9Pdax6CokGcU","type":"test_helpers.test_clock.ready"} 
+[2025-12-13 12:59:41] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 12:59:41] local.INFO: Webhook processed successfully {"event_id":"evt_1Sdi7KKIVuoEpYYgOjLMX2uX","type":"capability.updated"} 
+[2025-12-13 12:59:44] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 12:59:44] local.INFO: Webhook processed successfully {"event_id":"evt_1Sdi7KKIVuoEpYYgGmNSWiZX","type":"capability.updated"} 
+[2025-12-13 12:59:44] local.INFO: Unhandled webhook event type {"type":"account.application.authorized"} 
+[2025-12-13 12:59:44] local.INFO: Webhook processed successfully {"event_id":"evt_1Sdi7LKIVuoEpYYgcaFzOzA0","type":"account.application.authorized"} 
+[2025-12-13 13:00:05] local.WARNING: Account updated webhook for unknown merchant {"account_id":"acct_1Sdi7HKIVuoEpYYg"} 
+[2025-12-13 13:00:05] local.INFO: Webhook processed successfully {"event_id":"evt_1Sdi7qKIVuoEpYYgge3zU4Ip","type":"account.updated"} 
+[2025-12-13 13:00:07] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:00:07] local.INFO: Webhook processed successfully {"event_id":"evt_1Sdi7qKIVuoEpYYgINBeAgLT","type":"capability.updated"} 
+[2025-12-13 13:00:07] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:00:07] local.INFO: Webhook processed successfully {"event_id":"evt_1Sdi7qKIVuoEpYYgKJAZfyTR","type":"capability.updated"} 
+[2025-12-13 13:00:07] local.WARNING: Account updated webhook for unknown merchant {"account_id":"acct_1Sdi7HKIVuoEpYYg"} 
+[2025-12-13 13:00:07] local.INFO: Webhook processed successfully {"event_id":"evt_1Sdi7tKIVuoEpYYgVzTT6i3m","type":"account.updated"} 
+[2025-12-13 13:00:07] local.INFO: Unhandled webhook event type {"type":"person.created"} 
+[2025-12-13 13:00:07] local.INFO: Webhook processed successfully {"event_id":"evt_1Sdi7uKIVuoEpYYgAQD1r1mK","type":"person.created"} 
+[2025-12-13 13:00:35] local.WARNING: Account updated webhook for unknown merchant {"account_id":"acct_1Sdi7HKIVuoEpYYg"} 
+[2025-12-13 13:00:35] local.INFO: Webhook processed successfully {"event_id":"evt_1Sdi8KKIVuoEpYYgYZVNNg3r","type":"account.updated"} 
+[2025-12-13 13:01:36] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:01:36] local.INFO: Webhook processed successfully {"event_id":"evt_1Sdi9GGsNDuAyTENq6zEv1jw","type":"capability.updated"} 
+[2025-12-13 13:01:38] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:01:38] local.INFO: Webhook processed successfully {"event_id":"evt_1Sdi9GGsNDuAyTENZ1Z2YdKE","type":"capability.updated"} 
+[2025-12-13 13:01:39] local.INFO: Unhandled webhook event type {"type":"account.application.authorized"} 
+[2025-12-13 13:01:39] local.INFO: Webhook processed successfully {"event_id":"evt_1Sdi9HGsNDuAyTENXq05mxPM","type":"account.application.authorized"} 
+[2025-12-13 13:01:58] local.WARNING: Account updated webhook for unknown merchant {"account_id":"acct_1Sdi9EGsNDuAyTEN"} 
+[2025-12-13 13:01:58] local.INFO: Webhook processed successfully {"event_id":"evt_1Sdi9gGsNDuAyTENIBIB97Cf","type":"account.updated"} 
+[2025-12-13 13:02:00] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:02:00] local.INFO: Webhook processed successfully {"event_id":"evt_1Sdi9gGsNDuAyTENi3bBXbju","type":"capability.updated"} 
+[2025-12-13 13:02:00] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:02:00] local.INFO: Webhook processed successfully {"event_id":"evt_1Sdi9gGsNDuAyTENWAnwSLI5","type":"capability.updated"} 
+[2025-12-13 13:02:22] local.WARNING: Account updated webhook for unknown merchant {"account_id":"acct_1Sdi9EGsNDuAyTEN"} 
+[2025-12-13 13:02:22] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiA4GsNDuAyTEN4TgxEc11","type":"account.updated"} 
+[2025-12-13 13:02:22] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:02:22] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiA4GsNDuAyTENmKag2i1F","type":"capability.updated"} 
+[2025-12-13 13:02:22] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:02:22] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiA4GsNDuAyTENri3UN2Rt","type":"capability.updated"} 
+[2025-12-13 13:02:25] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:02:25] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiA7GsNDuAyTENKrP7rm76","type":"capability.updated"} 
+[2025-12-13 13:02:25] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:02:25] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiA7GsNDuAyTENMX8thpvA","type":"capability.updated"} 
+[2025-12-13 13:02:25] local.INFO: Unhandled webhook event type {"type":"person.created"} 
+[2025-12-13 13:02:25] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiA7GsNDuAyTENzCOiCd3n","type":"person.created"} 
+[2025-12-13 13:02:25] local.WARNING: Account updated webhook for unknown merchant {"account_id":"acct_1Sdi9EGsNDuAyTEN"} 
+[2025-12-13 13:02:25] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiA7GsNDuAyTENpfhBHn6z","type":"account.updated"} 
+[2025-12-13 13:02:32] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:02:32] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiAFGsNDuAyTENDWL8N0Mu","type":"capability.updated"} 
+[2025-12-13 13:02:32] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:02:32] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiAFGsNDuAyTEN3i0RYSmP","type":"capability.updated"} 
+[2025-12-13 13:02:35] local.WARNING: Account updated webhook for unknown merchant {"account_id":"acct_1Sdi9EGsNDuAyTEN"} 
+[2025-12-13 13:02:35] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiAFGsNDuAyTENvDfaQs7R","type":"account.updated"} 
+[2025-12-13 13:02:40] local.WARNING: Account updated webhook for unknown merchant {"account_id":"acct_1Sdi9EGsNDuAyTEN"} 
+[2025-12-13 13:02:40] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiAFGsNDuAyTENsTNQCbpf","type":"account.updated"} 
+[2025-12-13 13:02:42] local.WARNING: Account updated webhook for unknown merchant {"account_id":"acct_1Sdi9EGsNDuAyTEN"} 
+[2025-12-13 13:02:42] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiALGsNDuAyTENuktTSeCq","type":"account.updated"} 
+[2025-12-13 13:02:42] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:02:42] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiALGsNDuAyTENJCYz8H5L","type":"capability.updated"} 
+[2025-12-13 13:02:42] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:02:42] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiALGsNDuAyTENK5cKQvl3","type":"capability.updated"} 
+[2025-12-13 13:02:42] local.WARNING: Account updated webhook for unknown merchant {"account_id":"acct_1Sdi9EGsNDuAyTEN"} 
+[2025-12-13 13:02:42] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiAQGsNDuAyTENmyHvCbwh","type":"account.updated"} 
+[2025-12-13 13:02:43] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:02:43] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiAQGsNDuAyTENI62V1mJZ","type":"capability.updated"} 
+[2025-12-13 13:02:45] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:02:45] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiAQGsNDuAyTENE2BHVVA1","type":"capability.updated"} 
+[2025-12-13 13:02:45] local.WARNING: Account updated webhook for unknown merchant {"account_id":"acct_1Sdi9EGsNDuAyTEN"} 
+[2025-12-13 13:02:45] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiAUGsNDuAyTENYDyRpAxy","type":"account.updated"} 
+[2025-12-13 13:02:46] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:02:46] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiAUGsNDuAyTEN8z8tXXuy","type":"capability.updated"} 
+[2025-12-13 13:02:49] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:02:49] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiAUGsNDuAyTENu3P7z61f","type":"capability.updated"} 
+[2025-12-13 13:02:54] local.WARNING: Account updated webhook for unknown merchant {"account_id":"acct_1Sdi9EGsNDuAyTEN"} 
+[2025-12-13 13:02:54] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiAaGsNDuAyTENINYesnYu","type":"account.updated"} 
+[2025-12-13 13:02:54] local.INFO: Unhandled webhook event type {"type":"account.external_account.created"} 
+[2025-12-13 13:02:54] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiAaGsNDuAyTENMPiorJ5i","type":"account.external_account.created"} 
+[2025-12-13 13:03:13] local.WARNING: Account updated webhook for unknown merchant {"account_id":"acct_1Sdi9EGsNDuAyTEN"} 
+[2025-12-13 13:03:13] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiAtGsNDuAyTENwjT3lsZ4","type":"account.updated"} 
+[2025-12-13 13:03:13] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:03:13] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiAuGsNDuAyTENXMB6gmdM","type":"capability.updated"} 
+[2025-12-13 13:03:13] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:03:13] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiAuGsNDuAyTENk6VbjvSg","type":"capability.updated"} 
+[2025-12-13 13:03:26] local.WARNING: Account updated webhook for unknown merchant {"account_id":"acct_1Sdi9EGsNDuAyTEN"} 
+[2025-12-13 13:03:26] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiB6GsNDuAyTEN5wemtxmV","type":"account.updated"} 
+[2025-12-13 13:03:26] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:03:26] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiB6GsNDuAyTENGpyycSoV","type":"capability.updated"} 
+[2025-12-13 13:03:27] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:03:27] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiB6GsNDuAyTENhhsvm2Oy","type":"capability.updated"} 
+[2025-12-13 13:03:32] local.WARNING: Account updated webhook for unknown merchant {"account_id":"acct_1Sdi9EGsNDuAyTEN"} 
+[2025-12-13 13:03:32] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiBCGsNDuAyTENuRBcpo4e","type":"account.updated"} 
+[2025-12-13 13:03:32] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:03:32] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiBCGsNDuAyTEN5QLEzEeZ","type":"capability.updated"} 
+[2025-12-13 13:03:32] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:03:32] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiBCGsNDuAyTENgxpMOGn9","type":"capability.updated"} 
+[2025-12-13 13:04:13] local.INFO: Unhandled webhook event type {"type":"customer.created"} 
+[2025-12-13 13:04:13] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiBpGWY8SI9Pdax2epZJD8","type":"customer.created"} 
+[2025-12-13 13:04:22] local.WARNING: Account updated webhook for unknown merchant {"account_id":"acct_1Sdi9EGsNDuAyTEN"} 
+[2025-12-13 13:04:22] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiByGsNDuAyTENThhuLYUh","type":"account.updated"} 
+[2025-12-13 13:04:25] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:04:25] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiBzGsNDuAyTENH0m0pzvg","type":"capability.updated"} 
+[2025-12-13 13:04:25] local.INFO: Unhandled webhook event type {"type":"capability.updated"} 
+[2025-12-13 13:04:25] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiBzGsNDuAyTENwUBXnoRM","type":"capability.updated"} 
+[2025-12-13 13:04:30] local.INFO: Unhandled webhook event type {"type":"payment_method.attached"} 
+[2025-12-13 13:04:30] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiC8GWY8SI9Pdak0EXMleU","type":"payment_method.attached"} 
+[2025-12-13 13:04:33] local.INFO: Unhandled webhook event type {"type":"setup_intent.succeeded"} 
+[2025-12-13 13:04:33] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiC8GWY8SI9PdaIn7ixxzv","type":"setup_intent.succeeded"} 
+[2025-12-13 13:04:33] local.INFO: Unhandled webhook event type {"type":"setup_intent.created"} 
+[2025-12-13 13:04:33] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiC8GWY8SI9PdadLFCQWWg","type":"setup_intent.created"} 
+[2025-12-13 13:04:33] local.INFO: Unhandled webhook event type {"type":"checkout.session.completed"} 
+[2025-12-13 13:04:33] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiCBGWY8SI9PdaX4liCXOD","type":"checkout.session.completed"} 
+[2025-12-13 13:04:33] local.INFO: Unhandled webhook event type {"type":"customer.updated"} 
+[2025-12-13 13:04:33] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiCCGWY8SI9PdaDeOg8s7U","type":"customer.updated"} 
+[2025-12-13 13:04:33] local.INFO: Unhandled webhook event type {"type":"invoice.created"} 
+[2025-12-13 13:04:33] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiCCGWY8SI9PdaluYCyfbV","type":"invoice.created"} 
+[2025-12-13 13:04:33] local.INFO: Unhandled webhook event type {"type":"invoice.finalized"} 
+[2025-12-13 13:04:33] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiCCGWY8SI9PdaeaVnly7z","type":"invoice.finalized"} 
+[2025-12-13 13:04:34] local.INFO: Unhandled webhook event type {"type":"invoice.paid"} 
+[2025-12-13 13:04:34] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiCCGWY8SI9PdaN9FhS7ag","type":"invoice.paid"} 
+[2025-12-13 13:04:36] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiCCGWY8SI9PdaESmTFmID","type":"invoice.payment_succeeded"} 
+[2025-12-13 13:04:36] local.WARNING: Subscription created for unknown customer {"customer_id":"cus_TatzitaYtiF20F"} 
+[2025-12-13 13:04:36] local.INFO: Webhook processed successfully {"event_id":"evt_1SdiCCGWY8SI9Pda74djGpUg","type":"customer.subscription.created"} 
