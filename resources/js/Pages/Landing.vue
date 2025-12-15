@@ -149,6 +149,7 @@
                         class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight"
                     >
                         Transform Your Business<br />
+                        <!-- THIS IS A SECRET MESSAGE -->
                         <span
                             class="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-purple-200"
                         >
