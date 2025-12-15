@@ -31,6 +31,17 @@ const formatCurrency = (cents) => {
 const handleAddToCart = () => {
     if (isAdding.value) return;
 
+    // Check if product has required addons
+    const hasRequiredAddons = Array.isArray(props.product.addons) &&
+        props.product.addons.length > 0 &&
+        props.product.addons.some(addon => addon.is_required);
+
+    // If product has required addons, open the modal instead
+    if (hasRequiredAddons) {
+        handleProductClick();
+        return;
+    }
+
     isAdding.value = true;
     justAdded.value = true;
 
@@ -174,10 +185,49 @@ const handleMouseLeave = () => {
                             class="text-sm font-semibold"
                             :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'"
                         >{{ formatCurrency(product.price_cents) }}</span>
-                        <div class="mt-1">
+
+                        <!-- Badges Container -->
+                        <div class="mt-1 flex flex-wrap gap-1">
+                            <!-- Popular Badge -->
                             <span class="floating-badge inline-block bg-orange-100 text-orange-700 text-xs font-semibold px-1.5 py-0.5 rounded">
                                 ⭐ Popular
                             </span>
+
+                            <!-- Fulfillment Badges -->
+                            <!-- Show "Pickup Only" if shipping not available -->
+                            <span
+                                v-if="!store.shipping_enabled || !product.is_shippable"
+                                class="inline-flex items-center gap-0.5 bg-orange-100 text-orange-700 text-xs font-medium px-1.5 py-0.5 rounded"
+                                title="Pickup only"
+                            >
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                                </svg>
+                                Pickup Only
+                            </span>
+
+                            <!-- Show both badges when delivery is available -->
+                            <template v-else>
+                                <span
+                                    class="inline-flex items-center gap-0.5 bg-green-100 text-green-700 text-xs font-medium px-1.5 py-0.5 rounded"
+                                    title="Delivery available"
+                                >
+                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                                        <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z" />
+                                    </svg>
+                                    Delivery
+                                </span>
+                                <span
+                                    class="inline-flex items-center gap-0.5 bg-blue-100 text-blue-700 text-xs font-medium px-1.5 py-0.5 rounded"
+                                    title="Pickup available"
+                                >
+                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                                    </svg>
+                                    Pickup
+                                </span>
+                            </template>
                         </div>
                     </div>
                 </div>
@@ -210,11 +260,48 @@ const handleMouseLeave = () => {
                     {{ product.description || 'Delicious menu item prepared fresh.' }}
                 </p>
 
-                <!-- Popular Badge -->
-                <div v-if="showPopular" class="mt-1">
-                    <span class="floating-badge inline-block bg-orange-100 text-orange-700 text-xs font-semibold px-1.5 py-0.5 rounded">
+                <!-- Badges Row -->
+                <div class="mt-1 flex flex-wrap gap-1">
+                    <!-- Popular Badge -->
+                    <span v-if="showPopular" class="floating-badge inline-block bg-orange-100 text-orange-700 text-xs font-semibold px-1.5 py-0.5 rounded">
                         ⭐ Popular
                     </span>
+
+                    <!-- Fulfillment Badges -->
+                    <!-- Show "Pickup Only" if shipping not available -->
+                    <span
+                        v-if="!store.shipping_enabled || !product.is_shippable"
+                        class="inline-flex items-center gap-0.5 bg-orange-100 text-orange-700 text-xs font-medium px-1.5 py-0.5 rounded"
+                        title="Pickup only"
+                    >
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                        </svg>
+                        Pickup Only
+                    </span>
+
+                    <!-- Show both badges when delivery is available -->
+                    <template v-else>
+                        <span
+                            class="inline-flex items-center gap-0.5 bg-green-100 text-green-700 text-xs font-medium px-1.5 py-0.5 rounded"
+                            title="Delivery available"
+                        >
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                                <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z" />
+                            </svg>
+                            Delivery
+                        </span>
+                        <span
+                            class="inline-flex items-center gap-0.5 bg-blue-100 text-blue-700 text-xs font-medium px-1.5 py-0.5 rounded"
+                            title="Pickup available"
+                        >
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                            </svg>
+                            Pickup
+                        </span>
+                    </template>
                 </div>
             </div>
 

@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Merchant;
+use App\Observers\MerchantObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Register Merchant observer to handle subscription changes
+        Merchant::observe(MerchantObserver::class);
     }
 }

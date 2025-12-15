@@ -173,9 +173,9 @@
                     </div>
                 </div>
 
-                <!-- Shipping Address (if applicable) -->
+                <!-- Delivery Address (if applicable) -->
                 <div v-if="order.fulfilment_type === 'shipping' && order.shipping_address" class="mt-6 pt-6 border-t border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-900 mb-3">Shipping Address</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-3">Delivery Address</h3>
                     <div class="text-gray-700">
                         <p>{{ order.shipping_address.address_line_1 }}</p>
                         <p v-if="order.shipping_address.address_line_2">{{ order.shipping_address.address_line_2 }}</p>
@@ -186,7 +186,7 @@
                         <p>{{ order.shipping_address.country }}</p>
                     </div>
                     <div v-if="order.shipping_method" class="mt-4">
-                        <p class="text-sm text-gray-600">Shipping Method</p>
+                        <p class="text-sm text-gray-600">Delivery Method</p>
                         <p class="font-medium text-gray-900">{{ order.shipping_method.name }}</p>
                         <p v-if="order.shipping_method.description" class="text-sm text-gray-600">{{ order.shipping_method.description }}</p>
                     </div>
@@ -236,7 +236,7 @@
                             <p class="font-medium text-gray-900">{{ formatPrice(order.subtotal_cents) }}</p>
                         </div>
                         <div v-if="order.shipping_cost_cents > 0" class="flex justify-between text-sm">
-                            <p class="text-gray-600">Shipping</p>
+                            <p class="text-gray-600">Delivery</p>
                             <p class="font-medium text-gray-900">{{ formatPrice(order.shipping_cost_cents) }}</p>
                         </div>
                         <div v-if="order.tax_cents > 0" class="flex justify-between text-sm">
@@ -287,8 +287,8 @@
                             </div>
                         </div>
                         <div class="ml-4">
-                            <p class="font-medium text-gray-900">Shipping Updates</p>
-                            <p class="text-sm text-gray-600">You'll receive tracking information once your order ships</p>
+                            <p class="font-medium text-gray-900">Delivery Updates</p>
+                            <p class="text-sm text-gray-600">You'll receive tracking information once your order is dispatched</p>
                         </div>
                     </div>
 

@@ -376,7 +376,7 @@
                             <ProductAddonSelector
                                 :addons="product.addons"
                                 :theme="store.theme"
-                                @update:selections="selectedAddons = $event"
+                                @update:selections="handleAddonUpdate"
                                 ref="addonSelector"
                             />
                         </div>
@@ -642,6 +642,19 @@ const selectedImage = ref(
 // Addon selection
 const addonSelector = ref(null);
 const selectedAddons = ref([]);
+const specialMessage = ref('');
+
+// Handle addon update from ProductAddonSelector
+const handleAddonUpdate = (data) => {
+    if (data && typeof data === 'object' && 'addons' in data) {
+        selectedAddons.value = data.addons || [];
+        specialMessage.value = data.message || '';
+    } else {
+        // Fallback for backward compatibility
+        selectedAddons.value = data || [];
+        specialMessage.value = '';
+    }
+};
 
 const selectImage = (imagePath) => {
     selectedImage.value = imagePath;
@@ -655,9 +668,10 @@ const addToCart = () => {
 
     // Debug: Log selected addons
     console.log('Selected addons:', selectedAddons.value);
+    console.log('Special message:', specialMessage.value);
 
-    // Add product to cart with addons
-    const success = addItemToCart(props.product, 1, [], selectedAddons.value);
+    // Add product to cart with addons and message
+    const success = addItemToCart(props.product, 1, [], selectedAddons.value, specialMessage.value);
 
     if (success) {
         // Open cart drawer to show added item
@@ -672,7 +686,7 @@ const buyNow = () => {
     }
 
     // Add to cart and go directly to checkout
-    addItemToCart(props.product, 1, [], selectedAddons.value);
+    addItemToCart(props.product, 1, [], selectedAddons.value, specialMessage.value);
     router.visit(`/store/${props.store.id}/checkout`);
 };
 

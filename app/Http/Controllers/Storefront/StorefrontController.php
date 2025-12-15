@@ -69,6 +69,7 @@ class StorefrontController extends Controller
                 'theme' => $store->theme_key ?? 'classic',
                 'logo_url' => $store->logo_path ? asset('storage/' . $store->logo_path) : null,
                 'is_active' => $store->is_active ?? true,
+                'shipping_enabled' => $store->shipping_enabled,
                 'open_time' => $store->open_time ? substr($store->open_time, 0, 5) : null,
                 'close_time' => $store->close_time ? substr($store->close_time, 0, 5) : null,
                 'address_primary' => $store->address_primary,
@@ -129,6 +130,7 @@ class StorefrontController extends Controller
                     'is_shippable' => $product->is_shippable,
                     'image' => $primaryImage ? '/storage/' . $primaryImage->image_path : null,
                     'images' => $product->images->map(fn($img) => '/storage/' . $img->image_path),
+                    'addons' => $product->addons ?? [],
                 ];
             });
 
@@ -166,6 +168,7 @@ class StorefrontController extends Controller
                 'theme' => $store->theme_key ?? 'classic',
                 'logo_url' => $store->logo_path ? asset('storage/' . $store->logo_path) : null,
                 'is_active' => $store->is_active ?? true,
+                'shipping_enabled' => $store->shipping_enabled,
                 'open_time' => $store->open_time ? substr($store->open_time, 0, 5) : null,
                 'close_time' => $store->close_time ? substr($store->close_time, 0, 5) : null,
             ],
@@ -265,6 +268,7 @@ class StorefrontController extends Controller
                 'theme' => $store->theme_key ?? 'classic',
                 'logo_url' => $store->logo_path ? asset('storage/' . $store->logo_path) : null,
                 'is_active' => $store->is_active ?? true,
+                'shipping_enabled' => $store->shipping_enabled,
             ],
             'product' => $productData,
             'relatedProducts' => $relatedProducts,
@@ -330,6 +334,10 @@ class StorefrontController extends Controller
                 'shipping_enabled' => $store->shipping_enabled,
                 'theme' => $store->theme_key ?? 'classic',
                 'is_active' => $store->is_active ?? true,
+                'address_primary' => $store->address_primary,
+                'address_city' => $store->address_city,
+                'address_state' => $store->address_state,
+                'address_postcode' => $store->address_postcode,
             ],
             'zones' => $zones,
             'customer' => $customerData,
@@ -356,16 +364,16 @@ class StorefrontController extends Controller
             'items.*.quantity' => 'required|integer|min:1|max:1000',
             'items.*.customizations' => 'nullable|array',
             'items.*.addons' => 'nullable|array',
-            'fulfilment_type' => 'required|in:pickup,shipping',
-            'shipping_address' => 'required_if:fulfilment_type,shipping|array',
-            'shipping_address.name' => 'required_if:fulfilment_type,shipping|string',
-            'shipping_address.line1' => 'required_if:fulfilment_type,shipping|string',
+            'fulfilment_type' => 'required|in:pickup,delivery',
+            'shipping_address' => 'required_if:fulfilment_type,delivery|array',
+            'shipping_address.name' => 'required_if:fulfilment_type,delivery|string',
+            'shipping_address.line1' => 'required_if:fulfilment_type,delivery|string',
             'shipping_address.line2' => 'nullable|string',
-            'shipping_address.city' => 'required_if:fulfilment_type,shipping|string',
-            'shipping_address.state' => 'required_if:fulfilment_type,shipping|string',
-            'shipping_address.postcode' => 'required_if:fulfilment_type,shipping|string',
-            'shipping_address.country' => 'required_if:fulfilment_type,shipping|string|max:100',
-            'shipping_method_id' => 'required_if:fulfilment_type,shipping|exists:shipping_methods,id',
+            'shipping_address.city' => 'required_if:fulfilment_type,delivery|string',
+            'shipping_address.state' => 'required_if:fulfilment_type,delivery|string',
+            'shipping_address.postcode' => 'required_if:fulfilment_type,delivery|string',
+            'shipping_address.country' => 'required_if:fulfilment_type,delivery|string|max:100',
+            'shipping_method_id' => 'required_if:fulfilment_type,delivery|exists:shipping_methods,id',
             'payment_method' => 'nullable|string',
             'apply_loyalty_reward' => 'nullable|boolean',
         ]);
@@ -380,8 +388,8 @@ class StorefrontController extends Controller
         try {
             DB::beginTransaction();
 
-            // Validate that all items are shippable if shipping is selected
-            if ($validated['fulfilment_type'] === 'shipping') {
+            // Validate that all items are shippable if delivery is selected
+            if ($validated['fulfilment_type'] === 'delivery') {
                 foreach ($validated['items'] as $item) {
                     $product = Product::findOrFail($item['product_id']);
                     if (!$product->is_shippable) {
@@ -462,7 +470,7 @@ class StorefrontController extends Controller
             $shippingCostCents = 0;
             $shippingMethodName = null;
 
-            if ($validated['fulfilment_type'] === 'shipping') {
+            if ($validated['fulfilment_type'] === 'delivery') {
                 $shippingEngine = app(ShippingEngine::class);
 
                 // Build cart items for shipping calculation
@@ -524,7 +532,9 @@ class StorefrontController extends Controller
                 }
             }
 
-            // Create order
+            // Create order (convert 'delivery' to 'shipping' for database storage)
+            $dbFulfilmentType = $validated['fulfilment_type'] === 'delivery' ? 'shipping' : $validated['fulfilment_type'];
+
             $order = Order::create([
                 'public_id' => 'ORD-' . strtoupper(Str::random(12)),
                 'merchant_id' => $store->merchant_id,
@@ -533,7 +543,7 @@ class StorefrontController extends Controller
                 'customer_name' => $customer->first_name . ' ' . $customer->last_name,
                 'customer_email' => $customer->email,
                 'customer_mobile' => $customer->mobile,
-                'fulfilment_type' => $validated['fulfilment_type'],
+                'fulfilment_type' => $dbFulfilmentType,
                 'status' => Order::STATUS_PENDING,
                 'payment_status' => Order::PAYMENT_PAID, // Simulated payment - always paid
                 'payment_method' => $validated['payment_method'] ?? 'simulated',
@@ -544,13 +554,13 @@ class StorefrontController extends Controller
                 'placed_at' => now(),
                 // Shipping details
                 'shipping_method' => $shippingMethodName,
-                'shipping_name' => $validated['fulfilment_type'] === 'shipping' ? $validated['shipping_address']['name'] : null,
-                'shipping_line1' => $validated['fulfilment_type'] === 'shipping' ? $validated['shipping_address']['line1'] : null,
-                'shipping_line2' => $validated['fulfilment_type'] === 'shipping' ? ($validated['shipping_address']['line2'] ?? null) : null,
-                'city' => $validated['fulfilment_type'] === 'shipping' ? $validated['shipping_address']['city'] : null,
-                'state' => $validated['fulfilment_type'] === 'shipping' ? $validated['shipping_address']['state'] : null,
-                'postcode' => $validated['fulfilment_type'] === 'shipping' ? $validated['shipping_address']['postcode'] : null,
-                'country' => $validated['fulfilment_type'] === 'shipping' ? $validated['shipping_address']['country'] : null,
+                'shipping_name' => $validated['fulfilment_type'] === 'delivery' ? $validated['shipping_address']['name'] : null,
+                'shipping_line1' => $validated['fulfilment_type'] === 'delivery' ? $validated['shipping_address']['line1'] : null,
+                'shipping_line2' => $validated['fulfilment_type'] === 'delivery' ? ($validated['shipping_address']['line2'] ?? null) : null,
+                'city' => $validated['fulfilment_type'] === 'delivery' ? $validated['shipping_address']['city'] : null,
+                'state' => $validated['fulfilment_type'] === 'delivery' ? $validated['shipping_address']['state'] : null,
+                'postcode' => $validated['fulfilment_type'] === 'delivery' ? $validated['shipping_address']['postcode'] : null,
+                'country' => $validated['fulfilment_type'] === 'delivery' ? $validated['shipping_address']['country'] : null,
             ]);
 
             // Create order items
@@ -661,6 +671,7 @@ class StorefrontController extends Controller
                 'id' => $store->id,
                 'name' => $store->name,
                 'theme' => $store->theme_key ?? 'classic',
+                'shipping_enabled' => $store->shipping_enabled,
                 'contact_email' => $store->contact_email,
                 'contact_phone' => $store->contact_phone,
                 'address_primary' => $store->address_primary,

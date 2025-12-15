@@ -25,8 +25,23 @@ const formatCurrency = (cents) => {
 
 const productUrl = `/store/${props.store.id}/products/${props.product.id}`;
 
-const handleAddToCart = () => {
+const handleAddToCart = (event) => {
     if (isAdding.value) return;
+
+    // Check if product has required addons
+    const hasRequiredAddons = Array.isArray(props.product.addons) &&
+        props.product.addons.length > 0 &&
+        props.product.addons.some(addon => addon.is_required);
+
+    // If product has required addons, navigate to product detail page
+    if (hasRequiredAddons) {
+        // Don't prevent the link navigation - let it go to product detail
+        return;
+    }
+
+    // Prevent link navigation if we're adding to cart
+    event.preventDefault();
+    event.stopPropagation();
 
     isAdding.value = true;
     justAdded.value = true;
@@ -86,7 +101,7 @@ const handleAddToCart = () => {
 
                     <!-- Circular + Button -->
                     <button
-                        @click.prevent.stop="handleAddToCart"
+                        @click="handleAddToCart"
                         :class="[
                             'absolute bottom-2 right-2 w-9 h-9 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 border-2 z-10',
                             justAdded

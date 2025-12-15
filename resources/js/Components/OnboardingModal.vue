@@ -315,6 +315,8 @@ const submitForm = () => {
     form.post(route("onboarding.complete"), {
         onSuccess: (page) => {
             console.log("Success!", page);
+            // Manually redirect to subscription section with hash fragment
+            window.location.href = '/store/settings#subscription';
         },
         onError: (err) => {
             console.error("Submission error:", err);

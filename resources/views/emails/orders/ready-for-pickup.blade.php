@@ -32,7 +32,7 @@ Your order **#{{ $order->public_id }}** is ready and waiting for you.
 | Item | Quantity | Price |
 |:-----|:--------:|------:|
 @foreach($items as $item)
-| {{ $item->product->name }} | {{ $item->qty }} | ${{ number_format(($item->qty * $item->unit_price_cents) / 100, 2) }} |
+| {{ $item->product->name }} | {{ $item->quantity }} | ${{ number_format($item->total_cents / 100, 2) }} |
 @endforeach
 </x-mail::table>
 

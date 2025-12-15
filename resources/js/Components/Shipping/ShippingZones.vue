@@ -458,6 +458,7 @@
 <script setup>
 import { ref } from "vue";
 import { router } from "@inertiajs/vue3";
+import { useToast } from "vue-toastification";
 import {
     Dialog,
     DialogPanel,
@@ -465,6 +466,8 @@ import {
     TransitionChild,
     TransitionRoot,
 } from "@headlessui/vue";
+
+const toast = useToast();
 
 const props = defineProps({
     zones: {
@@ -571,7 +574,7 @@ const submitForm = () => {
         },
         onError: (errors) => {
             console.error("Form errors:", errors);
-            alert("Error saving zone. Please check the form and try again.");
+            toast.error("Error saving zone. Please check the form and try again.");
         },
         onFinish: () => {
             processing.value = false;

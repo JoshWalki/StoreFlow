@@ -48,6 +48,8 @@ class OrderController extends Controller
             'shipping_status' => 'nullable|string',
             'tracking_code' => 'nullable|string',
             'tracking_url' => 'nullable|url',
+            'tracking_number' => 'nullable|string|max:255',
+            'courier_company' => 'nullable|string|max:255',
         ]);
 
         try {
@@ -56,11 +58,28 @@ class OrderController extends Controller
                 $order,
                 $request->input('shipping_status'),
                 $request->input('tracking_code'),
-                $request->input('tracking_url')
+                $request->input('tracking_url'),
+                $request->input('tracking_number'),
+                $request->input('courier_company')
             );
+
+            // Return JSON response for AJAX requests
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'message' => 'Shipping information updated successfully.',
+                    'order' => $updatedOrder,
+                ]);
+            }
 
             return back()->with('success', 'Shipping information updated successfully.');
         } catch (\Exception $e) {
+            // Return JSON error for AJAX requests
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+
             return back()->with('error', $e->getMessage());
         }
     }

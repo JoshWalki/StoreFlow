@@ -41,6 +41,7 @@ class CheckoutRequest extends FormRequest
             'items.*.addons.*.option_name' => ['nullable', 'string'],
             'items.*.addons.*.price_adjustment' => ['nullable', 'numeric'],
             'items.*.addons.*.quantity' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'items.*.specialMessage' => ['nullable', 'string', 'max:500'],
             'payment_intent_id' => ['nullable', 'string', 'starts_with:pi_'],
             'payment_method' => ['nullable', 'string', 'max:50'],
             'account' => ['nullable', 'array'],

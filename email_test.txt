@@ -1,0 +1,303 @@
+stonedmoney@toaster:/mnt/c/xampp/htdocs/storeflow$ php artisan test --filter Email
+
+
+   FAIL  Tests\Unit\CustomerUnitTest
+  ⨯ email is required and stored
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_SSL_CA is deprecated since 8.5, use Pdo\Mysql::ATTR_SSL_CA instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 62
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 65
+
+   FAIL  Tests\Feature\CustomerManagementTest
+  ⨯ it searches customers by email
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_SSL_CA is deprecated since 8.5, use Pdo\Mysql::ATTR_SSL_CA instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 62
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 65
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_SSL_CA is deprecated since 8.5, use Pdo\Mysql::ATTR_SSL_CA instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 62
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 65
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_SSL_CA is deprecated since 8.5, use Pdo\Mysql::ATTR_SSL_CA instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 62
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 65
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_SSL_CA is deprecated since 8.5, use Pdo\Mysql::ATTR_SSL_CA instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 62
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 65
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_SSL_CA is deprecated since 8.5, use Pdo\Mysql::ATTR_SSL_CA instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 62
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 65
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_SSL_CA is deprecated since 8.5, use Pdo\Mysql::ATTR_SSL_CA instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 62
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 65
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_SSL_CA is deprecated since 8.5, use Pdo\Mysql::ATTR_SSL_CA instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 62
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 65
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_SSL_CA is deprecated since 8.5, use Pdo\Mysql::ATTR_SSL_CA instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 62
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 65
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_SSL_CA is deprecated since 8.5, use Pdo\Mysql::ATTR_SSL_CA instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 62
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 65
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_SSL_CA is deprecated since 8.5, use Pdo\Mysql::ATTR_SSL_CA instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 62
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 65
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_SSL_CA is deprecated since 8.5, use Pdo\Mysql::ATTR_SSL_CA instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 62
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 65
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_SSL_CA is deprecated since 8.5, use Pdo\Mysql::ATTR_SSL_CA instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 62
+PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /mnt/c/xampp/htdocs/storeflow/config/database.php on line 65
+
+   FAIL  Tests\Feature\EmailNotificationTest
+  ⨯ email is sent when order is created
+  ⨯ email is sent when order status changes to ready for pickup
+  ⨯ email is sent when order status changes to shipped
+  ⨯ email is sent when order status changes to completed
+  ⨯ email contains correct order information
+  ⨯ email includes store branding information
+  ⨯ email is sent to correct customer email
+  ⨯ no email sent for non customer facing status changes
+  ⨯ email includes tracking information when order is shipped
+  ⨯ email includes pickup information for pickup orders
+  ⨯ email includes all order items with correct pricing
+  ⨯ multiple status updates send appropriate emails
+  ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Unit\CustomerUnitTest > email is required and stored                                  QueryException
+  could not find driver (Connection: sqlite, SQL: PRAGMA foreign_keys = ON;)
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:829
+    825▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕                 );
+    827▕             }
+    828▕
+  ➜ 829▕             throw new QueryException(
+    830▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    831▕             );
+    832▕         }
+    833▕     }
+
+
+  ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\CustomerManagementTest > it searches customers by email                       QueryException
+  could not find driver (Connection: sqlite, SQL: PRAGMA foreign_keys = ON;)
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:829
+    825▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕                 );
+    827▕             }
+    828▕
+  ➜ 829▕             throw new QueryException(
+    830▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    831▕             );
+    832▕         }
+    833▕     }
+
+      +41 vendor frames
+  42  tests/Feature/CustomerManagementTest.php:23
+
+  ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\EmailNotificationTest > email is sent when order is created                   QueryException
+  could not find driver (Connection: sqlite, SQL: PRAGMA foreign_keys = ON;)
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:829
+    825▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕                 );
+    827▕             }
+    828▕
+  ➜ 829▕             throw new QueryException(
+    830▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    831▕             );
+    832▕         }
+    833▕     }
+
+      +41 vendor frames
+  42  tests/Feature/EmailNotificationTest.php:33
+
+  ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\EmailNotificationTest > email is sent when order status changes to ready fo…  QueryException
+  could not find driver (Connection: sqlite, SQL: PRAGMA foreign_keys = ON;)
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:829
+    825▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕                 );
+    827▕             }
+    828▕
+  ➜ 829▕             throw new QueryException(
+    830▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    831▕             );
+    832▕         }
+    833▕     }
+
+      +41 vendor frames
+  42  tests/Feature/EmailNotificationTest.php:33
+
+  ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\EmailNotificationTest > email is sent when order status changes to shipped    QueryException
+  could not find driver (Connection: sqlite, SQL: PRAGMA foreign_keys = ON;)
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:829
+    825▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕                 );
+    827▕             }
+    828▕
+  ➜ 829▕             throw new QueryException(
+    830▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    831▕             );
+    832▕         }
+    833▕     }
+
+      +41 vendor frames
+  42  tests/Feature/EmailNotificationTest.php:33
+
+  ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\EmailNotificationTest > email is sent when order status changes to complete…  QueryException
+  could not find driver (Connection: sqlite, SQL: PRAGMA foreign_keys = ON;)
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:829
+    825▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕                 );
+    827▕             }
+    828▕
+  ➜ 829▕             throw new QueryException(
+    830▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    831▕             );
+    832▕         }
+    833▕     }
+
+      +41 vendor frames
+  42  tests/Feature/EmailNotificationTest.php:33
+
+  ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\EmailNotificationTest > email contains correct order information              QueryException
+  could not find driver (Connection: sqlite, SQL: PRAGMA foreign_keys = ON;)
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:829
+    825▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕                 );
+    827▕             }
+    828▕
+  ➜ 829▕             throw new QueryException(
+    830▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    831▕             );
+    832▕         }
+    833▕     }
+
+      +41 vendor frames
+  42  tests/Feature/EmailNotificationTest.php:33
+
+  ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\EmailNotificationTest > email includes store branding information             QueryException
+  could not find driver (Connection: sqlite, SQL: PRAGMA foreign_keys = ON;)
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:829
+    825▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕                 );
+    827▕             }
+    828▕
+  ➜ 829▕             throw new QueryException(
+    830▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    831▕             );
+    832▕         }
+    833▕     }
+
+      +41 vendor frames
+  42  tests/Feature/EmailNotificationTest.php:33
+
+  ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\EmailNotificationTest > email is sent to correct customer email               QueryException
+  could not find driver (Connection: sqlite, SQL: PRAGMA foreign_keys = ON;)
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:829
+    825▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕                 );
+    827▕             }
+    828▕
+  ➜ 829▕             throw new QueryException(
+    830▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    831▕             );
+    832▕         }
+    833▕     }
+
+      +41 vendor frames
+  42  tests/Feature/EmailNotificationTest.php:33
+
+  ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\EmailNotificationTest > no email sent for non customer facing status change…  QueryException
+  could not find driver (Connection: sqlite, SQL: PRAGMA foreign_keys = ON;)
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:829
+    825▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕                 );
+    827▕             }
+    828▕
+  ➜ 829▕             throw new QueryException(
+    830▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    831▕             );
+    832▕         }
+    833▕     }
+
+      +41 vendor frames
+  42  tests/Feature/EmailNotificationTest.php:33
+
+  ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\EmailNotificationTest > email includes tracking information when order is s…  QueryException
+  could not find driver (Connection: sqlite, SQL: PRAGMA foreign_keys = ON;)
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:829
+    825▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕                 );
+    827▕             }
+    828▕
+  ➜ 829▕             throw new QueryException(
+    830▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    831▕             );
+    832▕         }
+    833▕     }
+
+      +41 vendor frames
+  42  tests/Feature/EmailNotificationTest.php:33
+
+  ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\EmailNotificationTest > email includes pickup information for pickup orders   QueryException
+  could not find driver (Connection: sqlite, SQL: PRAGMA foreign_keys = ON;)
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:829
+    825▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕                 );
+    827▕             }
+    828▕
+  ➜ 829▕             throw new QueryException(
+    830▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    831▕             );
+    832▕         }
+    833▕     }
+
+      +41 vendor frames
+  42  tests/Feature/EmailNotificationTest.php:33
+
+  ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\EmailNotificationTest > email includes all order items with correct pricing   QueryException
+  could not find driver (Connection: sqlite, SQL: PRAGMA foreign_keys = ON;)
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:829
+    825▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕                 );
+    827▕             }
+    828▕
+  ➜ 829▕             throw new QueryException(
+    830▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    831▕             );
+    832▕         }
+    833▕     }
+
+      +41 vendor frames
+  42  tests/Feature/EmailNotificationTest.php:33
+
+  ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\EmailNotificationTest > multiple status updates send appropriate emails       QueryException
+  could not find driver (Connection: sqlite, SQL: PRAGMA foreign_keys = ON;)
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:829
+    825▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕                 );
+    827▕             }
+    828▕
+  ➜ 829▕             throw new QueryException(
+    830▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    831▕             );
+    832▕         }
+    833▕     }
+
+      +41 vendor frames
+  42  tests/Feature/EmailNotificationTest.php:33
+
+
+  Tests:    14 failed (0 assertions)
+  Duration: 15.59s
+
+stonedmoney@toaster:/mnt/c/xampp/htdocs/storeflow$

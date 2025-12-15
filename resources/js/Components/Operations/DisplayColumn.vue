@@ -24,7 +24,10 @@
             @dragover.prevent="handleDragOver"
             @dragleave="handleDragLeave"
             @drop.prevent="handleDrop"
-            :class="{ 'bg-blue-500/10 border-2 border-blue-500 border-dashed rounded-lg': isDropTarget }"
+            :class="{
+                'bg-blue-500/10 border-2 border-blue-500 border-dashed rounded-lg':
+                    isDropTarget,
+            }"
         >
             <div
                 v-for="order in orders"
@@ -38,20 +41,59 @@
                 @touchcancel="handleTouchCancel"
                 @click="$emit('order-click', order)"
                 class="bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-3 cursor-move hover:shadow-md transition-shadow min-h-[100px] flex flex-col justify-between select-none"
-                :class="{ 'opacity-50': isDragging && draggingOrderId === order.id }"
+                :class="{
+                    'opacity-50': isDragging && draggingOrderId === order.id,
+                }"
             >
                 <!-- Header Row -->
                 <div class="flex justify-between items-start">
                     <div class="flex-1 min-w-0">
-                        <div class="font-bold text-base text-gray-900 dark:text-white truncate">
-                            {{ order.customer_name }} <span class="text-xs text-gray-500 dark:text-gray-400">{{ order.public_id }}</span>
+                        <div
+                            class="font-bold text-base text-gray-900 dark:text-white truncate"
+                        >
+                            {{ order.customer_name }}
+                            <span
+                                class="text-xs text-gray-500 dark:text-gray-300"
+                                >{{ order.public_id }}</span
+                            >
                         </div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 space-y-0.5">
-                            <div v-for="item in order.items" :key="item.id" class="truncate">
-                                {{ item.quantity }}x {{ item.product_name || item.name }}
-                                <span v-if="item.addons && item.addons.length > 0" class="text-gray-400">
-                                    ({{ item.addons.map(a => a.name).join(', ') }})
-                                </span>
+                        <div
+                            class="text-s text-gray-500 dark:text-gray-300 mt-0.5 space-y-1"
+                        >
+                            <div v-for="item in order.items" :key="item.id">
+                                <div>
+                                    {{ item.quantity }}x
+                                    {{ item.product_name || item.name }}
+                                </div>
+                                <!-- Addons -->
+                                <div
+                                    v-if="item.addons && item.addons.length > 0"
+                                    class="ml-2 space-y-0.5 mt-0.5"
+                                >
+                                    <div
+                                        v-for="(addon, addonIdx) in item.addons"
+                                        :key="addonIdx"
+                                        class="text-gray-400 dark:text-gray-300"
+                                    >
+                                        <span
+                                            class="text-gray-500 dark:text-gray-300"
+                                            >+</span
+                                        >
+                                        {{ addon.name
+                                        }}<span
+                                            v-if="addon.quantity > 1"
+                                            class="ml-1"
+                                            >(x{{ addon.quantity }})</span
+                                        >
+                                    </div>
+                                </div>
+                                <!-- Special Instructions -->
+                                <div
+                                    v-if="item.special_instructions"
+                                    class="ml-2 mt-1 text-xs italic text-blue-400"
+                                >
+                                    Note: {{ item.special_instructions }}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -60,7 +102,9 @@
                 <!-- Middle Row -->
                 <div class="flex justify-between items-center text-sm">
                     <div class="flex items-center gap-3">
-                        <span class="font-semibold text-gray-900 dark:text-white">
+                        <span
+                            class="font-semibold text-gray-900 dark:text-white"
+                        >
                             {{ formatCurrency(order.total_cents) }}
                         </span>
                     </div>
@@ -68,7 +112,9 @@
 
                 <!-- Bottom Row -->
                 <div class="flex justify-between items-center">
-                    <span class="text-sm font-medium text-blue-600 dark:text-blue-400">
+                    <span
+                        class="text-sm font-medium text-blue-600 dark:text-blue-400"
+                    >
                         {{ formatTime(order.created_at) }}
                     </span>
                 </div>
@@ -79,8 +125,18 @@
                 v-if="orders.length === 0"
                 class="flex flex-col items-center justify-center h-full text-gray-500"
             >
-                <svg class="w-16 h-16 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <svg
+                    class="w-16 h-16 mb-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
                 </svg>
                 <p class="text-lg font-medium">No orders</p>
             </div>
@@ -100,7 +156,7 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(['order-click', 'order-drop']);
+const emit = defineEmits(["order-click", "order-drop"]);
 
 // Drag and drop state
 const isDropTarget = ref(false);
@@ -118,11 +174,14 @@ const dragGhost = ref(null);
 const handleDragStart = (order, e) => {
     isDragging.value = true;
     draggingOrderId.value = order.id;
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('application/json', JSON.stringify({
-        orderId: order.id,
-        currentStatus: props.status
-    }));
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData(
+        "application/json",
+        JSON.stringify({
+            orderId: order.id,
+            currentStatus: props.status,
+        })
+    );
 };
 
 const handleDragEnd = () => {
@@ -154,20 +213,20 @@ const handleDrop = (e) => {
     isDropTarget.value = false;
 
     try {
-        const data = JSON.parse(e.dataTransfer.getData('application/json'));
+        const data = JSON.parse(e.dataTransfer.getData("application/json"));
 
         // Don't allow dropping in the same column
         if (data.currentStatus === props.status) {
             return;
         }
 
-        emit('order-drop', {
+        emit("order-drop", {
             orderId: data.orderId,
             fromStatus: data.currentStatus,
             toStatus: props.status,
         });
     } catch (error) {
-        console.error('Error handling drop:', error);
+        console.error("Error handling drop:", error);
     }
 };
 
@@ -184,7 +243,7 @@ const handleTouchStart = (order, e) => {
 
     // Store reference to the element for cloning later
     const target = e.currentTarget;
-    target.dataset.orderElement = 'true';
+    target.dataset.orderElement = "true";
 };
 
 const handleTouchMove = (order, e) => {
@@ -206,16 +265,17 @@ const handleTouchMove = (order, e) => {
         if (!dragGhost.value) {
             const sourceElement = e.currentTarget;
             const ghost = sourceElement.cloneNode(true);
-            ghost.classList.add('drag-ghost');
-            ghost.style.position = 'fixed';
-            ghost.style.pointerEvents = 'none';
-            ghost.style.zIndex = '9999';
-            ghost.style.width = sourceElement.offsetWidth + 'px';
-            ghost.style.height = sourceElement.offsetHeight + 'px';
-            ghost.style.opacity = '0.9';
-            ghost.style.transform = 'scale(1.05) rotate(2deg)';
-            ghost.style.transition = 'transform 0.1s ease-out';
-            ghost.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2)';
+            ghost.classList.add("drag-ghost");
+            ghost.style.position = "fixed";
+            ghost.style.pointerEvents = "none";
+            ghost.style.zIndex = "9999";
+            ghost.style.width = sourceElement.offsetWidth + "px";
+            ghost.style.height = sourceElement.offsetHeight + "px";
+            ghost.style.opacity = "0.9";
+            ghost.style.transform = "scale(1.05) rotate(2deg)";
+            ghost.style.transition = "transform 0.1s ease-out";
+            ghost.style.boxShadow =
+                "0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2)";
             document.body.appendChild(ghost);
             dragGhost.value = ghost;
         }
@@ -224,22 +284,22 @@ const handleTouchMove = (order, e) => {
         if (dragGhost.value) {
             const offsetX = dragGhost.value.offsetWidth / 2;
             const offsetY = dragGhost.value.offsetHeight / 2;
-            dragGhost.value.style.left = (touch.clientX - offsetX) + 'px';
-            dragGhost.value.style.top = (touch.clientY - offsetY) + 'px';
+            dragGhost.value.style.left = touch.clientX - offsetX + "px";
+            dragGhost.value.style.top = touch.clientY - offsetY + "px";
         }
 
         // Find which column we're over
         const element = document.elementFromPoint(touch.clientX, touch.clientY);
-        const column = element?.closest('[data-column-status]');
+        const column = element?.closest("[data-column-status]");
 
         // Clear all drop targets first
-        document.querySelectorAll('[data-column-status]').forEach(col => {
-            col.classList.remove('drop-target-active');
+        document.querySelectorAll("[data-column-status]").forEach((col) => {
+            col.classList.remove("drop-target-active");
         });
 
         // Highlight the column we're over
         if (column && column.dataset.columnStatus !== props.status) {
-            column.classList.add('drop-target-active');
+            column.classList.add("drop-target-active");
         }
     }
 };
@@ -249,13 +309,13 @@ const handleTouchEnd = (order, e) => {
 
     const touch = e.changedTouches[0];
     const element = document.elementFromPoint(touch.clientX, touch.clientY);
-    const column = element?.closest('[data-column-status]');
+    const column = element?.closest("[data-column-status]");
 
     // Animate ghost to target before removing
     if (dragGhost.value) {
-        dragGhost.value.style.transition = 'all 0.2s ease-out';
-        dragGhost.value.style.opacity = '0';
-        dragGhost.value.style.transform = 'scale(0.8) rotate(0deg)';
+        dragGhost.value.style.transition = "all 0.2s ease-out";
+        dragGhost.value.style.opacity = "0";
+        dragGhost.value.style.transform = "scale(0.8) rotate(0deg)";
 
         setTimeout(() => {
             if (dragGhost.value) {
@@ -268,13 +328,13 @@ const handleTouchEnd = (order, e) => {
     // Clear visual states
     isDragging.value = false;
     draggingOrderId.value = null;
-    document.querySelectorAll('[data-column-status]').forEach(col => {
-        col.classList.remove('drop-target-active');
+    document.querySelectorAll("[data-column-status]").forEach((col) => {
+        col.classList.remove("drop-target-active");
     });
 
     // If dropped on a different column, emit the drop event
     if (column && column.dataset.columnStatus !== touchStartStatus) {
-        emit('order-drop', {
+        emit("order-drop", {
             orderId: touchedOrder.id,
             fromStatus: touchStartStatus,
             toStatus: column.dataset.columnStatus,
@@ -296,8 +356,8 @@ const handleTouchCancel = () => {
     draggingOrderId.value = null;
     touchedOrder = null;
     touchStartStatus = null;
-    document.querySelectorAll('[data-column-status]').forEach(col => {
-        col.classList.remove('drop-target-active');
+    document.querySelectorAll("[data-column-status]").forEach((col) => {
+        col.classList.remove("drop-target-active");
     });
 };
 

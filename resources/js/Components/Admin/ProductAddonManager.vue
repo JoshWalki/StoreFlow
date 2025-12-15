@@ -326,7 +326,11 @@ const props = defineProps({
 
 const emit = defineEmits(['update:addons']);
 
-const localAddons = ref([...props.addons]);
+// Initialize with proper boolean casting
+const localAddons = ref(props.addons.map(addon => ({
+    ...addon,
+    is_required: Boolean(addon.is_required),
+})));
 const showAddonModal = ref(false);
 const editingIndex = ref(null);
 const currentAddon = ref({
@@ -375,7 +379,10 @@ const handleDefaultChange = (index) => {
 
 const editAddon = (index) => {
     editingIndex.value = index;
-    currentAddon.value = JSON.parse(JSON.stringify(localAddons.value[index]));
+    const addon = JSON.parse(JSON.stringify(localAddons.value[index]));
+    // Ensure is_required is cast to boolean
+    addon.is_required = Boolean(addon.is_required);
+    currentAddon.value = addon;
     showAddonModal.value = true;
 };
 
@@ -389,10 +396,16 @@ const removeAddon = (index) => {
 const saveAddon = () => {
     if (!isAddonValid.value) return;
 
+    // Ensure proper boolean casting for is_required
+    const addonToSave = {
+        ...currentAddon.value,
+        is_required: Boolean(currentAddon.value.is_required),
+    };
+
     if (editingIndex.value !== null) {
-        localAddons.value[editingIndex.value] = { ...currentAddon.value };
+        localAddons.value[editingIndex.value] = addonToSave;
     } else {
-        localAddons.value.push({ ...currentAddon.value });
+        localAddons.value.push(addonToSave);
     }
 
     emit('update:addons', localAddons.value);
@@ -415,6 +428,10 @@ const closeAddonModal = () => {
 
 // Watch for external changes to addons prop
 watch(() => props.addons, (newAddons) => {
-    localAddons.value = [...newAddons];
+    // Ensure is_required is properly cast to boolean for all addons
+    localAddons.value = newAddons.map(addon => ({
+        ...addon,
+        is_required: Boolean(addon.is_required),
+    }));
 }, { deep: true });
 </script>

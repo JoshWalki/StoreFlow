@@ -16,6 +16,16 @@ class DataMigrationController extends Controller
      */
     public function start(Request $request, Store $store)
     {
+        // Check if merchant has active subscription
+        $merchant = $request->user()->merchant;
+        if (!$merchant->hasActiveSubscription()) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Subscription required',
+                'message' => 'You need an active subscription to use the data migration tool. Please subscribe to continue.',
+            ], 403);
+        }
+
         $request->validate([
             'platform' => 'required|in:ubereats,doordash,menulog,deliveroo',
             'url' => 'required|url',
@@ -83,8 +93,18 @@ class DataMigrationController extends Controller
     /**
      * Import migration data (create actual products)
      */
-    public function import(DataMigration $migration)
+    public function import(Request $request, DataMigration $migration)
     {
+        // Check if merchant has active subscription
+        $merchant = $request->user()->merchant;
+        if (!$merchant->hasActiveSubscription()) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Subscription required',
+                'message' => 'You need an active subscription to import products. Please subscribe to continue.',
+            ], 403);
+        }
+
         // Check if migration is ready for import
         if (!in_array($migration->status, ['preview', 'failed'])) {
             return response()->json([

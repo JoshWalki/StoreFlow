@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\SystemNotice;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -76,6 +77,7 @@ class HandleInertiaRequests extends Middleware
             ] : null,
             'needsOnboarding' => $needsOnboarding,
             'needsStripeOnboarding' => $needsStripeOnboarding,
+            'systemNotice' => SystemNotice::getActive(),
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),

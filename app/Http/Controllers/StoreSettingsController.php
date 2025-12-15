@@ -24,6 +24,15 @@ class StoreSettingsController extends Controller
             abort(403, 'Unauthorized access to store settings.');
         }
 
+        // Ensure data accuracy: deactivate all stores if no active subscription
+        $merchant = $user->merchant;
+        if (!$merchant->hasActiveSubscription()) {
+            $merchant->stores()->where('is_active', true)->update(['is_active' => false]);
+
+            // Refresh the store model to reflect the change
+            $store->refresh();
+        }
+
         // Extended settings stored in JSON or separate table (for future use)
         // For now, we'll return defaults that can be customized
         $storeSettings = [
@@ -59,6 +68,9 @@ class StoreSettingsController extends Controller
             'store' => $storeData,
             'user' => $user,
             'storeSettings' => $storeSettings,
+            'merchant' => [
+                'subscription_status' => $user->merchant->subscription_status ?? null,
+            ],
         ]);
     }
 

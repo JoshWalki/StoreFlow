@@ -1,11 +1,14 @@
 import { ref, computed } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { useToast } from 'vue-toastification';
 
 // Shared cart state across the application
 const cartItems = ref([]);
 const isCartOpen = ref(false);
 
 export function useCart() {
+    const toast = useToast();
+
     // Load cart from localStorage on initialization
     if (cartItems.value.length === 0) {
         const stored = localStorage.getItem('storeflow_cart');
@@ -25,23 +28,24 @@ export function useCart() {
     };
 
     // Add item to cart
-    const addToCart = (product, quantity = 1, customizations = [], addons = []) => {
-        console.log('useCart - Adding to cart:', { product: product.name, quantity, customizations, addons });
+    const addToCart = (product, quantity = 1, customizations = [], addons = [], specialMessage = '') => {
+        console.log('useCart - Adding to cart:', { product: product.name, quantity, customizations, addons, specialMessage });
 
-        // Check if item already exists (same product + same customizations + same addons)
+        // Check if item already exists (same product + same customizations + same addons + same message)
         const existingIndex = cartItems.value.findIndex(item => {
             if (item.product.id !== product.id) return false;
             if (item.customizations.length !== customizations.length) return false;
             if ((item.addons?.length || 0) !== addons.length) return false;
+            if ((item.specialMessage || '') !== specialMessage) return false;
 
             // Check if customizations match
             const itemCustomizationIds = item.customizations.map(c => c.option_id).sort();
             const newCustomizationIds = customizations.map(c => c.option_id).sort();
             if (JSON.stringify(itemCustomizationIds) !== JSON.stringify(newCustomizationIds)) return false;
 
-            // Check if addons match
-            const itemAddonIds = (item.addons || []).map(a => `${a.addon_index}-${a.option_index}`).sort();
-            const newAddonIds = addons.map(a => `${a.addon_index}-${a.option_index}`).sort();
+            // Check if addons match (including quantity)
+            const itemAddonIds = (item.addons || []).map(a => `${a.addon_index}-${a.option_index}-${a.quantity || 1}`).sort();
+            const newAddonIds = addons.map(a => `${a.addon_index}-${a.option_index}-${a.quantity || 1}`).sort();
             return JSON.stringify(itemAddonIds) === JSON.stringify(newAddonIds);
         });
 
@@ -74,7 +78,9 @@ export function useCart() {
                     option_name: a.option_name,
                     option_index: a.option_index,
                     price_adjustment: a.price_adjustment || 0,
+                    quantity: a.quantity || 1,
                 })),
+                specialMessage: specialMessage || '',
             });
         }
 
@@ -116,7 +122,7 @@ export function useCart() {
             0
         );
         const addonsPrice = (item.addons || []).reduce(
-            (sum, a) => sum + Math.round((a.price_adjustment || 0) * 100),
+            (sum, a) => sum + Math.round((a.price_adjustment || 0) * 100) * (a.quantity || 1),
             0
         );
         return basePrice + customizationsPrice + addonsPrice;
@@ -170,7 +176,7 @@ export function useCart() {
     // Go to checkout
     const goToCheckout = (store) => {
         if (cartItems.value.length === 0) {
-            alert('Your cart is empty');
+            toast.warning('Your cart is empty');
             return;
         }
         closeCart();

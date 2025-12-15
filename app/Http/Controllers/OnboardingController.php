@@ -114,10 +114,10 @@ class OnboardingController extends Controller
             });
 
             \Log::info('Transaction completed successfully');
-            \Log::info('Redirecting to dashboard...');
+            \Log::info('Redirecting to store settings subscription...');
 
-            return redirect()->route('dashboard')
-                ->with('success', 'Welcome! Your store has been created successfully.');
+            return redirect()->to('/store/settings#subscription')
+                ->with('success', 'Welcome! Your store has been created successfully. Start your free trial to activate your store.');
         } catch (\Exception $e) {
             \Log::error('Exception caught: ' . $e->getMessage());
             \Log::error('Stack trace: ' . $e->getTraceAsString());

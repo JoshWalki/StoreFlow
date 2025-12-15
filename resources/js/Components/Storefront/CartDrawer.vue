@@ -315,12 +315,13 @@
                                                                     >
                                                                         <span class="text-xs">
                                                                             + {{ addon.addon_name }}: {{ addon.option_name }}
+                                                                            <span v-if="addon.quantity && addon.quantity > 1" class="text-xs opacity-75"> (x{{ addon.quantity }})</span>
                                                                         </span>
                                                                         <span
                                                                             v-if="addon.price_adjustment > 0"
                                                                             class="text-xs"
                                                                         >
-                                                                            +{{ formatCurrency(addon.price_adjustment) }}
+                                                                            +{{ formatCurrency(addon.price_adjustment * (addon.quantity || 1)) }}
                                                                         </span>
                                                                     </div>
                                                                 </div>

@@ -6,8 +6,10 @@ use App\Models\Merchant;
 use App\Models\SubscriptionPlan;
 use App\Services\SubscriptionService;
 use App\Services\StripeService;
+use App\Mail\SubscriptionPurchasedMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 
 class SubscriptionController extends Controller
@@ -191,6 +193,11 @@ class SubscriptionController extends Controller
 
         $needsPayment = in_array($merchant->subscription_status, ['incomplete', 'incomplete_expired']);
 
+        // Check if merchant has EVER used a trial before (not just current status)
+        // If they have subscription_trial_end or stripe_subscription_id, they've had a subscription/trial
+        $hasUsedTrialBefore = $merchant->subscription_trial_end !== null ||
+                              $merchant->stripe_subscription_id !== null;
+
         if ($merchant->subscription_status === 'active' ||
             ($merchant->subscription_status === 'trialing' && !$isTrialEnded)) {
             return response()->json([
@@ -201,11 +208,22 @@ class SubscriptionController extends Controller
 
         try {
             // Get price ID from config
-            $priceId = config('services.stripe.price_basic') ?? env('STRIPE_PRICE_BASIC');
+            // Use price without trial for returning users, price with trial for new users
+            if ($hasUsedTrialBefore) {
+                $priceId = config('services.stripe.price_basic_no_trial')
+                    ?? env('STRIPE_PRICE_BASIC_NO_TRIAL')
+                    ?? config('services.stripe.price_basic')
+                    ?? env('STRIPE_PRICE_BASIC');
+            } else {
+                $priceId = config('services.stripe.price_basic') ?? env('STRIPE_PRICE_BASIC');
+            }
 
             Log::info('Creating checkout session', [
                 'merchant_id' => $merchant->id,
                 'price_id' => $priceId,
+                'has_used_trial_before' => $hasUsedTrialBefore,
+                'subscription_trial_end' => $merchant->subscription_trial_end?->toDateTimeString(),
+                'stripe_subscription_id' => $merchant->stripe_subscription_id,
             ]);
 
             // Prepare checkout options
@@ -214,15 +232,20 @@ class SubscriptionController extends Controller
                 'cancel_url' => route('subscriptions.index'),
             ];
 
-            // If trial has already ended, don't offer another trial
+            // Don't offer trial if:
+            // 1. They've used a trial before (cancelled/expired subscriptions)
+            // 2. Current trial has ended
+            // 3. Payment is incomplete
             // Note: We omit trial_period_days entirely to skip trial (Stripe doesn't accept 0)
-            if ($isTrialEnded || $needsPayment) {
+            if ($hasUsedTrialBefore || $isTrialEnded || $needsPayment) {
                 $checkoutOptions['subscription_data'] = [
                     // No trial_period_days = immediate payment
                     'metadata' => [
                         'merchant_id' => $merchant->id,
                         'merchant_slug' => $merchant->slug,
-                        'trial_already_used' => 'true',
+                        'trial_already_used' => $hasUsedTrialBefore ? 'true' : 'false',
+                        'reason' => $hasUsedTrialBefore ? 'previous_subscription_existed' :
+                                   ($isTrialEnded ? 'trial_ended' : 'payment_incomplete'),
                     ],
                 ];
             }
@@ -279,7 +302,46 @@ class SubscriptionController extends Controller
             Log::info('Checkout completed successfully', [
                 'session_id' => $sessionId,
                 'subscription_id' => $session->subscription ?? null,
+                'customer_id' => $session->customer ?? null,
             ]);
+
+            // Sync subscription data immediately (fallback if webhook hasn't processed yet)
+            if ($session->subscription) {
+                $merchant = $request->user()->merchant;
+
+                // Retrieve full subscription from Stripe
+                $subscription = $this->stripeService->getClient()->subscriptions->retrieve($session->subscription);
+
+                // Sync subscription data to merchant
+                $this->subscriptionService->syncSubscriptionFromStripe($merchant, $subscription->toArray());
+
+                // Reactivate stores if they were deactivated
+                $storesReactivated = $this->subscriptionService->reactivateStores($merchant);
+
+                // Send subscription purchased email
+                try {
+                    if ($merchant->owner && $merchant->owner->email) {
+                        Mail::to($merchant->owner->email)->send(new SubscriptionPurchasedMail($merchant));
+                        Log::info('Subscription purchased email sent', [
+                            'merchant_id' => $merchant->id,
+                            'email' => $merchant->owner->email,
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Failed to send subscription purchased email', [
+                        'merchant_id' => $merchant->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+
+                Log::info('Subscription synced in checkout success', [
+                    'merchant_id' => $merchant->id,
+                    'subscription_id' => $subscription->id,
+                    'status' => $subscription->status,
+                    'trial_end' => $subscription->trial_end ?? null,
+                    'stores_reactivated' => $storesReactivated,
+                ]);
+            }
 
             return redirect()->route('store.settings', ['store' => $request->user()->merchant->stores->first()->id])
                 ->with('success', 'Subscription activated successfully! Welcome to StoreFlow.');
@@ -288,6 +350,7 @@ class SubscriptionController extends Controller
             Log::error('Checkout success handling failed', [
                 'session_id' => $sessionId,
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return redirect()->route('subscriptions.index')
@@ -380,6 +443,22 @@ class SubscriptionController extends Controller
 
             // Reactivate stores if they were deactivated
             $storesReactivated = $this->subscriptionService->reactivateStores($merchant);
+
+            // Send subscription purchased email
+            try {
+                if ($merchant->owner && $merchant->owner->email) {
+                    Mail::to($merchant->owner->email)->send(new SubscriptionPurchasedMail($merchant));
+                    Log::info('Subscription purchased email sent', [
+                        'merchant_id' => $merchant->id,
+                        'email' => $merchant->owner->email,
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to send subscription purchased email', [
+                    'merchant_id' => $merchant->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
 
             Log::info('Subscription created successfully', [
                 'merchant_id' => $merchant->id,
@@ -507,6 +586,92 @@ class SubscriptionController extends Controller
             return response()->json([
                 'error' => 'Failed to resume subscription',
                 'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Create Stripe Customer Portal session for managing payment methods.
+     *
+     * Stripe handles all payment method updates securely - no card data touches your server.
+     */
+    public function createPortalSession(Request $request)
+    {
+        $merchant = $request->user()->merchant;
+
+        if (!$merchant) {
+            return response()->json(['error' => 'No merchant found'], 404);
+        }
+
+        if (!$merchant->stripe_customer_id) {
+            return response()->json(['error' => 'No Stripe customer found. Please subscribe first.'], 404);
+        }
+
+        try {
+            // First, verify the customer exists in Stripe
+            $customer = $this->stripeService->getClient()->customers->retrieve($merchant->stripe_customer_id);
+
+            if (!$customer || $customer->deleted) {
+                return response()->json([
+                    'error' => 'Customer not found in Stripe',
+                    'message' => 'Your Stripe customer record is invalid. Please contact support.',
+                ], 404);
+            }
+
+            // Create Stripe Billing Portal session
+            $session = $this->stripeService->getClient()->billingPortal->sessions->create([
+                'customer' => $merchant->stripe_customer_id,
+                'return_url' => route('store.settings', ['store' => $merchant->stores->first()->id]) . '#subscription',
+            ]);
+
+            Log::info('Billing portal session created', [
+                'merchant_id' => $merchant->id,
+                'session_id' => $session->id,
+            ]);
+
+            return response()->json([
+                'url' => $session->url,
+            ]);
+
+        } catch (\Stripe\Exception\InvalidRequestException $e) {
+            $errorMessage = $e->getMessage();
+
+            // Check if this is a "Customer Portal not activated" error
+            if (str_contains($errorMessage, 'customer portal') || str_contains($errorMessage, 'not activated')) {
+                Log::error('Stripe Customer Portal not activated', [
+                    'merchant_id' => $merchant->id,
+                    'error' => $errorMessage,
+                ]);
+
+                return response()->json([
+                    'error' => 'Customer Portal not activated',
+                    'message' => 'The Stripe Customer Portal needs to be activated. Please contact support or activate it in your Stripe Dashboard: Settings → Billing → Customer Portal.',
+                    'setup_url' => 'https://dashboard.stripe.com/settings/billing/portal',
+                ], 400);
+            }
+
+            Log::error('Billing portal session creation failed', [
+                'merchant_id' => $merchant->id,
+                'customer_id' => $merchant->stripe_customer_id,
+                'error' => $errorMessage,
+                'error_type' => get_class($e),
+            ]);
+
+            return response()->json([
+                'error' => 'Failed to create billing portal session',
+                'message' => config('app.debug') ? $errorMessage : 'Unable to access payment settings. Please try again or contact support.',
+            ], 500);
+
+        } catch (\Exception $e) {
+            Log::error('Billing portal session creation failed', [
+                'merchant_id' => $merchant->id,
+                'error' => $e->getMessage(),
+                'error_type' => get_class($e),
+            ]);
+
+            return response()->json([
+                'error' => 'Failed to create billing portal session',
+                'message' => config('app.debug') ? $e->getMessage() : 'An error occurred',
             ], 500);
         }
     }

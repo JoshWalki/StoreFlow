@@ -94,8 +94,11 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
 import { router } from "@inertiajs/vue3";
+import { useToast } from "vue-toastification";
 import DisplayColumn from "@/Components/Operations/DisplayColumn.vue";
 import OrderDetailModal from "@/Components/Operations/OrderDetailModal.vue";
+
+const toast = useToast();
 
 // Remove the DashboardLayout - display view should be full-screen
 defineOptions({
@@ -482,7 +485,7 @@ const handleOrderDrop = async ({ orderId, fromStatus, toStatus }) => {
                 ordersByStatus[originalStatus].push(originalOrder);
 
                 // Show error notification
-                alert("Failed to update order status. Please try again.");
+                toast.error("Failed to update order status. Please try again.");
             },
             onSuccess: () => {
                 // Auto-print receipt when status changes to in_progress

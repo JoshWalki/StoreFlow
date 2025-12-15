@@ -116,7 +116,7 @@
             </div>
 
             <!-- Orders Status Breakdown -->
-            <div class="bg-gray-800 shadow rounded-lg border border-gray-700">
+            <div class="bg-gray-800 shadow rounded-lg border border-gray-700 mb-8">
                 <div class="px-4 py-5 sm:p-6">
                     <h3 class="text-lg leading-6 font-medium text-white mb-4">Orders by Status</h3>
                     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -127,19 +127,151 @@
                     </div>
                 </div>
             </div>
+
+            <!-- System Notice Management -->
+            <div class="bg-gray-800 shadow rounded-lg border border-gray-700">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg leading-6 font-medium text-white mb-4">System Notice Management</h3>
+
+                    <!-- Current Notice Preview -->
+                    <div v-if="systemNotice" class="mb-6">
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Current Notice Preview:</label>
+                        <div
+                            class="p-4 rounded-lg text-center font-medium"
+                            :style="{ backgroundColor: systemNotice.bg_color, color: systemNotice.text_color }"
+                            v-html="systemNotice.message"
+                        >
+                        </div>
+                        <form @submit.prevent="removeNotice" class="mt-2">
+                            <button
+                                type="submit"
+                                class="text-sm text-red-400 hover:text-red-300"
+                            >
+                                Remove Notice
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Notice Form -->
+                    <form @submit.prevent="saveNotice" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Message</label>
+                            <textarea
+                                v-model="noticeForm.message"
+                                rows="3"
+                                required
+                                maxlength="1000"
+                                class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter system-wide notice (HTML supported: <strong>, <a>, <br>, etc.)"
+                            ></textarea>
+                            <p class="mt-1 text-xs text-gray-400">{{ noticeForm.message.length }}/1000 characters • HTML supported</p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Background Color</label>
+                                <div class="flex items-center space-x-2">
+                                    <input
+                                        v-model="noticeForm.bg_color"
+                                        type="color"
+                                        class="h-10 w-20 rounded cursor-pointer"
+                                    />
+                                    <input
+                                        v-model="noticeForm.bg_color"
+                                        type="text"
+                                        pattern="^#[0-9A-Fa-f]{6}$"
+                                        class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Text Color</label>
+                                <div class="flex items-center space-x-2">
+                                    <input
+                                        v-model="noticeForm.text_color"
+                                        type="color"
+                                        class="h-10 w-20 rounded cursor-pointer"
+                                    />
+                                    <input
+                                        v-model="noticeForm.text_color"
+                                        type="text"
+                                        pattern="^#[0-9A-Fa-f]{6}$"
+                                        class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Preview -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Live Preview:</label>
+                            <div
+                                class="p-4 rounded-lg text-center font-medium"
+                                :style="{ backgroundColor: noticeForm.bg_color, color: noticeForm.text_color }"
+                                v-html="noticeForm.message || 'Your notice message will appear here...'"
+                            >
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button
+                                type="submit"
+                                :disabled="processing"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                <span v-if="!processing">Save Notice</span>
+                                <span v-else>Saving...</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </main>
     </div>
 </template>
 
 <script setup>
 import { Link, router } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
-defineProps({
+const props = defineProps({
     stats: Object,
+    systemNotice: Object,
+});
+
+const processing = ref(false);
+const noticeForm = ref({
+    message: props.systemNotice?.message || '',
+    bg_color: props.systemNotice?.bg_color || '#3b82f6',
+    text_color: props.systemNotice?.text_color || '#ffffff',
 });
 
 const logout = () => {
     router.post(route('platform.logout'));
+};
+
+const saveNotice = () => {
+    processing.value = true;
+    router.post(route('platform.notice.store'), noticeForm.value, {
+        onFinish: () => {
+            processing.value = false;
+        },
+    });
+};
+
+const removeNotice = () => {
+    if (confirm('Are you sure you want to remove the system notice?')) {
+        router.delete(route('platform.notice.destroy'), {
+            onSuccess: () => {
+                noticeForm.value = {
+                    message: '',
+                    bg_color: '#3b82f6',
+                    text_color: '#ffffff',
+                };
+            },
+        });
+    }
 };
 
 const formatDate = (dateString) => {

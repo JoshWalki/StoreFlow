@@ -277,9 +277,11 @@ class OrderService
      * @param string|null $shippingStatus
      * @param string|null $trackingCode
      * @param string|null $trackingUrl
+     * @param string|null $trackingNumber
+     * @param string|null $courierCompany
      * @return Order
      */
-    public function updateShippingInfo(Order $order, ?string $shippingStatus, ?string $trackingCode, ?string $trackingUrl): Order
+    public function updateShippingInfo(Order $order, ?string $shippingStatus, ?string $trackingCode, ?string $trackingUrl, ?string $trackingNumber = null, ?string $courierCompany = null): Order
     {
         if ($order->fulfilment_type !== 'shipping') {
             throw new InvalidArgumentException(
@@ -289,7 +291,7 @@ class OrderService
 
         $oldShippingStatus = $order->shipping_status;
 
-        return DB::transaction(function () use ($order, $shippingStatus, $trackingCode, $trackingUrl, $oldShippingStatus) {
+        return DB::transaction(function () use ($order, $shippingStatus, $trackingCode, $trackingUrl, $trackingNumber, $courierCompany, $oldShippingStatus) {
             $updateData = [];
 
             if ($shippingStatus !== null) {
@@ -300,6 +302,12 @@ class OrderService
             }
             if ($trackingUrl !== null) {
                 $updateData['tracking_url'] = $trackingUrl;
+            }
+            if ($trackingNumber !== null) {
+                $updateData['tracking_number'] = $trackingNumber;
+            }
+            if ($courierCompany !== null) {
+                $updateData['courier_company'] = $courierCompany;
             }
 
             $order->update($updateData);

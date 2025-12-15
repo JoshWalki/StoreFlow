@@ -86,12 +86,34 @@ class StripeService
      *
      * @param Merchant $merchant
      * @param string $priceId Stripe Price ID
-     * @param array $options Additional options
+     * @param array $options Additional options (can override subscription_data)
      * @return \Stripe\Checkout\Session
      */
     public function createCheckoutSession(Merchant $merchant, string $priceId, array $options = []): \Stripe\Checkout\Session
     {
         $customer = $this->getOrCreateCustomer($merchant);
+
+        // Default subscription data (includes trial)
+        $defaultSubscriptionData = [
+            'trial_period_days' => 14,
+            'metadata' => [
+                'merchant_id' => $merchant->id,
+                'merchant_slug' => $merchant->slug,
+            ],
+        ];
+
+        // If options contains subscription_data, use it entirely
+        // Otherwise use default with trial
+        // Note: We now use different Prices (with/without trial) for different users
+        // so we don't need to override trial_period_days here
+        $subscriptionData = $options['subscription_data'] ?? $defaultSubscriptionData;
+
+        // Note: To skip trial for returning users, simply omit trial_period_days
+        // DO NOT set trial_end - Stripe requires it to be at least 2 days in future
+        // When trial_period_days is omitted, Stripe starts billing immediately
+
+        // Remove subscription_data from options to avoid conflicts
+        unset($options['subscription_data']);
 
         $params = array_merge([
             'customer' => $customer->id,
@@ -102,13 +124,7 @@ class StripeService
             ]],
             'success_url' => route('subscriptions.success') . '?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => route('subscriptions.index'),
-            'subscription_data' => [
-                'trial_period_days' => 14,
-                'metadata' => [
-                    'merchant_id' => $merchant->id,
-                    'merchant_slug' => $merchant->slug,
-                ],
-            ],
+            'subscription_data' => $subscriptionData,
             'metadata' => [
                 'merchant_id' => $merchant->id,
             ],
@@ -120,6 +136,10 @@ class StripeService
             Log::info('Checkout session created', [
                 'merchant_id' => $merchant->id,
                 'session_id' => $session->id,
+                'has_trial' => isset($subscriptionData['trial_period_days']),
+                'trial_days' => $subscriptionData['trial_period_days'] ?? 0,
+                'trial_end' => $subscriptionData['trial_end'] ?? null,
+                'subscription_metadata' => $subscriptionData['metadata'] ?? [],
             ]);
 
             return $session;
@@ -138,7 +158,7 @@ class StripeService
      * @param Merchant $merchant
      * @param string $priceId
      * @param string|null $paymentMethodId
-     * @param array $options
+     * @param array $options (can override trial_period_days)
      * @return \Stripe\Subscription
      */
     public function createSubscription(Merchant $merchant, string $priceId, ?string $paymentMethodId = null, array $options = []): \Stripe\Subscription
@@ -150,7 +170,9 @@ class StripeService
             $this->attachPaymentMethod($customer->id, $paymentMethodId);
         }
 
-        $params = array_merge([
+        // Default includes 14-day trial, but can be overridden by $options
+        // To exclude trial, pass 'trial_period_days' => null in $options
+        $defaultParams = [
             'customer' => $customer->id,
             'items' => [
                 ['price' => $priceId],
@@ -161,15 +183,25 @@ class StripeService
                 'merchant_id' => $merchant->id,
                 'merchant_slug' => $merchant->slug,
             ],
-        ], $options);
+        ];
+
+        // Merge with options (options will override defaults)
+        $params = array_merge($defaultParams, $options);
+
+        // Remove trial_period_days if explicitly set to null
+        if (isset($params['trial_period_days']) && $params['trial_period_days'] === null) {
+            unset($params['trial_period_days']);
+        }
 
         try {
             $subscription = $this->stripe->subscriptions->create($params);
 
-            Log::info('Subscription created', [
+            Log::info('Subscription created directly', [
                 'merchant_id' => $merchant->id,
                 'subscription_id' => $subscription->id,
                 'status' => $subscription->status,
+                'has_trial' => isset($params['trial_period_days']),
+                'trial_days' => $params['trial_period_days'] ?? 0,
             ]);
 
             return $subscription;

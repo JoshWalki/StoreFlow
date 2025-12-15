@@ -5,10 +5,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
+        <!-- Favicon -->
+        <link rel="icon" type="image/x-icon" href="/images/logo/favicon.ico">
+
         <!-- PWA Meta Tags -->
         <meta name="theme-color" content="#3b82f6">
         <link rel="manifest" href="/manifest.json">
-        <link rel="apple-touch-icon" href="/logo.png">
+        <link rel="apple-touch-icon" href="/images/logo/logo.png">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
         <meta name="apple-mobile-web-app-title" content="StoreFlow">
@@ -17,6 +20,11 @@
 
         <!-- Stripe.js -->
         <script src="https://js.stripe.com/v3/"></script>
+
+        <!-- Google Fonts - Baloo 2 -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&display=swap" rel="stylesheet">
 
         <!-- Loading Screen Styles -->
         <style>

@@ -14,7 +14,43 @@
                 Create Product
             </h1>
 
-            <form @submit.prevent="submitForm" class="space-y-6">
+            <!-- Subscription Error Alert -->
+            <div
+                v-if="subscriptionError"
+                class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4"
+            >
+                <div class="flex items-start">
+                    <svg
+                        class="h-5 w-5 text-red-400 mt-0.5 flex-shrink-0"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                    >
+                        <path
+                            fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                            clip-rule="evenodd"
+                        />
+                    </svg>
+                    <div class="ml-3 flex-1">
+                        <h3 class="text-sm font-medium text-red-800">
+                            Subscription Required
+                        </h3>
+                        <p class="mt-1 text-sm text-red-700">
+                            {{ subscriptionError }}
+                        </p>
+                        <div class="mt-3">
+                            <Link
+                                :href="route('subscriptions.index')"
+                                class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition-colors"
+                            >
+                                View Subscription Plans
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form @submit.prevent="submitForm" class="space-y-6" :class="{ 'opacity-50 pointer-events-none': subscriptionError }">
                 <!-- Featured Status -->
                 <div
                     class="bg-yellow-50 border border-yellow-200 rounded-lg p-4"
@@ -409,13 +445,20 @@
 <script setup>
 import { ref } from "vue";
 import { Link, useForm } from "@inertiajs/vue3";
+import { useToast } from "vue-toastification";
 import ProductAddonManager from "@/Components/Admin/ProductAddonManager.vue";
+
+const toast = useToast();
 
 const props = defineProps({
     categories: Array,
     stores: Array,
     store: Object,
     user: Object,
+    subscriptionError: {
+        type: String,
+        default: null,
+    },
 });
 
 const form = useForm({
@@ -441,7 +484,7 @@ const handleImageChange = (event) => {
     const files = Array.from(event.target.files);
 
     if (files.length + form.images.length > 5) {
-        alert("You can only upload up to 5 images");
+        toast.warning("You can only upload up to 5 images");
         return;
     }
 

@@ -584,7 +584,10 @@
 <script setup>
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { useToast } from 'vue-toastification';
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue';
+
+const toast = useToast();
 
 const props = defineProps({
     methods: {
@@ -687,7 +690,7 @@ const submitForm = () => {
         },
         onError: (errors) => {
             console.error('Form errors:', errors);
-            alert('Error saving method. Please check the form and try again.');
+            toast.error('Error saving method. Please check the form and try again.');
         },
         onFinish: () => {
             processing.value = false;
@@ -844,7 +847,7 @@ const submitRateForm = () => {
         },
         onError: (errors) => {
             console.error('Form errors:', errors);
-            alert('Error saving rate. Please check the form and try again.');
+            toast.error('Error saving rate. Please check the form and try again.');
         },
         onFinish: () => {
             processingRate.value = false;

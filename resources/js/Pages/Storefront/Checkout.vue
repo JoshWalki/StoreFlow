@@ -263,7 +263,7 @@
                         </div>
 
                         <div class="space-y-3">
-                            <label class="flex items-center p-4 border-2 rounded-lg cursor-pointer transition-colors" :class="[
+                            <label class="flex items-start p-4 border-2 rounded-lg cursor-pointer transition-colors" :class="[
                                 form.fulfilment_type === 'pickup'
                                     ? (store.theme === 'bold' ? 'border-orange-500 bg-orange-500/10' : store.theme === 'modern' ? 'border-purple-600 bg-purple-50' : 'border-blue-600 bg-blue-50')
                                     : (store.theme === 'bold' ? 'border-gray-700 hover:bg-gray-800' : 'border-gray-300 hover:bg-gray-50')
@@ -273,15 +273,29 @@
                                     type="radio"
                                     value="pickup"
                                     :class="store.theme === 'bold' ? 'text-orange-500 focus:ring-orange-500' : store.theme === 'modern' ? 'text-purple-600 focus:ring-purple-500' : 'text-blue-600 focus:ring-blue-500'"
-                                    class="h-4 w-4"
+                                    class="h-4 w-4 mt-0.5"
                                 />
-                                <span class="ml-3 text-sm font-medium" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">Pickup</span>
+                                <div class="ml-3 flex-1">
+                                    <span class="block text-sm font-medium mb-1" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">Pickup</span>
+                                    <!-- Store Address -->
+                                    <div v-if="store.address_primary || store.address_city" class="flex items-start mt-2">
+                                        <svg class="w-4 h-4 text-gray-400 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                                        </svg>
+                                        <div class="text-xs" :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-600'">
+                                            <p v-if="store.address_primary">{{ store.address_primary }}</p>
+                                            <p v-if="store.address_city || store.address_state || store.address_postcode">
+                                                <span v-if="store.address_city">{{ store.address_city }}</span><span v-if="store.address_city && store.address_state">, </span><span v-if="store.address_state">{{ store.address_state }}</span><span v-if="store.address_postcode"> {{ store.address_postcode }}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
                             </label>
                             <label
                                 v-if="store.shipping_enabled"
                                 class="flex items-center p-4 border-2 rounded-lg cursor-pointer transition-colors"
                                 :class="[
-                                    form.fulfilment_type === 'shipping'
+                                    form.fulfilment_type === 'delivery'
                                         ? (store.theme === 'bold' ? 'border-orange-500 bg-orange-500/10' : store.theme === 'modern' ? 'border-purple-600 bg-purple-50' : 'border-blue-600 bg-blue-50')
                                         : (store.theme === 'bold' ? 'border-gray-700 hover:bg-gray-800' : 'border-gray-300 hover:bg-gray-50'),
                                     hasPickupOnlyItems ? 'opacity-50 cursor-not-allowed' : ''
@@ -290,7 +304,7 @@
                                 <input
                                     v-model="form.fulfilment_type"
                                     type="radio"
-                                    value="shipping"
+                                    value="delivery"
                                     :disabled="hasPickupOnlyItems"
                                     :class="store.theme === 'bold' ? 'text-orange-500 focus:ring-orange-500' : store.theme === 'modern' ? 'text-purple-600 focus:ring-purple-500' : 'text-blue-600 focus:ring-blue-500'"
                                     class="h-4 w-4 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -300,9 +314,9 @@
                         </div>
                     </div>
 
-                    <!-- Shipping Address (if delivery selected) -->
-                    <div v-if="form.fulfilment_type === 'shipping'" class="rounded-lg shadow-md p-6" :class="themeConfig.cardBackground">
-                        <h2 class="text-xl font-semibold mb-4" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">Shipping Address</h2>
+                    <!-- Delivery Address (if delivery selected) -->
+                    <div v-if="form.fulfilment_type === 'delivery'" class="rounded-lg shadow-md p-6" :class="themeConfig.cardBackground">
+                        <h2 class="text-xl font-semibold mb-4" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">Delivery Address</h2>
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium mb-1" :class="store.theme === 'bold' ? 'text-gray-300' : 'text-gray-700'">Full Name *</label>
@@ -398,9 +412,9 @@
                                 </div>
                             </div>
 
-                            <!-- Shipping Methods -->
+                            <!-- Delivery Methods -->
                             <div v-if="shippingOptions.length > 0" class="mt-4">
-                                <label class="block text-sm font-medium mb-2" :class="store.theme === 'bold' ? 'text-gray-300' : 'text-gray-700'">Shipping Method *</label>
+                                <label class="block text-sm font-medium mb-2" :class="store.theme === 'bold' ? 'text-gray-300' : 'text-gray-700'">Delivery Method *</label>
                                 <div class="space-y-2">
                                     <label
                                         v-for="option in shippingOptions"
@@ -596,8 +610,8 @@
                                 <span :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-600'">Subtotal</span>
                                 <span :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">{{ formatPrice(cartSubtotal) }}</span>
                             </div>
-                            <div v-if="form.fulfilment_type === 'shipping' && selectedShippingCost > 0" class="flex justify-between text-sm">
-                                <span :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-600'">Shipping</span>
+                            <div v-if="form.fulfilment_type === 'delivery' && selectedShippingCost > 0" class="flex justify-between text-sm">
+                                <span :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-600'">Delivery</span>
                                 <span :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">{{ formatPrice(selectedShippingCost) }}</span>
                             </div>
                             <div v-if="applyLoyaltyReward && loyaltyDiscount > 0" class="flex justify-between text-sm">
@@ -725,7 +739,7 @@ const formatCurrency = (amount) => {
 
 // Calculate selected shipping cost
 const selectedShippingCost = computed(() => {
-    if (form.value.fulfilment_type !== 'shipping' || !form.value.shipping_method_id) {
+    if (form.value.fulfilment_type !== 'delivery' || !form.value.shipping_method_id) {
         return 0;
     }
     const selected = shippingOptions.value.find(opt => opt.id === form.value.shipping_method_id);
@@ -773,7 +787,7 @@ const isFormValid = computed(() => {
     if (!form.value.contact.first_name || !form.value.contact.last_name || !form.value.contact.email) {
         return false;
     }
-    if (form.value.fulfilment_type === 'shipping') {
+    if (form.value.fulfilment_type === 'delivery') {
         // Check if shipping is allowed (no pickup-only items)
         if (hasPickupOnlyItems.value) {
             return false;
@@ -789,7 +803,7 @@ const isFormValid = computed(() => {
 
 // Calculate shipping options
 const calculateShipping = async () => {
-    if (form.value.fulfilment_type !== 'shipping') return;
+    if (form.value.fulfilment_type !== 'delivery') return;
     if (!form.value.shipping_address.postcode || !form.value.shipping_address.country) return;
 
     loadingShipping.value = true;
@@ -823,7 +837,7 @@ const calculateShipping = async () => {
 
 // Watch for fulfillment type changes
 watch(() => form.value.fulfilment_type, (newType) => {
-    if (newType === 'shipping') {
+    if (newType === 'delivery') {
         calculateShipping();
     } else {
         shippingOptions.value = [];
@@ -850,7 +864,7 @@ const preparePayment = async () => {
             })),
         };
 
-        if (form.value.fulfilment_type === 'shipping') {
+        if (form.value.fulfilment_type === 'delivery') {
             orderData.shipping_address = form.value.shipping_address;
             orderData.shipping_method_id = form.value.shipping_method_id;
         }
@@ -909,6 +923,7 @@ const placeOrder = () => {
             qty: item.quantity,
             customizations: item.customizations || [],
             addons: item.addons || [],
+            specialMessage: item.specialMessage || null,
         })),
         payment_method: 'card',
         payment_intent_id: paymentIntentId.value,
@@ -920,7 +935,7 @@ const placeOrder = () => {
         orderData.account = form.value.account;
     }
 
-    if (form.value.fulfilment_type === 'shipping') {
+    if (form.value.fulfilment_type === 'delivery') {
         orderData.shipping_address = form.value.shipping_address;
         orderData.shipping_method_id = form.value.shipping_method_id;
     }

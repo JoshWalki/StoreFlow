@@ -27,6 +27,9 @@ class OrderItem extends Model
         'line_subtotal_cents',
         'tax_cents',
         'total_cents',
+
+        // Special instructions
+        'special_instructions',
     ];
 
     protected $casts = [
@@ -58,21 +61,6 @@ class OrderItem extends Model
     public function addons(): HasMany
     {
         return $this->hasMany(OrderItemAddon::class);
-    }
-
-    /**
-     * Accessor to always return the relationship instead of the JSON column.
-     * This ensures $item->addons returns the OrderItemAddon collection.
-     */
-    public function getAddonsAttribute()
-    {
-        // If the relationship is already loaded, return it
-        if ($this->relationLoaded('addons')) {
-            return $this->getRelation('addons');
-        }
-
-        // Otherwise load and return the relationship
-        return $this->addons()->get();
     }
 
     /**

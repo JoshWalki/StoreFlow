@@ -45,24 +45,64 @@ class StripeConnectService
         try {
             // Get the first store for the merchant or use app URL
             $firstStore = $merchant->stores()->first();
-            $businessUrl = $firstStore
-                ? route('storefront.index', ['store' => $firstStore->id])
-                : url('/');
+
+            // Generate business URL - ensure it's a fully qualified URL
+            if ($firstStore) {
+                $businessUrl = route('storefront.index', ['store' => $firstStore->id]);
+            } else {
+                $businessUrl = config('app.url');
+            }
+
+            // Ensure URL has a valid scheme
+            if (!str_starts_with($businessUrl, 'http://') && !str_starts_with($businessUrl, 'https://')) {
+                $businessUrl = 'https://' . $businessUrl;
+            }
+
+            // Validate URL format
+            if (!filter_var($businessUrl, FILTER_VALIDATE_URL)) {
+                Log::warning('Invalid business URL generated, using app URL', [
+                    'merchant_id' => $merchant->id,
+                    'generated_url' => $businessUrl,
+                ]);
+                $businessUrl = config('app.url', 'https://example.com');
+            }
 
             // Default to AU (Australia) for this merchant
             $country = $merchant->stripe_country ?? 'AU';
 
-            // Prepare business profile - only include URL if it's not localhost
+            // Prepare business profile - only include URL if it's not localhost/development
             // Stripe validates URLs and rejects localhost/example.com
             $businessProfile = ['name' => $merchant->name];
 
             $isLocalhost = str_contains($businessUrl, 'localhost')
                 || str_contains($businessUrl, '127.0.0.1')
-                || str_contains($businessUrl, 'example.com');
+                || str_contains($businessUrl, '192.168.')
+                || str_contains($businessUrl, 'example.com')
+                || str_contains($businessUrl, '.local')
+                || str_contains($businessUrl, '.test');
 
-            if (!$isLocalhost) {
-                $businessProfile['url'] = $businessUrl;
+            // Only include URL if it's valid and not localhost
+            if (!$isLocalhost && !empty($businessUrl) && strlen($businessUrl) > 10) {
+                // Additional validation: ensure URL is at least 10 chars and has valid format
+                $parsedUrl = parse_url($businessUrl);
+                if (isset($parsedUrl['scheme']) && isset($parsedUrl['host'])) {
+                    $businessProfile['url'] = $businessUrl;
+                } else {
+                    Log::warning('Business URL failed parsing validation', [
+                        'merchant_id' => $merchant->id,
+                        'url' => $businessUrl,
+                        'parsed' => $parsedUrl,
+                    ]);
+                }
             }
+
+            // Log the URL being sent for debugging
+            Log::info('Creating Stripe Connect account', [
+                'merchant_id' => $merchant->id,
+                'business_url' => $businessUrl,
+                'url_included' => !$isLocalhost,
+                'is_localhost' => $isLocalhost,
+            ]);
 
             // Prepare account data
             $accountData = [

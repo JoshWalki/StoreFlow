@@ -34,6 +34,17 @@ class SubscriptionService
      */
     public function syncSubscriptionFromStripe(Merchant $merchant, array $stripeSubscription): Merchant
     {
+        // Debug: Log what Stripe is sending
+        Log::debug('Syncing subscription from Stripe', [
+            'merchant_id' => $merchant->id,
+            'subscription_id' => $stripeSubscription['id'] ?? null,
+            'status' => $stripeSubscription['status'] ?? null,
+            'has_current_period_start' => isset($stripeSubscription['current_period_start']),
+            'current_period_start_value' => $stripeSubscription['current_period_start'] ?? null,
+            'has_current_period_end' => isset($stripeSubscription['current_period_end']),
+            'current_period_end_value' => $stripeSubscription['current_period_end'] ?? null,
+        ]);
+
         $data = [
             'stripe_subscription_id' => $stripeSubscription['id'],
             'stripe_customer_id' => $stripeSubscription['customer'],

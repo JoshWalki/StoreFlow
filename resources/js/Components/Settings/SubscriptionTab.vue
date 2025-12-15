@@ -494,10 +494,25 @@ const reactivateSubscription = async () => {
     }
 };
 
-const updatePaymentMethod = () => {
-    // Open Stripe payment method update flow
-    // This would typically open a modal with Stripe Elements
-    alert('Payment method update coming soon!');
+const updatePaymentMethod = async () => {
+    processing.value = true;
+
+    try {
+        // Create Stripe Billing Portal session
+        const response = await axios.post('/subscriptions/portal');
+
+        // Redirect to Stripe's secure Billing Portal
+        // User will update payment method there and return to our site
+        window.location.href = response.data.url;
+    } catch (error) {
+        console.error('Failed to create billing portal session:', error);
+
+        // Show user-friendly error message
+        const errorMessage = error.response?.data?.error || 'Failed to open payment method settings. Please try again.';
+        alert(errorMessage);
+
+        processing.value = false;
+    }
 };
 
 const viewInvoices = async () => {

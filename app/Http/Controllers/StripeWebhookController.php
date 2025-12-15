@@ -94,6 +94,9 @@ class StripeWebhookController extends Controller
             // Connect Account events
             'account.updated' => $this->handleAccountUpdated($event),
 
+            // Checkout events
+            'checkout.session.completed' => $this->handleCheckoutSessionCompleted($event),
+
             // Subscription events
             'customer.subscription.created' => $this->handleSubscriptionCreated($event),
             'customer.subscription.updated' => $this->handleSubscriptionUpdated($event),
@@ -142,12 +145,109 @@ class StripeWebhookController extends Controller
     }
 
     /**
+     * Handle checkout.session.completed webhook.
+     *
+     * This is the FIRST event after a successful checkout.
+     * We fetch the full subscription from Stripe API to ensure we get all fields.
+     */
+    protected function handleCheckoutSessionCompleted(array $event): void
+    {
+        $session = $event['data']['object'];
+        $customerId = $session['customer'] ?? null;
+        $subscriptionId = $session['subscription'] ?? null;
+
+        if (!$customerId || !$subscriptionId) {
+            Log::warning('Checkout session completed without customer or subscription', [
+                'session_id' => $session['id'],
+                'has_customer' => isset($session['customer']),
+                'has_subscription' => isset($session['subscription']),
+            ]);
+            return;
+        }
+
+        $merchant = Merchant::where('stripe_customer_id', $customerId)->first();
+
+        if (!$merchant) {
+            Log::warning('Checkout completed for unknown customer', ['customer_id' => $customerId]);
+            return;
+        }
+
+        // Fetch FULL subscription object from Stripe API to ensure complete data
+        try {
+            $stripe = new \Stripe\StripeClient(config('services.stripe.secret'));
+            $fullSubscription = $stripe->subscriptions->retrieve($subscriptionId);
+
+            Log::info('Fetched full subscription from Stripe API', [
+                'subscription_id' => $subscriptionId,
+                'status' => $fullSubscription->status,
+                'has_current_period_start' => isset($fullSubscription->current_period_start),
+                'has_current_period_end' => isset($fullSubscription->current_period_end),
+                'current_period_start' => $fullSubscription->current_period_start ?? null,
+                'current_period_end' => $fullSubscription->current_period_end ?? null,
+            ]);
+
+            // Check if trial should be skipped (for returning users)
+            $metadata = $fullSubscription->metadata->toArray();
+            if (isset($metadata['trial_already_used']) && $metadata['trial_already_used'] === 'true') {
+                // Cancel trial immediately for returning users AND reset billing cycle
+                try {
+                    $now = time();
+                    $stripe->subscriptions->update($subscriptionId, [
+                        'trial_end' => 'now',
+                        'billing_cycle_anchor' => $now,  // Reset billing period to now
+                        'proration_behavior' => 'none',  // Don't prorate
+                    ]);
+
+                    Log::info('Trial cancelled and billing cycle reset for returning user', [
+                        'subscription_id' => $subscriptionId,
+                        'merchant_id' => $merchant->id,
+                        'billing_cycle_anchor' => $now,
+                    ]);
+
+                    // Fetch updated subscription data
+                    $fullSubscription = $stripe->subscriptions->retrieve($subscriptionId);
+
+                    Log::debug('Subscription after trial cancellation', [
+                        'subscription_id' => $subscriptionId,
+                        'current_period_start' => $fullSubscription->current_period_start,
+                        'current_period_end' => $fullSubscription->current_period_end,
+                        'trial_end' => $fullSubscription->trial_end ?? null,
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Failed to cancel trial', [
+                        'subscription_id' => $subscriptionId,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+
+            // Sync with full data from API
+            $this->subscriptionService->syncSubscriptionFromStripe($merchant, $fullSubscription->toArray());
+
+            Log::info('Checkout session processed successfully', [
+                'merchant_id' => $merchant->id,
+                'session_id' => $session['id'],
+                'subscription_id' => $subscriptionId,
+                'status' => $fullSubscription->status,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch subscription from Stripe API', [
+                'subscription_id' => $subscriptionId,
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
      * Handle customer.subscription.created webhook.
      */
     protected function handleSubscriptionCreated(array $event): void
     {
         $subscription = $event['data']['object'];
         $customerId = $subscription['customer'];
+        $subscriptionId = $subscription['id'];
 
         $merchant = Merchant::where('stripe_customer_id', $customerId)->first();
 
@@ -156,11 +256,33 @@ class StripeWebhookController extends Controller
             return;
         }
 
-        $this->subscriptionService->syncSubscriptionFromStripe($merchant, $subscription);
+        // Fetch full subscription from API to ensure complete data
+        try {
+            $stripe = new \Stripe\StripeClient(config('services.stripe.secret'));
+            $fullSubscription = $stripe->subscriptions->retrieve($subscriptionId);
+
+            Log::debug('Subscription created - API data', [
+                'subscription_id' => $subscriptionId,
+                'has_current_period_start' => isset($fullSubscription->current_period_start),
+                'has_current_period_end' => isset($fullSubscription->current_period_end),
+                'current_period_start' => $fullSubscription->current_period_start ?? null,
+                'current_period_end' => $fullSubscription->current_period_end ?? null,
+            ]);
+
+            $this->subscriptionService->syncSubscriptionFromStripe($merchant, $fullSubscription->toArray());
+
+        } catch (\Exception $e) {
+            Log::warning('Failed to fetch full subscription, using webhook data', [
+                'subscription_id' => $subscriptionId,
+                'error' => $e->getMessage(),
+            ]);
+            // Fallback to webhook data if API call fails
+            $this->subscriptionService->syncSubscriptionFromStripe($merchant, $subscription);
+        }
 
         Log::info('Subscription created', [
             'merchant_id' => $merchant->id,
-            'subscription_id' => $subscription['id'],
+            'subscription_id' => $subscriptionId,
             'status' => $subscription['status'],
         ]);
     }
@@ -180,7 +302,29 @@ class StripeWebhookController extends Controller
             return;
         }
 
-        $this->subscriptionService->syncSubscriptionFromStripe($merchant, $subscription);
+        // Fetch full subscription from API to ensure complete data
+        try {
+            $stripe = new \Stripe\StripeClient(config('services.stripe.secret'));
+            $fullSubscription = $stripe->subscriptions->retrieve($subscriptionId);
+
+            Log::debug('Subscription updated - API data', [
+                'subscription_id' => $subscriptionId,
+                'has_current_period_start' => isset($fullSubscription->current_period_start),
+                'has_current_period_end' => isset($fullSubscription->current_period_end),
+                'current_period_start' => $fullSubscription->current_period_start ?? null,
+                'current_period_end' => $fullSubscription->current_period_end ?? null,
+            ]);
+
+            $this->subscriptionService->syncSubscriptionFromStripe($merchant, $fullSubscription->toArray());
+
+        } catch (\Exception $e) {
+            Log::warning('Failed to fetch full subscription, using webhook data', [
+                'subscription_id' => $subscriptionId,
+                'error' => $e->getMessage(),
+            ]);
+            // Fallback to webhook data if API call fails
+            $this->subscriptionService->syncSubscriptionFromStripe($merchant, $subscription);
+        }
 
         Log::info('Subscription updated', [
             'merchant_id' => $merchant->id,

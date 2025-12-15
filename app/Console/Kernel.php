@@ -14,6 +14,12 @@ class Kernel extends ConsoleKernel
     {
         // Check store operating hours every minute
         $schedule->command('stores:check-operating-hours')->everyMinute();
+
+        // Send subscription expiry reminders daily at 9 AM
+        // Reminds merchants 2 days before their subscription expires
+        $schedule->command('subscriptions:send-expiry-reminders --days=2')
+                 ->dailyAt('09:00')
+                 ->timezone('Australia/Melbourne');
     }
 
     /**

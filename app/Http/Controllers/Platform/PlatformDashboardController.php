@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Store;
 use App\Models\Order;
 use App\Models\Customer;
+use App\Models\SystemNotice;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -24,6 +25,7 @@ class PlatformDashboardController extends Controller
 
         return Inertia::render('Platform/Dashboard', [
             'stats' => $stats,
+            'systemNotice' => SystemNotice::getActive(),
         ]);
     }
 

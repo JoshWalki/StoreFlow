@@ -20,3 +20,349 @@
     }
 ]
 
+2025-12-14 23:17:06 - Checkout request:
+[
+    {
+        "product_id": 219,
+        "qty": 1,
+        "customizations": [],
+        "addons": [
+            {
+                "addon_name": "Drinks",
+                "option_name": "Coke Zero",
+                "price_adjustment": "5.95"
+            },
+            {
+                "addon_name": "Addons",
+                "option_name": "Onion",
+                "price_adjustment": "1"
+            },
+            {
+                "addon_name": "Addons",
+                "option_name": "Beef",
+                "price_adjustment": "2"
+            },
+            {
+                "addon_name": "Addons",
+                "option_name": "Cheese",
+                "price_adjustment": "1.5"
+            },
+            {
+                "addon_name": "Addons",
+                "option_name": "Pickles",
+                "price_adjustment": "1"
+            }
+        ]
+    }
+]
+
+2025-12-15 12:24:31 - Checkout request:
+[
+    {
+        "product_id": 215,
+        "qty": 1,
+        "customizations": [],
+        "addons": []
+    },
+    {
+        "product_id": 213,
+        "qty": 1,
+        "customizations": [],
+        "addons": []
+    },
+    {
+        "product_id": 219,
+        "qty": 1,
+        "customizations": [],
+        "addons": [
+            {
+                "addon_name": "Addons",
+                "option_name": "Cheese",
+                "price_adjustment": "1.5"
+            },
+            {
+                "addon_name": "Addons",
+                "option_name": "Beef",
+                "price_adjustment": "2"
+            }
+        ]
+    }
+]
+
+2025-12-15 12:37:04 - Checkout request:
+[
+    {
+        "product_id": 219,
+        "qty": 1,
+        "customizations": [],
+        "addons": []
+    },
+    {
+        "product_id": 219,
+        "qty": 1,
+        "customizations": [],
+        "addons": [
+            {
+                "addon_name": "Addons",
+                "option_name": "Beef",
+                "price_adjustment": "2"
+            },
+            {
+                "addon_name": "Addons",
+                "option_name": "Cheese",
+                "price_adjustment": "1.5"
+            }
+        ]
+    }
+]
+
+2025-12-15 12:50:24 - Checkout request:
+[
+    {
+        "product_id": 219,
+        "qty": 1,
+        "customizations": [],
+        "addons": [
+            {
+                "addon_name": "Addons",
+                "option_name": "Onion",
+                "price_adjustment": "1"
+            },
+            {
+                "addon_name": "Addons",
+                "option_name": "Beef",
+                "price_adjustment": "2"
+            }
+        ]
+    }
+]
+
+2025-12-15 12:58:14 - Checkout request:
+[
+    {
+        "product_id": 219,
+        "qty": 1,
+        "customizations": [],
+        "addons": [
+            {
+                "addon_name": "Addons",
+                "option_name": "Beef",
+                "price_adjustment": "2",
+                "quantity": 3
+            }
+        ]
+    }
+]
+
+2025-12-15 13:03:33 - Checkout request:
+[
+    {
+        "product_id": 219,
+        "qty": 1,
+        "customizations": [],
+        "addons": [
+            {
+                "addon_name": "Addons",
+                "option_name": "Beef",
+                "price_adjustment": "2",
+                "quantity": 3
+            }
+        ]
+    }
+]
+
+2025-12-15 14:50:13 - Checkout request:
+[
+    {
+        "product_id": 219,
+        "qty": 1,
+        "customizations": [],
+        "addons": [
+            {
+                "addon_name": "Drinks",
+                "option_name": "Coke Zero",
+                "price_adjustment": "5.95",
+                "quantity": 1
+            },
+            {
+                "addon_name": "Addons",
+                "option_name": "Beef",
+                "price_adjustment": "2",
+                "quantity": 1
+            },
+            {
+                "addon_name": "Addons",
+                "option_name": "Onion",
+                "price_adjustment": "1",
+                "quantity": 1
+            }
+        ]
+    }
+]
+
+2025-12-15 15:22:18 - Checkout request:
+[
+    {
+        "product_id": 219,
+        "qty": 1,
+        "customizations": [],
+        "addons": [
+            {
+                "addon_name": "Drinks",
+                "option_name": "Coke Zero",
+                "price_adjustment": "5.95",
+                "quantity": 1
+            },
+            {
+                "addon_name": "Addons",
+                "option_name": "Beef",
+                "price_adjustment": "2",
+                "quantity": 1
+            },
+            {
+                "addon_name": "Addons",
+                "option_name": "Onion",
+                "price_adjustment": "1",
+                "quantity": 1
+            }
+        ]
+    }
+]
+
+2025-12-15 15:40:45 - Checkout request:
+[
+    {
+        "product_id": 219,
+        "qty": 1,
+        "customizations": [],
+        "addons": [
+            {
+                "addon_name": "Addons",
+                "option_name": "Beef",
+                "price_adjustment": "2",
+                "quantity": 2
+            }
+        ],
+        "specialMessage": "SPECIAL SAUCE"
+    }
+]
+
+2025-12-15 16:33:05 - Checkout request:
+[
+    {
+        "product_id": 219,
+        "qty": 2,
+        "customizations": [],
+        "addons": [],
+        "specialMessage": null
+    },
+    {
+        "product_id": 219,
+        "qty": 1,
+        "customizations": [],
+        "addons": [
+            {
+                "addon_name": "Addons",
+                "option_name": "Beef",
+                "price_adjustment": "2",
+                "quantity": 2
+            }
+        ],
+        "specialMessage": "DELIVERY TEST"
+    }
+]
+
+2025-12-15 16:45:02 - Checkout request:
+[
+    {
+        "product_id": 219,
+        "qty": 2,
+        "customizations": [],
+        "addons": [],
+        "specialMessage": null
+    },
+    {
+        "product_id": 219,
+        "qty": 1,
+        "customizations": [],
+        "addons": [
+            {
+                "addon_name": "Addons",
+                "option_name": "Beef",
+                "price_adjustment": "2",
+                "quantity": 2
+            }
+        ],
+        "specialMessage": "DELIVERY TEST"
+    }
+]
+
+2025-12-15 22:45:29 - Checkout request:
+[
+    {
+        "product_id": 27,
+        "qty": 1,
+        "customizations": [],
+        "addons": [],
+        "specialMessage": null
+    }
+]
+
+2025-12-15 22:51:57 - Checkout request:
+[
+    {
+        "product_id": 27,
+        "qty": 1,
+        "customizations": [],
+        "addons": [],
+        "specialMessage": null
+    }
+]
+
+2025-12-15 22:53:50 - Checkout request:
+[
+    {
+        "product_id": 27,
+        "qty": 1,
+        "customizations": [],
+        "addons": [],
+        "specialMessage": null
+    }
+]
+
+2025-12-15 23:03:45 - Checkout request:
+[
+    {
+        "product_id": 21,
+        "qty": 1,
+        "customizations": [],
+        "addons": [],
+        "specialMessage": null
+    },
+    {
+        "product_id": 31,
+        "qty": 1,
+        "customizations": [],
+        "addons": [],
+        "specialMessage": null
+    },
+    {
+        "product_id": 25,
+        "qty": 1,
+        "customizations": [],
+        "addons": [],
+        "specialMessage": null
+    }
+]
+
+2025-12-15 23:28:26 - Checkout request:
+[
+    {
+        "product_id": 27,
+        "qty": 1,
+        "customizations": [],
+        "addons": [],
+        "specialMessage": null
+    }
+]
+

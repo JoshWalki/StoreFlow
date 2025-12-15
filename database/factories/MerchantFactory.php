@@ -42,7 +42,7 @@ class MerchantFactory extends Factory
      */
     public function onboarded(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'onboarding_complete' => true,
         ]);
     }
@@ -52,13 +52,13 @@ class MerchantFactory extends Factory
      */
     public function withStripeConnect(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'stripe_connect_account_id' => 'acct_' . Str::random(16),
             'stripe_onboarding_complete' => true,
             'stripe_charges_enabled' => true,
             'stripe_payouts_enabled' => true,
             'stripe_details_submitted' => true,
-            'stripe_country' => 'US',
+            'stripe_country' => 'AU',
             'stripe_verified_at' => now(),
         ]);
     }
@@ -68,7 +68,7 @@ class MerchantFactory extends Factory
      */
     public function withActiveSubscription(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'subscription_status' => 'active',
             'stripe_subscription_id' => 'sub_' . Str::random(16),
             'stripe_customer_id' => 'cus_' . Str::random(16),
@@ -83,7 +83,7 @@ class MerchantFactory extends Factory
      */
     public function withTrialSubscription(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'subscription_status' => 'trialing',
             'stripe_subscription_id' => 'sub_' . Str::random(16),
             'stripe_customer_id' => 'cus_' . Str::random(16),
@@ -99,7 +99,7 @@ class MerchantFactory extends Factory
      */
     public function withExpiredSubscription(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'subscription_status' => 'canceled',
             'stripe_subscription_id' => 'sub_' . Str::random(16),
             'stripe_customer_id' => 'cus_' . Str::random(16),
@@ -114,7 +114,7 @@ class MerchantFactory extends Factory
      */
     public function withPastDueSubscription(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'subscription_status' => 'past_due',
             'stripe_subscription_id' => 'sub_' . Str::random(16),
             'stripe_customer_id' => 'cus_' . Str::random(16),

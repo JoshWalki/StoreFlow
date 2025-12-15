@@ -11,14 +11,24 @@
             v-if="showSoundPermissionBanner"
             class="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 max-w-md w-full mx-4"
         >
-            <div class="bg-blue-600 text-white rounded-lg shadow-xl p-4 flex items-center justify-between">
+            <div
+                class="bg-blue-600 text-white rounded-lg shadow-xl p-4 flex items-center justify-between"
+            >
                 <div class="flex items-center space-x-3">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                    <svg
+                        class="w-6 h-6"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                    >
+                        <path
+                            d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
+                        />
                     </svg>
                     <div>
                         <p class="font-medium">Enable Sound Notifications?</p>
-                        <p class="text-sm text-blue-100">Get audio alerts for new orders</p>
+                        <p class="text-sm text-blue-100">
+                            Get audio alerts for new orders
+                        </p>
                     </div>
                 </div>
                 <div class="flex space-x-2">
@@ -39,31 +49,54 @@
         </div>
 
         <!-- Top Navigation Bar -->
-        <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <nav
+            class="bg-white dark:bg-gray-800 shadow-sm border-gray-200 dark:border-gray-700"
+        >
             <div class="mx-auto px-2 sm:px-3 lg:px-6">
                 <div class="flex justify-between items-center h-12 sm:h-14">
                     <div class="flex items-center gap-1.5">
+                        <img
+                            :src="
+                                isDark
+                                    ? '/images/logo/logo-banner-white.png'
+                                    : '/images/logo/logo-banner.png'
+                            "
+                            alt="StoreFlow"
+                            class="h-8 w-auto transition-opacity duration-300"
+                        />
+                        <span
+                            v-if="currentStore"
+                            class="hidden sm:inline ml-1.5 text-xs sm:text-sm text-gray-600 dark:text-gray-300"
+                            >{{ currentStore.name }}</span
+                        >
+                    </div>
+
+                    <div class="flex items-center space-x-1.5 sm:space-x-3">
                         <!-- Mobile Menu Button -->
                         <button
                             @click="toggleMobileSidebar"
                             class="lg:hidden p-1.5 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
                         >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            <svg
+                                class="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M4 6h16M4 12h16M4 18h16"
+                                />
                             </svg>
                         </button>
 
-                        <span class="text-base sm:text-lg font-bold text-gray-800 dark:text-white"
-                            >StoreFlow</span
-                        >
-                        <span v-if="currentStore" class="hidden sm:inline ml-1.5 text-xs sm:text-sm text-gray-600 dark:text-gray-300">{{
-                            currentStore.name
-                        }}</span>
-                    </div>
-
-                    <div class="flex items-center space-x-1.5 sm:space-x-3">
                         <!-- Store Link with Copy Button -->
-                        <div v-if="currentStore" class="flex items-center space-x-1 px-2 py-1 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                        <div
+                            v-if="currentStore"
+                            class="flex items-center space-x-1 px-2 py-1 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600"
+                        >
                             <a
                                 :href="storeUrl"
                                 target="_blank"
@@ -84,7 +117,12 @@
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
                                 >
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                    />
                                 </svg>
                                 <svg
                                     v-else
@@ -93,14 +131,21 @@
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
                                 >
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M5 13l4 4L19 7"
+                                    />
                                 </svg>
                             </button>
                         </div>
 
-                        <span v-if="currentUser" class="hidden sm:inline text-xs text-gray-600 dark:text-gray-300">{{
-                            currentUser.username
-                        }}</span>
+                        <span
+                            v-if="currentUser"
+                            class="hidden sm:inline text-xs text-gray-600 dark:text-gray-300"
+                            >{{ currentUser.username }}</span
+                        >
                         <button
                             @click="logout"
                             class="text-[10px] sm:text-xs text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
@@ -112,25 +157,82 @@
             </div>
         </nav>
 
+        <!-- System Notice Banner -->
+        <div
+            v-if="systemNotice && !isNoticeDismissed"
+            class="py-3 px-4 text-center font-medium relative"
+            :style="{
+                backgroundColor: systemNotice.bg_color,
+                color: systemNotice.text_color,
+            }"
+        >
+            <div v-html="systemNotice.message"></div>
+            <button
+                @click="dismissNotice"
+                class="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:opacity-75 transition-opacity"
+                :style="{ color: systemNotice.text_color }"
+                title="Dismiss notice"
+            >
+                <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                    />
+                </svg>
+            </button>
+        </div>
+
         <!-- Stripe Onboarding Banner -->
         <div
             v-if="$page.props.needsStripeOnboarding"
             class="bg-blue-600 dark:bg-blue-700 text-white py-3 px-4 text-center font-medium shadow-md"
         >
-            <div class="mx-auto flex items-center justify-center gap-3 flex-wrap">
+            <div
+                class="mx-auto flex items-center justify-center gap-3 flex-wrap"
+            >
                 <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                        />
                     </svg>
-                    <span>Complete your Stripe Connect onboarding to accept payments</span>
+                    <span
+                        >Complete your Stripe Connect onboarding to accept
+                        payments</span
+                    >
                 </div>
                 <Link
                     :href="route('store.settings') + '#stripe'"
                     class="inline-flex items-center px-4 py-1.5 bg-white text-blue-600 text-sm font-semibold rounded-lg hover:bg-blue-50 transition-colors shadow-sm"
                 >
                     Complete Setup
-                    <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    <svg
+                        class="ml-2 w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M13 7l5 5m0 0l-5 5m5-5H6"
+                        />
                     </svg>
                 </Link>
             </div>
@@ -139,7 +241,7 @@
         <!-- Inactive Store Banner -->
         <div
             v-if="store && !store.is_active"
-            class="bg-yellow-500 text-white py-3 px-4 text-center font-medium shadow-md"
+            class="bg-yellow-600 text-white py-3 px-4 text-center font-medium shadow-md"
         >
             <div class="mx-auto flex items-center justify-center gap-2">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -157,46 +259,46 @@
         <div class="flex">
             <!-- Desktop Sidebar (hidden on mobile) -->
             <aside
-                class="hidden lg:block relative bg-white dark:bg-gray-800 shadow-sm min-h-screen transition-all duration-300"
+                class="hidden lg:block relative bg-white dark:bg-gray-800 shadow-sm min-h-screen transition-all pt-3 duration-300"
                 :class="sidebarCollapsed ? 'w-20' : 'w-64'"
             >
-                <!-- Sidebar Toggle Button -->
-                <div class="flex justify-end p-4">
-                    <button
-                        @click="toggleSidebar"
-                        class="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
-                        :title="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+                <!-- Sidebar Toggle Button - Positioned Outside Middle -->
+                <button
+                    @click="toggleSidebar"
+                    class="absolute -right-3 top-1/2 transform -translate-y-1/2 p-1 bg-white dark:bg-gray-800 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 rounded-full shadow-md border border-gray-200 dark:border-gray-700 transition-all duration-300 z-10"
+                    :title="
+                        sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'
+                    "
+                >
+                    <svg
+                        v-if="!sidebarCollapsed"
+                        class="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        stroke-width="3"
                     >
-                        <svg
-                            v-if="!sidebarCollapsed"
-                            class="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
-                            />
-                        </svg>
-                        <svg
-                            v-else
-                            class="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M13 5l7 7-7 7M5 5l7 7-7 7"
-                            />
-                        </svg>
-                    </button>
-                </div>
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+                        />
+                    </svg>
+                    <svg
+                        v-else
+                        class="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        stroke-width="3"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M13 5l7 7-7 7M5 5l7 7-7 7"
+                        />
+                    </svg>
+                </button>
 
                 <nav class="px-3">
                     <div class="space-y-1">
@@ -208,7 +310,10 @@
                             >
                                 Operations
                             </h3>
-                            <div v-else class="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+                            <div
+                                v-else
+                                class="border-t border-gray-200 dark:border-gray-700 my-2"
+                            ></div>
                             <div class="space-y-1">
                                 <Link
                                     :href="route('dashboard')"
@@ -217,9 +322,13 @@
                                         isActive('dashboard')
                                             ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
                                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
-                                        sidebarCollapsed ? 'justify-center px-2' : 'px-3'
+                                        sidebarCollapsed
+                                            ? 'justify-center px-2'
+                                            : 'px-3',
                                     ]"
-                                    :title="sidebarCollapsed ? 'Active Orders' : ''"
+                                    :title="
+                                        sidebarCollapsed ? 'Active Orders' : ''
+                                    "
                                 >
                                     <svg
                                         class="flex-shrink-0 w-5 h-5"
@@ -234,7 +343,9 @@
                                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
                                         />
                                     </svg>
-                                    <span v-if="!sidebarCollapsed" class="ml-3">Active Orders</span>
+                                    <span v-if="!sidebarCollapsed" class="ml-3"
+                                        >Active Orders</span
+                                    >
                                 </Link>
                                 <Link
                                     :href="route('orders.history')"
@@ -243,9 +354,13 @@
                                         isActive('orders.history')
                                             ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
                                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
-                                        sidebarCollapsed ? 'justify-center px-2' : 'px-3'
+                                        sidebarCollapsed
+                                            ? 'justify-center px-2'
+                                            : 'px-3',
                                     ]"
-                                    :title="sidebarCollapsed ? 'Order History' : ''"
+                                    :title="
+                                        sidebarCollapsed ? 'Order History' : ''
+                                    "
                                 >
                                     <svg
                                         class="flex-shrink-0 w-5 h-5"
@@ -260,7 +375,9 @@
                                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                                         />
                                     </svg>
-                                    <span v-if="!sidebarCollapsed" class="ml-3">Order History</span>
+                                    <span v-if="!sidebarCollapsed" class="ml-3"
+                                        >Order History</span
+                                    >
                                 </Link>
                             </div>
                         </div>
@@ -273,7 +390,10 @@
                             >
                                 Catalog
                             </h3>
-                            <div v-else class="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+                            <div
+                                v-else
+                                class="border-t border-gray-200 dark:border-gray-700 my-2"
+                            ></div>
                             <div class="space-y-1">
                                 <Link
                                     :href="route('products.index')"
@@ -282,7 +402,9 @@
                                         isActive('products.index')
                                             ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
                                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
-                                        sidebarCollapsed ? 'justify-center px-2' : 'px-3'
+                                        sidebarCollapsed
+                                            ? 'justify-center px-2'
+                                            : 'px-3',
                                     ]"
                                     :title="sidebarCollapsed ? 'Products' : ''"
                                 >
@@ -299,19 +421,28 @@
                                             d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
                                         />
                                     </svg>
-                                    <span v-if="!sidebarCollapsed" class="ml-3">Products</span>
+                                    <span v-if="!sidebarCollapsed" class="ml-3"
+                                        >Products</span
+                                    >
                                 </Link>
                                 <Link
-                                    v-if="currentUser && currentUser.role !== 'staff'"
+                                    v-if="
+                                        currentUser &&
+                                        currentUser.role !== 'staff'
+                                    "
                                     :href="route('categories.index')"
                                     class="flex items-center py-2 text-sm font-medium rounded-md transition-colors"
                                     :class="[
                                         isActive('categories.index')
                                             ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
                                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
-                                        sidebarCollapsed ? 'justify-center px-2' : 'px-3'
+                                        sidebarCollapsed
+                                            ? 'justify-center px-2'
+                                            : 'px-3',
                                     ]"
-                                    :title="sidebarCollapsed ? 'Categories' : ''"
+                                    :title="
+                                        sidebarCollapsed ? 'Categories' : ''
+                                    "
                                 >
                                     <svg
                                         class="flex-shrink-0 w-5 h-5"
@@ -326,7 +457,9 @@
                                             d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
                                         />
                                     </svg>
-                                    <span v-if="!sidebarCollapsed" class="ml-3">Categories</span>
+                                    <span v-if="!sidebarCollapsed" class="ml-3"
+                                        >Categories</span
+                                    >
                                 </Link>
                             </div>
                         </div>
@@ -339,7 +472,10 @@
                             >
                                 Customers
                             </h3>
-                            <div v-else class="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+                            <div
+                                v-else
+                                class="border-t border-gray-200 dark:border-gray-700 my-2"
+                            ></div>
                             <div class="space-y-1">
                                 <Link
                                     :href="route('customers.index')"
@@ -348,7 +484,9 @@
                                         isActive('customers.index')
                                             ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
                                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
-                                        sidebarCollapsed ? 'justify-center px-2' : 'px-3'
+                                        sidebarCollapsed
+                                            ? 'justify-center px-2'
+                                            : 'px-3',
                                     ]"
                                     :title="sidebarCollapsed ? 'Customers' : ''"
                                 >
@@ -365,17 +503,24 @@
                                             d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
                                         />
                                     </svg>
-                                    <span v-if="!sidebarCollapsed" class="ml-3">Customers</span>
+                                    <span v-if="!sidebarCollapsed" class="ml-3"
+                                        >Customers</span
+                                    >
                                 </Link>
                                 <Link
-                                    v-if="currentUser && currentUser.role !== 'staff'"
+                                    v-if="
+                                        currentUser &&
+                                        currentUser.role !== 'staff'
+                                    "
                                     :href="route('loyalty.index')"
                                     class="flex items-center py-2 text-sm font-medium rounded-md transition-colors"
                                     :class="[
                                         isActive('loyalty.index')
                                             ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
                                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
-                                        sidebarCollapsed ? 'justify-center px-2' : 'px-3'
+                                        sidebarCollapsed
+                                            ? 'justify-center px-2'
+                                            : 'px-3',
                                     ]"
                                     :title="sidebarCollapsed ? 'Loyalty' : ''"
                                 >
@@ -392,7 +537,9 @@
                                             d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
                                         />
                                     </svg>
-                                    <span v-if="!sidebarCollapsed" class="ml-3">Loyalty</span>
+                                    <span v-if="!sidebarCollapsed" class="ml-3"
+                                        >Loyalty</span
+                                    >
                                 </Link>
                             </div>
                         </div>
@@ -405,11 +552,17 @@
                             >
                                 Settings
                             </h3>
-                            <div v-else class="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+                            <div
+                                v-else
+                                class="border-t border-gray-200 dark:border-gray-700 my-2"
+                            ></div>
                             <div class="space-y-1">
                                 <!-- Store Settings with Hover Sub-menu -->
                                 <div
-                                    v-if="currentUser && currentUser.role !== 'staff'"
+                                    v-if="
+                                        currentUser &&
+                                        currentUser.role !== 'staff'
+                                    "
                                     class="relative"
                                     @mouseenter="showSettingsSubmenu = true"
                                     @mouseleave="showSettingsSubmenu = false"
@@ -421,9 +574,15 @@
                                             isActive('store.settings')
                                                 ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
                                                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
-                                            sidebarCollapsed ? 'justify-center px-2' : 'px-3'
+                                            sidebarCollapsed
+                                                ? 'justify-center px-2'
+                                                : 'px-3',
                                         ]"
-                                        :title="sidebarCollapsed ? 'Store Settings' : ''"
+                                        :title="
+                                            sidebarCollapsed
+                                                ? 'Store Settings'
+                                                : ''
+                                        "
                                     >
                                         <svg
                                             class="flex-shrink-0 w-5 h-5"
@@ -444,80 +603,134 @@
                                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                                             />
                                         </svg>
-                                        <span v-if="!sidebarCollapsed" class="ml-3">Store Settings</span>
+                                        <span
+                                            v-if="!sidebarCollapsed"
+                                            class="ml-3"
+                                            >Store Settings</span
+                                        >
                                         <svg
                                             v-if="!sidebarCollapsed"
                                             class="ml-auto w-4 h-4 transition-transform"
-                                            :class="{ 'rotate-90': showSettingsSubmenu }"
+                                            :class="{
+                                                'rotate-90':
+                                                    showSettingsSubmenu,
+                                            }"
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"
                                         >
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M9 5l7 7-7 7"
+                                            />
                                         </svg>
                                     </Link>
 
                                     <!-- Submenu -->
                                     <Transition name="submenu">
                                         <div
-                                            v-if="showSettingsSubmenu && !sidebarCollapsed"
+                                            v-if="
+                                                showSettingsSubmenu &&
+                                                !sidebarCollapsed
+                                            "
                                             class="ml-8 mt-1 space-y-1 overflow-hidden"
                                         >
                                             <a
-                                                :href="route('store.settings') + '#basic'"
+                                                :href="
+                                                    route('store.settings') +
+                                                    '#basic'
+                                                "
                                                 class="block px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md transition-colors"
                                             >
                                                 Basic Information
                                             </a>
                                             <a
-                                                :href="route('store.settings') + '#logo'"
+                                                :href="
+                                                    route('store.settings') +
+                                                    '#logo'
+                                                "
                                                 class="block px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md transition-colors"
                                             >
                                                 Store Logo
                                             </a>
                                             <a
-                                                :href="route('store.settings') + '#contact'"
+                                                :href="
+                                                    route('store.settings') +
+                                                    '#contact'
+                                                "
                                                 class="block px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md transition-colors"
                                             >
                                                 Contact Information
                                             </a>
                                             <a
-                                                :href="route('store.settings') + '#business'"
+                                                :href="
+                                                    route('store.settings') +
+                                                    '#business'
+                                                "
                                                 class="block px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md transition-colors"
                                             >
                                                 Business Settings
                                             </a>
                                             <a
-                                                :href="route('store.settings') + '#theme'"
+                                                :href="
+                                                    route('store.settings') +
+                                                    '#theme'
+                                                "
                                                 class="block px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md transition-colors"
                                             >
                                                 Storefront Theme
                                             </a>
                                             <a
-                                                v-if="currentUser && currentUser.role === 'owner'"
-                                                :href="route('store.settings') + '#stripe'"
+                                                v-if="
+                                                    currentUser &&
+                                                    currentUser.role === 'owner'
+                                                "
+                                                :href="
+                                                    route('store.settings') +
+                                                    '#stripe'
+                                                "
                                                 class="block px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md transition-colors"
                                             >
                                                 Stripe Connect
                                             </a>
                                             <a
-                                                :href="route('store.settings') + '#data-migration'"
+                                                :href="
+                                                    route('store.settings') +
+                                                    '#data-migration'
+                                                "
                                                 class="block px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md transition-colors"
                                             >
                                                 Data Migration
                                             </a>
+                                            <Link
+                                                v-if="
+                                                    currentUser &&
+                                                    currentUser.role === 'owner'
+                                                "
+                                                :href="route('subscriptions.index')"
+                                                class="block px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md transition-colors"
+                                            >
+                                                Subscription
+                                            </Link>
                                         </div>
                                     </Transition>
                                 </div>
                                 <Link
-                                    v-if="currentUser && currentUser.role !== 'staff'"
+                                    v-if="
+                                        currentUser &&
+                                        currentUser.role !== 'staff'
+                                    "
                                     :href="route('shipping.index')"
                                     class="flex items-center py-2 text-sm font-medium rounded-md transition-colors"
                                     :class="[
                                         isActive('shipping.index')
                                             ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
                                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
-                                        sidebarCollapsed ? 'justify-center px-2' : 'px-3'
+                                        sidebarCollapsed
+                                            ? 'justify-center px-2'
+                                            : 'px-3',
                                     ]"
                                     :title="sidebarCollapsed ? 'Shipping' : ''"
                                 >
@@ -537,17 +750,24 @@
                                             d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
                                         />
                                     </svg>
-                                    <span v-if="!sidebarCollapsed" class="ml-3">Shipping</span>
+                                    <span v-if="!sidebarCollapsed" class="ml-3"
+                                        >Shipping</span
+                                    >
                                 </Link>
                                 <Link
-                                    v-if="currentUser && currentUser.role === 'owner'"
+                                    v-if="
+                                        currentUser &&
+                                        currentUser.role === 'owner'
+                                    "
                                     :href="route('staff.index')"
                                     class="flex items-center py-2 text-sm font-medium rounded-md transition-colors"
                                     :class="[
                                         isActive('staff.index')
                                             ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
                                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
-                                        sidebarCollapsed ? 'justify-center px-2' : 'px-3'
+                                        sidebarCollapsed
+                                            ? 'justify-center px-2'
+                                            : 'px-3',
                                     ]"
                                     :title="sidebarCollapsed ? 'Staff' : ''"
                                 >
@@ -564,19 +784,28 @@
                                             d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                                         />
                                     </svg>
-                                    <span v-if="!sidebarCollapsed" class="ml-3">Staff</span>
+                                    <span v-if="!sidebarCollapsed" class="ml-3"
+                                        >Staff</span
+                                    >
                                 </Link>
                                 <Link
-                                    v-if="currentUser && currentUser.role !== 'staff'"
+                                    v-if="
+                                        currentUser &&
+                                        currentUser.role !== 'staff'
+                                    "
                                     :href="route('audit-logs.index')"
                                     class="flex items-center py-2 text-sm font-medium rounded-md transition-colors"
                                     :class="[
                                         isActive('audit-logs.index')
                                             ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
                                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
-                                        sidebarCollapsed ? 'justify-center px-2' : 'px-3'
+                                        sidebarCollapsed
+                                            ? 'justify-center px-2'
+                                            : 'px-3',
                                     ]"
-                                    :title="sidebarCollapsed ? 'Audit Logs' : ''"
+                                    :title="
+                                        sidebarCollapsed ? 'Audit Logs' : ''
+                                    "
                                 >
                                     <svg
                                         class="flex-shrink-0 w-5 h-5"
@@ -591,7 +820,9 @@
                                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                         />
                                     </svg>
-                                    <span v-if="!sidebarCollapsed" class="ml-3">Audit Logs</span>
+                                    <span v-if="!sidebarCollapsed" class="ml-3"
+                                        >Audit Logs</span
+                                    >
                                 </Link>
                             </div>
                         </div>
@@ -599,46 +830,115 @@
                 </nav>
 
                 <!-- Dark Mode Toggle - Fixed at Bottom -->
-                <div class="fixed bottom-4 px-3 transition-all duration-300" :style="{ width: sidebarCollapsed ? '80px' : '256px' }">
+                <div
+                    class="fixed bottom-4 transition-all duration-300 flex justify-center"
+                    :style="{ width: sidebarCollapsed ? '80px' : '256px' }"
+                >
                     <button
                         @click="toggleDarkMode"
-                        class="w-full flex items-center py-2 px-3 text-sm font-medium rounded-md transition-colors bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 shadow-lg"
-                        :class="sidebarCollapsed ? 'justify-center' : ''"
-                        :title="sidebarCollapsed ? (isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode') : ''"
+                        class="relative inline-flex items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        :class="[
+                            isDark ? 'bg-gray-600' : 'bg-blue-500',
+                            sidebarCollapsed ? 'h-7 w-14' : 'h-8 w-16',
+                        ]"
+                        :title="
+                            isDark
+                                ? 'Switch to Light Mode'
+                                : 'Switch to Dark Mode'
+                        "
                     >
-                        <!-- Sun Icon (Light Mode) -->
-                        <svg
-                            v-if="isDark"
-                            class="flex-shrink-0 w-5 h-5 text-yellow-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                        <!-- Track -->
+                        <span class="sr-only">Toggle theme</span>
+
+                        <!-- Slider with Icon -->
+                        <span
+                            class="absolute inline-flex items-center justify-center rounded-full bg-white shadow-lg transform transition-all duration-500 ease-in-out"
+                            :class="[
+                                sidebarCollapsed
+                                    ? 'left-0.5 h-5 w-5'
+                                    : 'left-0.5 h-6 w-6',
+                                isDark
+                                    ? sidebarCollapsed
+                                        ? 'translate-x-[30px] rotate-[360deg]'
+                                        : 'translate-x-[34px] rotate-[360deg]'
+                                    : 'translate-x-0 rotate-0',
+                            ]"
                         >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                            />
-                        </svg>
-                        <!-- Moon Icon (Dark Mode) -->
-                        <svg
-                            v-else
-                            class="flex-shrink-0 w-5 h-5 text-gray-600 dark:text-gray-300"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-                            />
-                        </svg>
-                        <span v-if="!sidebarCollapsed" class="ml-3 text-gray-700 dark:text-gray-300">
-                            {{ isDark ? 'Light Mode' : 'Dark Mode' }}
+                            <!-- Sun Icon (Light Mode) -->
+                            <svg
+                                v-if="!isDark"
+                                class="text-yellow-500 transition-transform duration-500"
+                                :class="
+                                    sidebarCollapsed ? 'w-3 h-3' : 'w-4 h-4'
+                                "
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                            >
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                                    clip-rule="evenodd"
+                                />
+                            </svg>
+                            <!-- Moon Icon (Dark Mode) -->
+                            <svg
+                                v-else
+                                class="text-gray-700 transition-transform duration-500"
+                                :class="
+                                    sidebarCollapsed ? 'w-3 h-3' : 'w-4 h-4'
+                                "
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                            >
+                                <path
+                                    d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"
+                                />
+                            </svg>
                         </span>
+
+                        <!-- Background Icons -->
+                        <div
+                            class="absolute inset-0 flex items-center pointer-events-none"
+                        >
+                            <!-- Moon background icon (shows in light mode - right side, where slider will move to) -->
+                            <svg
+                                class="absolute transition-opacity duration-300"
+                                :class="[
+                                    !isDark
+                                        ? 'opacity-60 text-gray-400'
+                                        : 'opacity-0',
+                                    sidebarCollapsed
+                                        ? 'w-3 h-3 right-1.5'
+                                        : 'w-3.5 h-3.5 right-2',
+                                ]"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                            >
+                                <path
+                                    d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"
+                                />
+                            </svg>
+                            <!-- Sun background icon (shows in dark mode - left side, where slider will move to) -->
+                            <svg
+                                class="absolute transition-opacity duration-300"
+                                :class="[
+                                    isDark
+                                        ? 'opacity-60 text-yellow-300'
+                                        : 'opacity-0',
+                                    sidebarCollapsed
+                                        ? 'w-3 h-3 left-1.5'
+                                        : 'w-3.5 h-3.5 left-2',
+                                ]"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                            >
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                                    clip-rule="evenodd"
+                                />
+                            </svg>
+                        </div>
                     </button>
                 </div>
             </aside>
@@ -659,13 +959,25 @@
                         @click.stop
                     >
                         <!-- Close Button -->
-                        <div class="flex justify-end p-4 border-b border-gray-200 dark:border-gray-700">
+                        <div
+                            class="flex justify-end p-4 border-b border-gray-200 dark:border-gray-700"
+                        >
                             <button
                                 @click="mobileSidebarOpen = false"
                                 class="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
                             >
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                <svg
+                                    class="w-6 h-6"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12"
+                                    />
                                 </svg>
                             </button>
                         </div>
@@ -674,7 +986,9 @@
                             <div class="space-y-1">
                                 <!-- Operations Section -->
                                 <div class="mb-4">
-                                    <h3 class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                                    <h3
+                                        class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2"
+                                    >
                                         Operations
                                     </h3>
                                     <div class="space-y-1">
@@ -688,10 +1002,22 @@
                                                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                                             "
                                         >
-                                            <svg class="flex-shrink-0 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                                            <svg
+                                                class="flex-shrink-0 w-5 h-5"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                                                />
                                             </svg>
-                                            <span class="ml-3">Active Orders</span>
+                                            <span class="ml-3"
+                                                >Active Orders</span
+                                            >
                                         </Link>
                                         <Link
                                             :href="route('orders.history')"
@@ -703,17 +1029,31 @@
                                                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                                             "
                                         >
-                                            <svg class="flex-shrink-0 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            <svg
+                                                class="flex-shrink-0 w-5 h-5"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                />
                                             </svg>
-                                            <span class="ml-3">Order History</span>
+                                            <span class="ml-3"
+                                                >Order History</span
+                                            >
                                         </Link>
                                     </div>
                                 </div>
 
                                 <!-- Catalog Section -->
                                 <div class="mb-4">
-                                    <h3 class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                                    <h3
+                                        class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2"
+                                    >
                                         Catalog
                                     </h3>
                                     <div class="space-y-1">
@@ -727,13 +1067,26 @@
                                                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                                             "
                                         >
-                                            <svg class="flex-shrink-0 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                            <svg
+                                                class="flex-shrink-0 w-5 h-5"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                                                />
                                             </svg>
                                             <span class="ml-3">Products</span>
                                         </Link>
                                         <Link
-                                            v-if="currentUser && currentUser.role !== 'staff'"
+                                            v-if="
+                                                currentUser &&
+                                                currentUser.role !== 'staff'
+                                            "
                                             :href="route('categories.index')"
                                             @click="mobileSidebarOpen = false"
                                             class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors"
@@ -743,8 +1096,18 @@
                                                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                                             "
                                         >
-                                            <svg class="flex-shrink-0 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                            <svg
+                                                class="flex-shrink-0 w-5 h-5"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                                                />
                                             </svg>
                                             <span class="ml-3">Categories</span>
                                         </Link>
@@ -753,7 +1116,9 @@
 
                                 <!-- Customer Section -->
                                 <div class="mb-4">
-                                    <h3 class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                                    <h3
+                                        class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2"
+                                    >
                                         Customers
                                     </h3>
                                     <div class="space-y-1">
@@ -767,13 +1132,26 @@
                                                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                                             "
                                         >
-                                            <svg class="flex-shrink-0 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                            <svg
+                                                class="flex-shrink-0 w-5 h-5"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                                                />
                                             </svg>
                                             <span class="ml-3">Customers</span>
                                         </Link>
                                         <Link
-                                            v-if="currentUser && currentUser.role !== 'staff'"
+                                            v-if="
+                                                currentUser &&
+                                                currentUser.role !== 'staff'
+                                            "
                                             :href="route('loyalty.index')"
                                             @click="mobileSidebarOpen = false"
                                             class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors"
@@ -783,8 +1161,18 @@
                                                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                                             "
                                         >
-                                            <svg class="flex-shrink-0 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                            <svg
+                                                class="flex-shrink-0 w-5 h-5"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                                                />
                                             </svg>
                                             <span class="ml-3">Loyalty</span>
                                         </Link>
@@ -793,12 +1181,17 @@
 
                                 <!-- Settings Section -->
                                 <div class="mb-4">
-                                    <h3 class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                                    <h3
+                                        class="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2"
+                                    >
                                         Settings
                                     </h3>
                                     <div class="space-y-1">
                                         <Link
-                                            v-if="currentUser && currentUser.role !== 'staff'"
+                                            v-if="
+                                                currentUser &&
+                                                currentUser.role !== 'staff'
+                                            "
                                             :href="route('store.settings')"
                                             @click="mobileSidebarOpen = false"
                                             class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors"
@@ -808,14 +1201,34 @@
                                                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                                             "
                                         >
-                                            <svg class="flex-shrink-0 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <svg
+                                                class="flex-shrink-0 w-5 h-5"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                                                />
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                                />
                                             </svg>
-                                            <span class="ml-3">Store Settings</span>
+                                            <span class="ml-3"
+                                                >Store Settings</span
+                                            >
                                         </Link>
                                         <Link
-                                            v-if="currentUser && currentUser.role !== 'staff'"
+                                            v-if="
+                                                currentUser &&
+                                                currentUser.role !== 'staff'
+                                            "
                                             :href="route('shipping.index')"
                                             @click="mobileSidebarOpen = false"
                                             class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors"
@@ -825,14 +1238,29 @@
                                                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                                             "
                                         >
-                                            <svg class="flex-shrink-0 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                                            <svg
+                                                class="flex-shrink-0 w-5 h-5"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
+                                                />
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
+                                                />
                                             </svg>
                                             <span class="ml-3">Shipping</span>
                                         </Link>
                                         <Link
-                                            v-if="currentUser && currentUser.role === 'owner'"
+                                            v-if="
+                                                currentUser &&
+                                                currentUser.role === 'owner'
+                                            "
                                             :href="route('staff.index')"
                                             @click="mobileSidebarOpen = false"
                                             class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors"
@@ -842,13 +1270,26 @@
                                                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                                             "
                                         >
-                                            <svg class="flex-shrink-0 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                            <svg
+                                                class="flex-shrink-0 w-5 h-5"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                                                />
                                             </svg>
                                             <span class="ml-3">Staff</span>
                                         </Link>
                                         <Link
-                                            v-if="currentUser && currentUser.role !== 'staff'"
+                                            v-if="
+                                                currentUser &&
+                                                currentUser.role !== 'staff'
+                                            "
                                             :href="route('audit-logs.index')"
                                             @click="mobileSidebarOpen = false"
                                             class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors"
@@ -858,10 +1299,49 @@
                                                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                                             "
                                         >
-                                            <svg class="flex-shrink-0 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            <svg
+                                                class="flex-shrink-0 w-5 h-5"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                />
                                             </svg>
                                             <span class="ml-3">Audit Logs</span>
+                                        </Link>
+                                        <Link
+                                            v-if="
+                                                currentUser &&
+                                                currentUser.role === 'owner'
+                                            "
+                                            :href="route('subscriptions.index')"
+                                            @click="mobileSidebarOpen = false"
+                                            class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors"
+                                            :class="
+                                                isActive('subscriptions.index')
+                                                    ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200'
+                                                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                            "
+                                        >
+                                            <svg
+                                                class="flex-shrink-0 w-5 h-5"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                                                />
+                                            </svg>
+                                            <span class="ml-3">Subscription</span>
                                         </Link>
                                     </div>
                                 </div>
@@ -881,7 +1361,7 @@
 
 <script setup>
 import { Link, router, usePage } from "@inertiajs/vue3";
-import { ref, computed, onMounted, onBeforeUnmount } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount, watch } from "vue";
 import ToastContainer from "@/Components/Notifications/ToastContainer.vue";
 import OnboardingModal from "@/Components/OnboardingModal.vue";
 import { useNotifications } from "@/Composables/useNotifications";
@@ -894,6 +1374,33 @@ const props = defineProps({
 
 const page = usePage();
 const needsOnboarding = computed(() => page.props.needsOnboarding || false);
+const systemNotice = computed(() => page.props.systemNotice || null);
+
+// Notice dismissal state
+const isNoticeDismissed = ref(false);
+
+// Check if notice has been dismissed
+const checkNoticeDismissed = () => {
+    if (!systemNotice.value) return;
+
+    const dismissedNoticeId = localStorage.getItem("dismissedNoticeId");
+    if (
+        dismissedNoticeId &&
+        dismissedNoticeId === String(systemNotice.value.id)
+    ) {
+        isNoticeDismissed.value = true;
+    } else {
+        isNoticeDismissed.value = false;
+    }
+};
+
+// Dismiss the notice
+const dismissNotice = () => {
+    if (!systemNotice.value) return;
+
+    localStorage.setItem("dismissedNoticeId", String(systemNotice.value.id));
+    isNoticeDismissed.value = true;
+};
 
 // Use auth user from Inertia shared props if not passed as prop
 const currentUser = computed(() => props.user || page.props.auth?.user);
@@ -902,7 +1409,7 @@ const { success } = useNotifications();
 
 // Store URL and copy functionality
 const storeUrl = computed(() => {
-    if (!currentStore.value?.id) return '';
+    if (!currentStore.value?.id) return "";
     return `${window.location.origin}/store/${currentStore.value.id}`;
 });
 
@@ -914,34 +1421,40 @@ const soundEnabled = ref(false);
 
 // Check if sound permission has been set
 onMounted(() => {
-    const soundPref = localStorage.getItem('soundNotificationsEnabled');
+    const soundPref = localStorage.getItem("soundNotificationsEnabled");
     if (soundPref === null) {
         // Show banner if not set
         showSoundPermissionBanner.value = true;
     } else {
-        soundEnabled.value = soundPref === 'true';
+        soundEnabled.value = soundPref === "true";
     }
+
+    // Check if system notice has been dismissed
+    checkNoticeDismissed();
 });
 
 const enableSoundNotifications = async () => {
     try {
         // Play a silent sound to unlock audio context
-        const audio = new Audio('/sounds/notification.wav');
+        const audio = new Audio("/sounds/notification.wav");
         audio.volume = 0.01;
         await audio.play();
         audio.pause();
 
         soundEnabled.value = true;
-        localStorage.setItem('soundNotificationsEnabled', 'true');
+        localStorage.setItem("soundNotificationsEnabled", "true");
         showSoundPermissionBanner.value = false;
-        success('Sound Enabled!', 'You will now hear audio alerts for new orders');
+        success(
+            "Sound Enabled!",
+            "You will now hear audio alerts for new orders"
+        );
     } catch (error) {
-        console.error('Failed to enable sound:', error);
+        console.error("Failed to enable sound:", error);
     }
 };
 
 const dismissSoundPermission = () => {
-    localStorage.setItem('soundNotificationsEnabled', 'false');
+    localStorage.setItem("soundNotificationsEnabled", "false");
     showSoundPermissionBanner.value = false;
 };
 
@@ -949,14 +1462,14 @@ const copyStoreLink = async () => {
     try {
         await navigator.clipboard.writeText(storeUrl.value);
         linkCopied.value = true;
-        success('Link Copied!', 'Store link copied to clipboard');
+        success("Link Copied!", "Store link copied to clipboard");
 
         // Reset checkmark after 2 seconds
         setTimeout(() => {
             linkCopied.value = false;
         }, 2000);
     } catch (err) {
-        console.error('Failed to copy link:', err);
+        console.error("Failed to copy link:", err);
     }
 };
 
@@ -975,13 +1488,21 @@ const showSettingsSubmenu = ref(false);
 // Toggle sidebar collapsed state
 const toggleSidebar = () => {
     sidebarCollapsed.value = !sidebarCollapsed.value;
-    localStorage.setItem("sidebarCollapsed", JSON.stringify(sidebarCollapsed.value));
+    localStorage.setItem(
+        "sidebarCollapsed",
+        JSON.stringify(sidebarCollapsed.value)
+    );
 };
 
 // Toggle mobile sidebar
 const toggleMobileSidebar = () => {
     mobileSidebarOpen.value = !mobileSidebarOpen.value;
 };
+
+// Watch systemNotice for changes to re-check dismissal state
+watch(systemNotice, () => {
+    checkNoticeDismissed();
+});
 
 // Component lifecycle
 onMounted(() => {
@@ -1000,7 +1521,6 @@ onMounted(() => {
         window.Echo.private(`store.${props.store.id}.orders`).listen(
             ".OrderCreated",
             (e) => {
-
                 // Show notification
                 success(
                     "New Order!",
@@ -1037,16 +1557,16 @@ const playNotificationSound = () => {
     if (!soundEnabled.value) return;
 
     try {
-        const audio = new Audio('/sounds/notification.wav');
+        const audio = new Audio("/sounds/notification.wav");
         audio.volume = 0.7;
-        audio.play().catch(e => {
+        audio.play().catch((e) => {
             // Browser blocked autoplay - show permission banner again
-            if (e.name === 'NotAllowedError') {
+            if (e.name === "NotAllowedError") {
                 showSoundPermissionBanner.value = true;
             }
         });
     } catch (error) {
-        console.error('Notification sound error:', error);
+        console.error("Notification sound error:", error);
     }
 };
 

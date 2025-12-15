@@ -48,6 +48,13 @@ class CheckoutController extends Controller
     {
         $validated = $request->validated();
 
+        // Check if store is active
+        if (!$store->is_active) {
+            return response()->json([
+                'message' => 'This store is currently not accepting orders.',
+            ], 422);
+        }
+
         try {
             // Calculate order totals
             $calculationResult = $this->calculateOrderTotals(
@@ -155,6 +162,13 @@ class CheckoutController extends Controller
     public function checkout(CheckoutRequest $request, Store $store): JsonResponse
     {
         $validated = $request->validated();
+
+        // Check if store is active
+        if (!$store->is_active) {
+            return response()->json([
+                'message' => 'This store is currently not accepting orders.',
+            ], 422);
+        }
 
         \Log::info('Checkout request received', [
             'store_id' => $store->id,
@@ -441,6 +455,7 @@ class CheckoutController extends Controller
                 'unit_price_cents' => $product->price_cents,
                 'customizations' => $item['customizations'] ?? [],
                 'addons' => $processedAddons,
+                'specialMessage' => $item['specialMessage'] ?? null,
             ];
         }
 
@@ -559,7 +574,8 @@ class CheckoutController extends Controller
         \Log::info('createOrderItems called', [
             'order_id' => $order->id,
             'processedItems_count' => count($processedItems),
-            'processedItems' => $processedItems
+            'processedItems' => $processedItems,
+            'requestItems' => $requestItems
         ]);
 
         foreach ($processedItems as $index => $item) {
@@ -603,6 +619,9 @@ class CheckoutController extends Controller
                 'line_subtotal_cents' => $lineSubtotal,
                 'tax_cents' => $taxAmount,
                 'total_cents' => $lineTotal,
+
+                // Special instructions
+                'special_instructions' => $item['specialMessage'] ?? null,
             ]);
 
             // Create customization options

@@ -69,6 +69,8 @@ class Order extends Model
         'shipping_status',
         'tracking_code',
         'tracking_url',
+        'tracking_number',
+        'courier_company',
         'shipping_name',
         'shipping_line1',
         'shipping_line2',
@@ -120,6 +122,11 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function shippingMethodRelation(): BelongsTo
+    {
+        return $this->belongsTo(ShippingMethod::class, 'shipping_method', 'id');
     }
 
     /**

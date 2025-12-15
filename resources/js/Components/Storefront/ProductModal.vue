@@ -186,7 +186,7 @@
                                         <ProductAddonSelector
                                             :addons="product.addons"
                                             :theme="store.theme"
-                                            @update:selections="selectedAddons = $event"
+                                            @update:selections="handleAddonUpdate"
                                             ref="addonSelector"
                                         />
                                     </div>
@@ -282,6 +282,19 @@ const product = ref(null);
 const selectedImage = ref(null);
 const addonSelector = ref(null);
 const selectedAddons = ref([]);
+const specialMessage = ref('');
+
+// Handle addon update from ProductAddonSelector
+const handleAddonUpdate = (data) => {
+    if (data && typeof data === 'object' && 'addons' in data) {
+        selectedAddons.value = data.addons || [];
+        specialMessage.value = data.message || '';
+    } else {
+        // Fallback for backward compatibility
+        selectedAddons.value = data || [];
+        specialMessage.value = '';
+    }
+};
 
 const closeModal = () => {
     emit("close");
@@ -289,6 +302,7 @@ const closeModal = () => {
     product.value = null;
     selectedImage.value = null;
     selectedAddons.value = [];
+    specialMessage.value = '';
 };
 
 const selectImage = (imagePath) => {
@@ -331,8 +345,8 @@ const addToCart = () => {
         return;
     }
 
-    // Add product to cart with addons
-    const success = addItemToCart(product.value, 1, [], selectedAddons.value);
+    // Add product to cart with addons and message
+    const success = addItemToCart(product.value, 1, [], selectedAddons.value, specialMessage.value);
 
     if (success) {
         // Open cart drawer to show added item
@@ -348,7 +362,7 @@ const buyNow = () => {
     }
 
     // Add to cart and go directly to checkout
-    addItemToCart(product.value, 1, [], selectedAddons.value);
+    addItemToCart(product.value, 1, [], selectedAddons.value, specialMessage.value);
     closeModal();
     router.visit(`/store/${props.store.id}/checkout`);
 };

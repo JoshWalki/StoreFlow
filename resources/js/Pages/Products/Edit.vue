@@ -472,7 +472,10 @@
 <script setup>
 import { ref } from "vue";
 import { Link, useForm } from "@inertiajs/vue3";
+import { useToast } from "vue-toastification";
 import ProductAddonManager from "@/Components/Admin/ProductAddonManager.vue";
+
+const toast = useToast();
 
 const props = defineProps({
     product: Object,
@@ -511,7 +514,7 @@ const handleImageChange = (event) => {
     const totalImages = currentImageCount + form.images.length + files.length;
 
     if (totalImages > 5) {
-        alert("You can only have up to 5 images total");
+        toast.warning("You can only have up to 5 images total");
         return;
     }
 

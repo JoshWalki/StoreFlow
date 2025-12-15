@@ -49,7 +49,7 @@ return new class extends Migration
                 ->comment('Outstanding Stripe requirements (currently_due, eventually_due, past_due)');
 
             $table->string('stripe_country', 2)
-                ->default('US')
+                ->default('AU')
                 ->after('stripe_requirements')
                 ->comment('Stripe account country code (US, CA, GB, etc.)');
 

@@ -115,11 +115,19 @@ class ProductController extends Controller
             ->orderBy('name')
             ->get();
 
+        // Check if merchant has active subscription
+        $merchant = $user->merchant;
+        $subscriptionError = null;
+        if (!$merchant->hasActiveSubscription()) {
+            $subscriptionError = 'You need an active subscription to create products. Please subscribe to continue.';
+        }
+
         return Inertia::render('Products/Create', [
             'store' => $store,
             'user' => $user,
             'categories' => $categories,
             'stores' => $stores,
+            'subscriptionError' => $subscriptionError,
         ]);
     }
 
@@ -131,6 +139,12 @@ class ProductController extends Controller
         // Only managers and owners can create products
         if ($request->user()->role === 'staff') {
             abort(403, 'Staff members cannot create products.');
+        }
+
+        // Check if merchant has active subscription
+        $merchant = $request->user()->merchant;
+        if (!$merchant->hasActiveSubscription()) {
+            return back()->with('error', 'You need an active subscription to create products. Please subscribe to continue.');
         }
 
         $validated = $request->validate([
@@ -752,8 +766,25 @@ class ProductController extends Controller
      */
     private function syncProductAddons(Product $product, array $addons, int $merchantId): void
     {
-        // Simply save the addon data as JSON to the product
-        $product->addon_data = $addons;
+        // Normalize addon data to ensure all boolean fields have proper values
+        $normalizedAddons = array_map(function ($addon) {
+            // Ensure is_required is always present as a boolean
+            $addon['is_required'] = isset($addon['is_required']) ? (bool) $addon['is_required'] : false;
+
+            // Normalize options
+            if (isset($addon['options']) && is_array($addon['options'])) {
+                $addon['options'] = array_map(function ($option) {
+                    // Ensure is_default is always present as a boolean
+                    $option['is_default'] = isset($option['is_default']) ? (bool) $option['is_default'] : false;
+                    return $option;
+                }, $addon['options']);
+            }
+
+            return $addon;
+        }, $addons);
+
+        // Save the normalized addon data as JSON to the product
+        $product->addon_data = $normalizedAddons;
         $product->save();
     }
 }

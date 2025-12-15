@@ -15,21 +15,28 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('stores', function (Blueprint $table) {
-            $table->boolean('is_active')
-                ->default(true)
-                ->after('operating_hours')
-                ->index()
-                ->comment('Store active status - deactivated when subscription >3 days overdue');
+            // Check if is_active already exists (may have been added manually)
+            if (!Schema::hasColumn('stores', 'is_active')) {
+                $table->boolean('is_active')
+                    ->default(true)
+                    ->after('close_time')
+                    ->index()
+                    ->comment('Store active status - deactivated when subscription >3 days overdue');
+            }
 
-            $table->timestamp('deactivated_at')
-                ->nullable()
-                ->after('is_active')
-                ->comment('Timestamp when store was deactivated due to payment issues');
+            if (!Schema::hasColumn('stores', 'deactivated_at')) {
+                $table->timestamp('deactivated_at')
+                    ->nullable()
+                    ->after('is_active')
+                    ->comment('Timestamp when store was deactivated due to payment issues');
+            }
 
-            $table->text('deactivation_reason')
-                ->nullable()
-                ->after('deactivated_at')
-                ->comment('Reason for store deactivation (subscription_overdue, manual, etc)');
+            if (!Schema::hasColumn('stores', 'deactivation_reason')) {
+                $table->text('deactivation_reason')
+                    ->nullable()
+                    ->after('deactivated_at')
+                    ->comment('Reason for store deactivation (subscription_overdue, manual, etc)');
+            }
         });
     }
 

@@ -54,6 +54,9 @@ class DashboardController extends Controller
                     'country' => $order->country,
                     'tracking_code' => $order->tracking_code,
                     'tracking_url' => $order->tracking_url,
+                    'tracking_number' => $order->tracking_number,
+                    'courier_company' => $order->courier_company,
+                    'items_count' => $order->items->count(),
                     'items' => $order->items->map(function ($item) {
                         return [
                             'id' => $item->id,
@@ -62,13 +65,15 @@ class DashboardController extends Controller
                             'quantity' => $item->quantity,
                             'price_cents' => $item->unit_price_cents,
                             'total_cents' => $item->total_cents,
-                            'addons' => $item->addons ? $item->addons->map(function ($addon) {
+                            'special_instructions' => $item->special_instructions,
+                            'addons' => $item->addons->map(function ($addon) {
                                 return [
-                                    'addon_name' => $addon->name,
-                                    'option_name' => '', // Already included in name
-                                    'price_adjustment' => $addon->unit_price_cents / 100,
+                                    'name' => $addon->name,
+                                    'quantity' => $addon->quantity,
+                                    'unit_price_cents' => $addon->unit_price_cents,
+                                    'total_price_cents' => $addon->total_price_cents,
                                 ];
-                            })->toArray() : [],
+                            })->toArray(),
                         ];
                     }),
                     'created_at' => $order->created_at,
@@ -121,6 +126,9 @@ class DashboardController extends Controller
                     'country' => $order->country,
                     'tracking_code' => $order->tracking_code,
                     'tracking_url' => $order->tracking_url,
+                    'tracking_number' => $order->tracking_number,
+                    'courier_company' => $order->courier_company,
+                    'items_count' => $order->items->count(),
                     'items' => $order->items->map(function ($item) {
                         return [
                             'id' => $item->id,
@@ -129,13 +137,15 @@ class DashboardController extends Controller
                             'quantity' => $item->quantity,
                             'price_cents' => $item->unit_price_cents,
                             'total_cents' => $item->total_cents,
-                            'addons' => $item->addons ? $item->addons->map(function ($addon) {
+                            'special_instructions' => $item->special_instructions,
+                            'addons' => $item->addons->map(function ($addon) {
                                 return [
-                                    'addon_name' => $addon->name,
-                                    'option_name' => '', // Already included in name
-                                    'price_adjustment' => $addon->unit_price_cents / 100,
+                                    'name' => $addon->name,
+                                    'quantity' => $addon->quantity,
+                                    'unit_price_cents' => $addon->unit_price_cents,
+                                    'total_price_cents' => $addon->total_price_cents,
                                 ];
-                            })->toArray() : [],
+                            })->toArray(),
                         ];
                     }),
                     'created_at' => $order->created_at,
@@ -225,6 +235,9 @@ class DashboardController extends Controller
                     'country' => $order->country,
                     'tracking_code' => $order->tracking_code,
                     'tracking_url' => $order->tracking_url,
+                    'tracking_number' => $order->tracking_number,
+                    'courier_company' => $order->courier_company,
+                    'items_count' => $order->items->count(),
                     'items' => $order->items->map(function ($item) {
                         return [
                             'id' => $item->id,
@@ -233,13 +246,15 @@ class DashboardController extends Controller
                             'quantity' => $item->quantity,
                             'price_cents' => $item->unit_price_cents,
                             'total_cents' => $item->total_cents,
-                            'addons' => $item->addons ? $item->addons->map(function ($addon) {
+                            'special_instructions' => $item->special_instructions,
+                            'addons' => $item->addons->map(function ($addon) {
                                 return [
-                                    'addon_name' => $addon->name,
-                                    'option_name' => '', // Already included in name
-                                    'price_adjustment' => $addon->unit_price_cents / 100,
+                                    'name' => $addon->name,
+                                    'quantity' => $addon->quantity,
+                                    'unit_price_cents' => $addon->unit_price_cents,
+                                    'total_price_cents' => $addon->total_price_cents,
                                 ];
-                            })->toArray() : [],
+                            })->toArray(),
                         ];
                     }),
                     'created_at' => $order->created_at,

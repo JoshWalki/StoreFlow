@@ -34,13 +34,14 @@ export default defineConfig({
         host: "0.0.0.0", // Listen on all network interfaces
         port: 5173,
         strictPort: true,
+        cors: true, // Enable CORS for all origins
         hmr: {
-            host: "172.21.145.17", // Use localhost for local development
+            host: "192.168.1.235", // Windows host IP for network access
             protocol: "ws",
         },
         watch: {
-            usePolling: false, // Disabled for better performance
-            // Only use polling if file changes aren't detected
+            usePolling: true, // Required for WSL2 file system watching
+            interval: 100, // Check for changes every 100ms
         },
     },
     // Fix for WSL2 crypto.hash issue

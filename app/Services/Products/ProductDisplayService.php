@@ -199,6 +199,7 @@ class ProductDisplayService
                 'is_shippable' => $product->is_shippable,
                 'image' => $primaryImage ? '/storage/' . $primaryImage->image_path : null,
                 'images' => $allImages,
+                'addons' => $product->addons ?? [],
             ];
         })->values();  // Reset keys to ensure array serialization
     }

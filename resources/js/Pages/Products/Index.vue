@@ -104,12 +104,12 @@
                 </div>
             </div>
 
-            <!-- Products List -->
-            <div class="space-y-3">
+            <!-- Products Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 <div
                     v-for="product in products.data"
                     :key="product.id"
-                    class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow relative flex h-28 border border-gray-200 dark:border-gray-700"
+                    class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow relative flex flex-col border border-gray-200 dark:border-gray-700"
                     :class="{ 'ring-2 ring-blue-500': isProductSelected(product.id) }"
                 >
                     <!-- Selection Checkbox -->
@@ -122,11 +122,25 @@
                         />
                     </div>
 
-                    <!-- Left Side: Product Info (Flex 1) -->
-                    <div class="flex-1 p-3 flex flex-col justify-between min-w-0" :class="{ 'pl-10': user && user.role !== 'staff' }">
+                    <!-- Product Image -->
+                    <div class="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center relative">
+                        <img
+                            v-if="product.image"
+                            :src="product.image"
+                            :alt="product.name"
+                            class="w-full h-full object-cover"
+                        />
+                        <span v-else class="text-gray-400 dark:text-gray-500 text-5xl">📦</span>
+                        <div v-if="product.images_count > 1" class="absolute bottom-2 right-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+                            {{ product.images_count }} images
+                        </div>
+                    </div>
+
+                    <!-- Product Info -->
+                    <div class="p-3 flex flex-col flex-1">
                         <!-- Product Name and Category -->
-                        <div>
-                            <h3 class="font-semibold text-gray-900 dark:text-white text-sm mb-0.5 truncate">
+                        <div class="mb-2">
+                            <h3 class="font-semibold text-gray-900 dark:text-white text-sm mb-1 line-clamp-2">
                                 {{ product.name }}
                             </h3>
                             <p class="text-xs text-gray-600 dark:text-gray-400 truncate">
@@ -134,52 +148,39 @@
                             </p>
                         </div>
 
-                        <!-- Price, Status, and Actions -->
-                        <div class="flex items-center justify-between gap-2">
-                            <div class="flex items-center gap-2">
-                                <span class="text-base font-bold text-gray-900 dark:text-white">
-                                    {{ formatCurrency(product.price_cents) }}
-                                </span>
-                                <span
-                                    class="px-2 py-0.5 text-xs font-semibold rounded-full flex-shrink-0"
-                                    :class="product.is_active ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'"
-                                >
-                                    {{ product.is_active ? 'Active' : 'Inactive' }}
-                                </span>
+                        <!-- Price and Status -->
+                        <div class="mb-3 space-y-2">
+                            <div class="text-lg font-bold text-gray-900 dark:text-white">
+                                {{ formatCurrency(product.price_cents) }}
                             </div>
-                            <div v-if="user && user.role !== 'staff'" class="flex items-center gap-2 flex-shrink-0">
-                                <Link
-                                    :href="route('products.edit', product.id)"
-                                    class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-xs font-medium"
-                                >
-                                    Edit
-                                </Link>
-                                <button
-                                    @click="deleteProduct(product)"
-                                    class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 text-xs font-medium"
-                                >
-                                    Delete
-                                </button>
-                            </div>
+                            <span
+                                class="inline-block px-2 py-1 text-xs font-semibold rounded-full"
+                                :class="product.is_active ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'"
+                            >
+                                {{ product.is_active ? 'Active' : 'Inactive' }}
+                            </span>
                         </div>
-                    </div>
 
-                    <!-- Right Side: Product Image (Fixed Width) -->
-                    <div class="w-28 sm:w-32 bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 relative">
-                        <img
-                            v-if="product.image"
-                            :src="product.image"
-                            :alt="product.name"
-                            class="w-full h-full object-cover"
-                        />
-                        <span v-else class="text-gray-400 dark:text-gray-500 text-3xl">📦</span>
-                        <div v-if="product.images_count > 1" class="absolute bottom-1 right-1 bg-black bg-opacity-60 text-white text-xs px-1.5 py-0.5 rounded">
-                            {{ product.images_count }} images
+                        <!-- Actions -->
+                        <div v-if="user && user.role !== 'staff'" class="mt-auto pt-3 border-t border-gray-200 dark:border-gray-700 flex gap-2">
+                            <Link
+                                :href="route('products.edit', product.id)"
+                                class="flex-1 text-center px-3 py-2 text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-md transition-colors"
+                            >
+                                Edit
+                            </Link>
+                            <button
+                                @click="deleteProduct(product)"
+                                class="flex-1 text-center px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors"
+                            >
+                                Delete
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <div v-if="products.data.length === 0">
+                <!-- Empty State -->
+                <div v-if="products.data.length === 0" class="col-span-full">
                     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-12 text-center text-gray-500 dark:text-gray-400">
                         No products found. Create your first product to get started.
                     </div>
@@ -480,6 +481,9 @@
 <script setup>
 import { reactive, ref } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
+import { useToast } from 'vue-toastification';
+
+const toast = useToast();
 
 const page = usePage();
 
@@ -552,7 +556,7 @@ const handleFileSelect = (event) => {
     if (file && file.type === 'text/csv') {
         selectedFile.value = file;
     } else {
-        alert('Please select a valid CSV file.');
+        toast.error('Please select a valid CSV file.');
         event.target.value = '';
         selectedFile.value = null;
     }

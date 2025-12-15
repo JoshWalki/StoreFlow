@@ -1,7 +1,7 @@
 <template>
     <div
         draggable="true"
-        class="bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow h-[100px] flex flex-col justify-between"
+        class="bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow min-h-[100px] flex flex-col justify-between"
         :class="{ 'opacity-50': isDragging }"
         @click="handleClick"
         @dragstart="handleDragStart"
@@ -45,8 +45,35 @@
             </div>
         </div>
 
+        <!-- Order Items with Addons -->
+        <div v-if="order.items && order.items.length > 0" class="mt-2 space-y-1 text-xs border-t border-gray-200 dark:border-gray-600 pt-2">
+            <div v-for="item in order.items" :key="item.id" class="text-gray-700 dark:text-gray-300">
+                <div class="flex justify-between">
+                    <span>{{ item.quantity }}x {{ item.product_name }}</span>
+                    <span class="text-gray-500 dark:text-gray-400">{{ formatCurrency(item.total_cents) }}</span>
+                </div>
+                <!-- Addons -->
+                <div v-if="item.addons && item.addons.length > 0" class="ml-3 mt-0.5 space-y-0.5">
+                    <div v-for="(addon, addonIdx) in item.addons" :key="addonIdx" class="flex justify-between text-gray-600 dark:text-gray-400">
+                        <span class="flex items-center gap-1">
+                            <span class="text-gray-400">+</span>
+                            {{ addon.name }}
+                            <span v-if="addon.quantity > 1" class="text-gray-500">(x{{ addon.quantity }})</span>
+                        </span>
+                        <span v-if="addon.total_price_cents > 0" class="text-gray-500 dark:text-gray-500">
+                            +{{ formatCurrency(addon.total_price_cents) }}
+                        </span>
+                    </div>
+                </div>
+                <!-- Special Instructions -->
+                <div v-if="item.special_instructions" class="ml-3 mt-1 text-xs italic text-blue-600 dark:text-blue-400">
+                    Note: {{ item.special_instructions }}
+                </div>
+            </div>
+        </div>
+
         <!-- Bottom Row -->
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between items-center mt-2">
             <span class="text-sm font-medium text-blue-600 dark:text-blue-400">
                 {{ formatTime(order.created_at) }}
             </span>

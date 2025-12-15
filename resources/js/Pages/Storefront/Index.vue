@@ -1506,13 +1506,7 @@ const morningGreetings = [
     "Morning vibes incoming! ✨",
 ];
 
-const morningTaglines = [
-    "Start your day with something special",
-    "Fresh products, fresh start to your day",
-    "Because mornings are better with great finds",
-    "Fuel your morning with our favorites",
-    "Your daily dose of awesome starts here",
-];
+const morningTaglines = [""];
 
 const afternoonGreetings = [
     "Good afternoon! ☀️",
@@ -1522,13 +1516,7 @@ const afternoonGreetings = [
     "Lunch break browsing approved! 😎",
 ];
 
-const afternoonTaglines = [
-    "Beat that afternoon slump with something new",
-    "Your afternoon just got more interesting",
-    "Perfect timing for a little treat",
-    "Brighten up your afternoon with our picks",
-    "Because afternoons deserve something special",
-];
+const afternoonTaglines = [""];
 
 const eveningGreetings = [
     "Good evening! 🌆",
@@ -1538,13 +1526,7 @@ const eveningGreetings = [
     "Sunset shopping spree! 🌇",
 ];
 
-const eveningTaglines = [
-    "I bet someone hit the Montague Street Bridge today",
-    "Make your evening extraordinary",
-    "Perfect finds for perfect evenings",
-    "Your evening escape awaits",
-    "Because evenings are made for discoveries",
-];
+const eveningTaglines = [""];
 
 const nightGreetings = [
     "Good night! 🌙",
@@ -1554,13 +1536,7 @@ const nightGreetings = [
     "You won't regret it 🌌",
 ];
 
-const nightTaglines = [
-    "Night time is the right time for deals",
-    "Let the stars guide your choices",
-    "Your midnight companion for great finds",
-    "Because the best ideas come at night",
-    "Sweet dreams start with sweet finds",
-];
+const nightTaglines = [""];
 
 // Time-based greeting with random selection
 const getRandomItem = (array) =>

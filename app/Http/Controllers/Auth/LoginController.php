@@ -39,35 +39,31 @@ class LoginController extends Controller
 
         $user = Auth::user();
 
-        // Check if this is a new merchant owner who needs onboarding
-        if ($user->isOwner() && $user->merchant) {
-            $merchant = $user->merchant;
-            $isOwner = $user->id === $merchant->owner_user_id;
-            $needsOnboarding = !$merchant->onboarding_complete;
-
-            if ($isOwner && $needsOnboarding) {
-                // Allow owner to proceed to dashboard where onboarding modal will appear
-                return redirect()->route('dashboard');
-            }
+        // Check if owner needs onboarding (no stores created yet)
+        if ($user->isOwner() && $user->merchant && !$user->merchant->onboarding_complete) {
+            // Redirect to dashboard where onboarding modal will appear
+            return redirect()->route('dashboard');
         }
 
-        // Check if user has multiple stores
-        $stores = $user->stores()->get();
-
+        // Get user's stores
         if ($user->isOwner()) {
             // Owners have access to all merchant stores
             $stores = $user->merchant->stores;
+        } else {
+            // Staff members have specific store assignments
+            $stores = $user->stores()->get();
         }
 
+        // Check store count and redirect accordingly
         if ($stores->count() > 1) {
-            // Redirect to store selection
+            // Multiple stores - redirect to store selection page
             return redirect()->route('store-selection');
         } elseif ($stores->count() === 1) {
-            // Set the store and redirect to dashboard
+            // Single store - auto-select and redirect to dashboard
             session(['store_id' => $stores->first()->id]);
             return redirect()->intended(route('dashboard'));
         } else {
-            // No stores assigned
+            // No stores assigned - logout and show error
             Auth::logout();
             throw ValidationException::withMessages([
                 'username' => __('No stores assigned to this account.'),

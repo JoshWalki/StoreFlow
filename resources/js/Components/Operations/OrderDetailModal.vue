@@ -197,9 +197,14 @@
                                                     <!-- Addons -->
                                                     <div v-if="item.addons && item.addons.length > 0" class="mt-1 text-xs text-gray-600 dark:text-gray-400">
                                                         <div v-for="(addon, addonIdx) in item.addons" :key="addonIdx" class="flex items-center gap-1">
-                                                            <span>+ {{ addon.addon_name }}: {{ addon.option_name }}</span>
-                                                            <span v-if="addon.price_adjustment > 0" class="text-gray-500">(+{{ formatCurrency(Math.round(addon.price_adjustment * 100)) }})</span>
+                                                            <span>+ {{ addon.name }}</span>
+                                                            <span v-if="addon.quantity > 1" class="text-gray-500">(x{{ addon.quantity }})</span>
+                                                            <span v-if="addon.total_price_cents > 0" class="text-gray-500">(+{{ formatCurrency(addon.total_price_cents) }})</span>
                                                         </div>
+                                                    </div>
+                                                    <!-- Special Instructions -->
+                                                    <div v-if="item.special_instructions" class="mt-1 text-xs italic text-blue-600 dark:text-blue-400">
+                                                        Note: {{ item.special_instructions }}
                                                     </div>
                                                 </td>
                                                 <td
@@ -334,12 +339,9 @@
                                 </div>
                             </div>
 
-                            <!-- Tracking Info (if shipping) -->
+                            <!-- Tracking Info (for shipping orders) -->
                             <div
-                                v-if="
-                                    order.fulfilment_type === 'shipping' &&
-                                    order.tracking_code
-                                "
+                                v-if="order.fulfilment_type === 'shipping' || order.status === 'shipped'"
                                 class="mb-6"
                             >
                                 <h4
@@ -347,21 +349,51 @@
                                 >
                                     Tracking Information
                                 </h4>
-                                <div class="bg-blue-50 rounded-lg p-4">
-                                    <p class="text-sm text-gray-700">
-                                        <span class="font-medium"
-                                            >Tracking Code:</span
-                                        >
-                                        {{ order.tracking_code }}
-                                    </p>
-                                    <a
-                                        v-if="order.tracking_url"
-                                        :href="order.tracking_url"
-                                        target="_blank"
-                                        class="text-sm text-blue-600 hover:text-blue-800 underline"
+                                <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 space-y-3">
+                                    <!-- Courier Company -->
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                                            Courier Company
+                                        </label>
+                                        <input
+                                            v-model="trackingForm.courier_company"
+                                            type="text"
+                                            placeholder="e.g., Australia Post, DHL, FedEx"
+                                            class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
+                                        />
+                                    </div>
+
+                                    <!-- Tracking Number -->
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                                            Tracking Number
+                                        </label>
+                                        <input
+                                            v-model="trackingForm.tracking_number"
+                                            type="text"
+                                            placeholder="e.g., 1234567890"
+                                            class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
+                                        />
+                                    </div>
+
+                                    <!-- Save Button -->
+                                    <button
+                                        @click="saveTrackingInfo"
+                                        :disabled="savingTracking"
+                                        class="w-full px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                     >
-                                        Track shipment →
-                                    </a>
+                                        {{ savingTracking ? 'Saving...' : 'Save Tracking Info' }}
+                                    </button>
+
+                                    <!-- Display saved tracking info -->
+                                    <div v-if="order.tracking_number || order.courier_company" class="pt-3 border-t border-gray-200 dark:border-gray-700">
+                                        <p v-if="order.courier_company" class="text-sm text-gray-700 dark:text-gray-300">
+                                            <span class="font-medium">Courier:</span> {{ order.courier_company }}
+                                        </p>
+                                        <p v-if="order.tracking_number" class="text-sm text-gray-700 dark:text-gray-300">
+                                            <span class="font-medium">Tracking #:</span> {{ order.tracking_number }}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
 
@@ -394,8 +426,10 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import { router } from "@inertiajs/vue3";
+import axios from "axios";
+import { useToast } from "vue-toastification";
 import {
     TransitionRoot,
     TransitionChild,
@@ -403,6 +437,8 @@ import {
     DialogPanel,
     DialogTitle,
 } from "@headlessui/vue";
+
+const toast = useToast();
 
 const props = defineProps({
     isOpen: {
@@ -516,7 +552,7 @@ const updateStatus = (newStatus) => {
             },
             onError: (errors) => {
                 console.error("Status update failed:", errors);
-                alert(
+                toast.error(
                     "Failed to update status: " +
                         (errors.status || "Unknown error")
                 );
@@ -533,7 +569,7 @@ const printReceipt = () => {
     const printWindow = window.open(receiptUrl, '_blank', 'width=800,height=600');
 
     if (!printWindow || printWindow.closed || typeof printWindow.closed === 'undefined') {
-        alert('Please allow pop-ups to print receipts.');
+        toast.warning('Please allow pop-ups to print receipts.');
     }
 };
 
@@ -542,6 +578,45 @@ const formatCurrency = (cents) => {
         style: "currency",
         currency: "AUD",
     }).format(cents / 100);
+};
+
+// Tracking form
+const trackingForm = ref({
+    tracking_number: '',
+    courier_company: ''
+});
+
+const savingTracking = ref(false);
+
+// Initialize tracking form when order changes
+watch(() => props.order, (newOrder) => {
+    if (newOrder) {
+        trackingForm.value.tracking_number = newOrder.tracking_number || '';
+        trackingForm.value.courier_company = newOrder.courier_company || '';
+    }
+}, { immediate: true });
+
+// Save tracking information
+const saveTrackingInfo = async () => {
+    savingTracking.value = true;
+
+    try {
+        await axios.put(`/orders/${props.order.id}/shipping`, {
+            tracking_number: trackingForm.value.tracking_number,
+            courier_company: trackingForm.value.courier_company
+        });
+
+        // Update the order object
+        props.order.tracking_number = trackingForm.value.tracking_number;
+        props.order.courier_company = trackingForm.value.courier_company;
+
+        toast.success('Tracking information saved successfully!');
+    } catch (error) {
+        console.error('Failed to save tracking info:', error);
+        toast.error('Failed to save tracking information. Please try again.');
+    } finally {
+        savingTracking.value = false;
+    }
 };
 
 const formatDateTime = (datetime) => {
@@ -566,7 +641,7 @@ const initiateRefund = () => {
             "Are you sure you want to refund this order? This action cannot be undone."
         )
     ) {
-        alert(
+        toast.info(
             "Refund functionality is currently under development. This feature will be available in a future update."
         );
         // Future implementation:

@@ -38,12 +38,14 @@ return [
 
         // Subscription Price IDs
         'price_basic' => env('STRIPE_PRICE_BASIC'),
+        'price_basic_no_trial' => env('STRIPE_PRICE_BASIC_NO_TRIAL'), // For returning users
         'price_pro' => env('STRIPE_PRICE_PRO'),
         'price_enterprise' => env('STRIPE_PRICE_ENTERPRISE'),
 
         // Plan ID to Price ID mapping (for reverse lookup)
         'plans' => [
             'basic' => env('STRIPE_PRICE_BASIC'),
+            'basic_no_trial' => env('STRIPE_PRICE_BASIC_NO_TRIAL'),
             'pro' => env('STRIPE_PRICE_PRO'),
             'enterprise' => env('STRIPE_PRICE_ENTERPRISE'),
         ],

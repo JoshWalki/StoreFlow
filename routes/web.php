@@ -8,6 +8,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Platform\PlatformAuthController;
 use App\Http\Controllers\Platform\PlatformDashboardController;
 use App\Http\Controllers\Platform\PlatformMerchantController;
+use App\Http\Controllers\Platform\PlatformNoticeController;
 use App\Http\Controllers\ProductAddonController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShippingManagementController;
@@ -51,6 +52,10 @@ Route::prefix('platform')->name('platform.')->group(function () {
         Route::get('/merchants/create', [PlatformMerchantController::class, 'create'])->name('merchants.create');
         Route::post('/merchants', [PlatformMerchantController::class, 'store'])->name('merchants.store');
         Route::get('/merchants/{merchant}', [PlatformDashboardController::class, 'showMerchant'])->name('merchants.show');
+
+        // System Notice Management
+        Route::post('/notice', [PlatformNoticeController::class, 'store'])->name('notice.store');
+        Route::delete('/notice', [PlatformNoticeController::class, 'destroy'])->name('notice.destroy');
     });
 });
 
@@ -124,6 +129,10 @@ Route::post('/stripe/webhook', [App\Http\Controllers\StripeWebhookController::cl
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');
     Route::post('/login', [LoginController::class, 'store']);
+
+    // Merchant Registration
+    Route::get('/register', [App\Http\Controllers\Auth\RegisterController::class, 'create'])->name('register');
+    Route::post('/register', [App\Http\Controllers\Auth\RegisterController::class, 'store'])->name('register.post');
 });
 
 Route::middleware(['auth', 'tenant.context'])->group(function () {
@@ -228,6 +237,7 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
             Route::post('/checkout', [App\Http\Controllers\SubscriptionController::class, 'createCheckout'])->name('checkout');
             Route::post('/cancel', [App\Http\Controllers\SubscriptionController::class, 'cancel'])->name('cancel');
             Route::post('/resume', [App\Http\Controllers\SubscriptionController::class, 'resume'])->name('resume');
+            Route::post('/portal', [App\Http\Controllers\SubscriptionController::class, 'createPortalSession'])->name('portal');
             Route::put('/', [App\Http\Controllers\SubscriptionController::class, 'update'])->name('update');
         });
     });

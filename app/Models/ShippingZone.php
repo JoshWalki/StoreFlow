@@ -56,15 +56,60 @@ class ShippingZone extends Model
     }
 
     /**
+     * Country code to name mapping.
+     */
+    protected static $countryMapping = [
+        'AU' => 'Australia',
+        'NZ' => 'New Zealand',
+        'US' => 'United States',
+        'UK' => 'United Kingdom',
+        'GB' => 'United Kingdom',
+        'CA' => 'Canada',
+        'SG' => 'Singapore',
+        'MY' => 'Malaysia',
+        'ID' => 'Indonesia',
+        'TH' => 'Thailand',
+        'PH' => 'Philippines',
+        'VN' => 'Vietnam',
+        'JP' => 'Japan',
+        'CN' => 'China',
+        'KR' => 'South Korea',
+        'HK' => 'Hong Kong',
+        'TW' => 'Taiwan',
+        'IN' => 'India',
+    ];
+
+    /**
+     * Normalize country code or name to full country name.
+     */
+    protected function normalizeCountry(string $country): string
+    {
+        // If it's a 2-letter code in our mapping, convert to full name
+        $upperCountry = strtoupper($country);
+        if (isset(self::$countryMapping[$upperCountry])) {
+            return self::$countryMapping[$upperCountry];
+        }
+
+        // Otherwise return as-is (already a full name)
+        return $country;
+    }
+
+    /**
      * Check if this zone matches the given address.
      */
     public function matchesAddress(string $country, ?string $state = null, ?string $postcode = null): bool
     {
-        // Check country match (case-insensitive)
+        // Normalize the input country to full name
+        $normalizedCountry = $this->normalizeCountry($country);
+
+        // Check country match (case-insensitive, with normalization)
         if (!empty($this->countries)) {
             $countryMatches = false;
             foreach ($this->countries as $zoneCountry) {
-                if (strcasecmp($country, $zoneCountry) === 0) {
+                // Normalize zone country as well
+                $normalizedZoneCountry = $this->normalizeCountry($zoneCountry);
+
+                if (strcasecmp($normalizedCountry, $normalizedZoneCountry) === 0) {
                     $countryMatches = true;
                     break;
                 }
