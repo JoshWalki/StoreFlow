@@ -12,7 +12,7 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
-import { useTurnstile } from '@/composables/useTurnstile';
+import { useTurnstile } from '@/Composables/useTurnstile';
 
 const props = defineProps({
     siteKey: {
