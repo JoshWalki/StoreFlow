@@ -125,7 +125,7 @@ Route::prefix('store/{store}')->group(function () {
         Route::get('/reset-password/{token}', [CustomerPasswordResetController::class, 'showResetForm'])
             ->name('customer.password.reset');
         Route::post('/reset-password', [CustomerPasswordResetController::class, 'resetPassword'])
-            ->name('customer.password.update');
+            ->name('customer.password.reset.store');
     });
 
     // Customer Authenticated Routes (Protected)
