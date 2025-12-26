@@ -95,7 +95,7 @@
         </div>
 
         <!-- Store Settings Section (with sub-navigation) -->
-        <div v-if="activeSection === 'basic' || activeSection === 'logo' || activeSection === 'theme' || activeSection === 'sales'" class="rounded-lg shadow-sm overflow-hidden">
+        <div v-if="activeSection === 'basic' || activeSection === 'logo' || activeSection === 'theme' || activeSection === 'sales' || activeSection === 'contact' || activeSection === 'business' || activeSection === 'pickup' || activeSection === 'stripe' || activeSection === 'subscription'" class="rounded-lg shadow-sm overflow-hidden">
             <!-- Sub-navigation - Underline Style -->
             <nav class="flex bg-gray-50 dark:bg-gray-900/20">
                 <button
