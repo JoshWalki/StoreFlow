@@ -1559,8 +1559,8 @@ onMounted(() => {
                     10000 // Show for 10 seconds
                 );
 
-                // Optional: Play notification sound
-                playNotificationSound();
+                // Optional: Play notification sound (different sound for shipping vs pickup)
+                playNotificationSound(e.order.fulfilment_type);
 
                 // Optional: Reload active orders if on dashboard
                 if (page.component === "Dashboard/Index") {
@@ -1586,12 +1586,17 @@ onBeforeUnmount(() => {
 });
 
 // Notification sound
-const playNotificationSound = () => {
+const playNotificationSound = (fulfilmentType = 'pickup') => {
     // Only play if user has enabled sound
     if (!soundEnabled.value) return;
 
     try {
-        const audio = new Audio("/sounds/notification.wav");
+        // Use bell.mp3 for shipping orders, notification.wav for pickup
+        const soundFile = fulfilmentType === 'shipping'
+            ? "/sounds/bell.mp3"
+            : "/sounds/notification.wav";
+
+        const audio = new Audio(soundFile);
         audio.volume = 0.7;
         audio.play().catch((e) => {
             // Browser blocked autoplay - user needs to enable via bell icon

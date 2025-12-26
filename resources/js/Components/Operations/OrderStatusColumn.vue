@@ -1,5 +1,5 @@
 <template>
-    <div class="min-w-[240px] sm:min-w-[280px] w-full">
+    <div class="w-full lg:min-w-[280px]">
         <!-- Column Header -->
         <div class="bg-white dark:bg-gray-800 rounded-t-lg px-3 py-2 border-b-2 border-gray-200 dark:border-gray-700 shadow-sm mt-1.5">
             <div class="flex items-center justify-between">

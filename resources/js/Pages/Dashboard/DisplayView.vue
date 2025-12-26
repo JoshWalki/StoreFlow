@@ -1,5 +1,5 @@
 <template>
-    <div class="dark min-h-screen bg-gray-900 p-2">
+    <div class="dark min-h-screen bg-gray-900 p-2 overflow-x-hidden">
         <!-- Bell Notification Icon (Fixed Top Right) -->
         <div class="fixed top-4 right-4 z-50">
             <button
@@ -107,7 +107,7 @@
         </div>
 
         <!-- Display Columns - Optimized Layout -->
-        <div class="grid gap-4" style="grid-template-columns: 1fr 1fr 1fr 0.6fr;">
+        <div class="grid gap-2 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" style="lg:grid-template-columns: 1fr 1fr 1fr 0.6fr;">
             <!-- Pending Orders -->
             <DisplayColumn
                 status="pending"
@@ -346,8 +346,8 @@ const setupWebSocket = () => {
             .listen(".OrderCreated", (event) => {
                 // Add order first to ensure it's in the pending array
                 addOrUpdateOrder(event.order);
-                // Play sound immediately for new orders
-                playNotificationSound();
+                // Play sound immediately for new orders (different sound for shipping vs pickup)
+                playNotificationSound(event.order.fulfilment_type);
                 // Start repeating notification for pending orders
                 startRepeatingNotification();
             })
@@ -477,12 +477,17 @@ const handleClickOutside = (event) => {
     }
 };
 
-const playNotificationSound = () => {
+const playNotificationSound = (fulfilmentType = 'pickup') => {
     // Only play if user has enabled sound
     if (!soundEnabled.value) return;
 
     try {
-        const audio = new Audio('/sounds/notification.wav');
+        // Use bell.mp3 for shipping orders, notification.wav for pickup
+        const soundFile = fulfilmentType === 'shipping'
+            ? '/sounds/bell.mp3'
+            : '/sounds/notification.wav';
+
+        const audio = new Audio(soundFile);
         audio.volume = 0.7;
         audio.play().catch(e => {
             // Browser blocked autoplay - show permission banner again
@@ -502,12 +507,15 @@ const startRepeatingNotification = () => {
         clearInterval(notificationInterval.value);
     }
 
-    // Only start if there are pending orders
-    if (ordersByStatus.pending.length > 0) {
+    // Only start if there are pending pickup orders (shipping orders don't repeat)
+    const hasPendingPickupOrders = ordersByStatus.pending.some(order => order.fulfilment_type === 'pickup');
+
+    if (hasPendingPickupOrders) {
         notificationInterval.value = setInterval(() => {
-            // Check if there are still pending orders
-            if (ordersByStatus.pending.length > 0) {
-                playNotificationSound();
+            // Check if there are still pending pickup orders
+            const stillHasPendingPickup = ordersByStatus.pending.some(order => order.fulfilment_type === 'pickup');
+            if (stillHasPendingPickup) {
+                playNotificationSound('pickup');
             } else {
                 stopRepeatingNotification();
             }
@@ -649,8 +657,8 @@ const handleOrderDrop = async ({ orderId, fromStatus, toStatus }) => {
                 toast.error("Failed to update order status. Please try again.");
             },
             onSuccess: () => {
-                // Auto-print receipt when status changes to in_progress
-                if (actualStatus === "in_progress") {
+                // Auto-print receipt when status changes to in_progress (pickup orders only)
+                if (actualStatus === "in_progress" && order.fulfilment_type === "pickup") {
                     setTimeout(() => printReceipt(orderId), 500);
                 }
             },
@@ -670,6 +678,9 @@ const printReceipt = (orderId) => {
 
 // Lifecycle hooks
 onMounted(() => {
+    // Set PWA zoom to 50% for display view
+    document.body.style.zoom = "50%";
+
     initializeOrders();
     setupWebSocket();
 
@@ -692,6 +703,9 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+    // Reset zoom when leaving display view
+    document.body.style.zoom = "100%";
+
     cleanupWebSocket();
     stopRepeatingNotification();
 

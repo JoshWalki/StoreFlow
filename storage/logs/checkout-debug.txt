@@ -601,3 +601,36 @@
     }
 ]
 
+2025-12-26 23:29:32 - Checkout request:
+[
+    {
+        "product_id": 27,
+        "qty": 1,
+        "customizations": [],
+        "addons": [],
+        "specialMessage": null
+    }
+]
+
+2025-12-26 23:34:54 - Checkout request:
+[
+    {
+        "product_id": 21,
+        "qty": 1,
+        "customizations": [],
+        "addons": [],
+        "specialMessage": null
+    }
+]
+
+2025-12-26 23:43:43 - Checkout request:
+[
+    {
+        "product_id": 27,
+        "qty": 1,
+        "customizations": [],
+        "addons": [],
+        "specialMessage": null
+    }
+]
+
