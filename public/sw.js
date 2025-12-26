@@ -63,3 +63,53 @@ self.addEventListener("fetch", function (event) {
         })
     );
 });
+
+// Push notification event - show notification when order is received
+self.addEventListener('push', function(event) {
+    if (!event.data) {
+        return;
+    }
+
+    const data = event.data.json();
+    const title = data.title || 'StoreFlow';
+    const options = {
+        body: data.body,
+        icon: '/images/logo/logo.png',
+        badge: '/images/logo/logo.png',
+        tag: data.tag || 'storeflow-notification',
+        data: data.data || {},
+        requireInteraction: true, // Keeps notification visible until user interacts
+        vibrate: [200, 100, 200], // Vibration pattern for mobile devices
+        sound: data.sound || '/sounds/notification.wav',
+    };
+
+    event.waitUntil(
+        self.registration.showNotification(title, options)
+    );
+});
+
+// Notification click event - open dashboard when notification is clicked
+self.addEventListener('notificationclick', function(event) {
+    event.notification.close();
+
+    const urlToOpen = event.notification.data.url || '/dashboard';
+
+    event.waitUntil(
+        clients.matchAll({
+            type: 'window',
+            includeUncontrolled: true
+        }).then(function(clientList) {
+            // If StoreFlow is already open, focus that window
+            for (let i = 0; i < clientList.length; i++) {
+                const client = clientList[i];
+                if (client.url.includes('/dashboard') && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            // Otherwise, open a new window
+            if (clients.openWindow) {
+                return clients.openWindow(urlToOpen);
+            }
+        })
+    );
+});

@@ -158,15 +158,49 @@
                                             </button>
                                         </div>
 
+                                        <!-- Push Notifications Toggle -->
+                                        <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-200 dark:border-gray-700">
+                                            <div class="flex-1">
+                                                <p class="text-sm text-gray-700 dark:text-gray-300">
+                                                    Push Notifications
+                                                </p>
+                                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                    Alerts when app is closed
+                                                </p>
+                                            </div>
+
+                                            <!-- Toggle Switch -->
+                                            <button
+                                                @click="togglePushNotifications"
+                                                :disabled="!pushSupported"
+                                                class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                :class="pushEnabled ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-600'"
+                                            >
+                                                <span
+                                                    class="inline-block w-4 h-4 transform bg-white rounded-full transition-transform"
+                                                    :class="pushEnabled ? 'translate-x-6' : 'translate-x-1'"
+                                                ></span>
+                                            </button>
+                                        </div>
+
                                         <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
                                             <p class="text-xs text-gray-500 dark:text-gray-400">
                                                 <span v-if="soundEnabled" class="text-green-600 dark:text-green-400 font-medium">
-                                                    ✓ Enabled
+                                                    ✓ Sound Enabled
                                                 </span>
                                                 <span v-else class="text-gray-500">
-                                                    Disabled
+                                                    Sound Disabled
                                                 </span>
-                                                - You will {{ soundEnabled ? '' : 'not' }} receive audio alerts when new orders arrive.
+                                                •
+                                                <span v-if="pushEnabled" class="text-green-600 dark:text-green-400 font-medium">
+                                                    ✓ Push Enabled
+                                                </span>
+                                                <span v-else-if="!pushSupported" class="text-red-500">
+                                                    Push Not Supported
+                                                </span>
+                                                <span v-else class="text-gray-500">
+                                                    Push Disabled
+                                                </span>
                                             </p>
                                         </div>
                                     </div>
@@ -1381,6 +1415,7 @@ import ToastContainer from "@/Components/Notifications/ToastContainer.vue";
 import OnboardingModal from "@/Components/OnboardingModal.vue";
 import { useNotifications } from "@/Composables/useNotifications";
 import { useDarkMode } from "@/Composables/useDarkMode";
+import { usePushNotifications } from "@/Composables/usePushNotifications";
 
 const props = defineProps({
     store: Object,
@@ -1433,10 +1468,22 @@ const linkCopied = ref(false);
 // Sound notification permission (managed by bell icon)
 const soundEnabled = ref(false);
 
+// Push notification management
+const {
+    isSupported: pushSupported,
+    isSubscribed: pushEnabled,
+    subscribe: subscribePush,
+    unsubscribe: unsubscribePush,
+    checkSubscription
+} = usePushNotifications();
+
 // Check if sound permission has been set
 onMounted(() => {
     const soundPref = localStorage.getItem("soundNotificationsEnabled");
     soundEnabled.value = soundPref === "true";
+
+    // Check push notification subscription status
+    checkSubscription();
 
     // Check if system notice has been dismissed
     checkNoticeDismissed();
@@ -1470,6 +1517,34 @@ const toggleSoundNotifications = async () => {
         soundEnabled.value = false;
         localStorage.setItem("soundNotificationsEnabled", "false");
         success("Sound Disabled", "Audio alerts are now turned off");
+    }
+};
+
+const togglePushNotifications = async () => {
+    try {
+        if (pushEnabled.value) {
+            // Disabling push notifications
+            await unsubscribePush();
+            success('Push Notifications Disabled', 'You will no longer receive notifications when the app is closed');
+        } else {
+            // Enabling push notifications
+            await subscribePush();
+            success('Push Notifications Enabled!', 'You will now receive notifications even when the app is closed');
+        }
+    } catch (error) {
+        console.error('Push notification error:', error);
+
+        // Provide user-friendly error messages
+        let errorMessage = 'Failed to update push notifications';
+        if (error.message.includes('permission denied')) {
+            errorMessage = 'Notification permission was denied. Please enable notifications in your browser settings.';
+        } else if (error.message.includes('not supported')) {
+            errorMessage = 'Push notifications are not supported on this device or browser.';
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+
+        error('Push Notifications', errorMessage);
     }
 };
 

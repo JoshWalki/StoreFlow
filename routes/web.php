@@ -282,3 +282,24 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
         });
     });
 });
+
+// Temporary test route for debugging broadcast auth (REMOVE AFTER FIXING)
+Route::post('/test-broadcast-auth', function () {
+    return response()->json([
+        'authenticated' => auth()->check(),
+        'user_id' => auth()->id(),
+        'user_role' => auth()->user()?->role,
+        'session_id' => session()->getId(),
+        'csrf_token' => csrf_token(),
+        'store_access' => auth()->user()?->stores()->pluck('id')->toArray() ?? [],
+        'cookies_received' => array_keys(request()->cookies->all()),
+    ]);
+})->middleware(['web', 'auth']);
+
+// Push Notification Routes
+Route::middleware(['web', 'auth'])->prefix('api/push')->group(function () {
+    Route::get('/vapid-key', [App\Http\Controllers\PushNotificationController::class, 'getVapidKey']);
+    Route::post('/subscribe', [App\Http\Controllers\PushNotificationController::class, 'subscribe']);
+    Route::post('/unsubscribe', [App\Http\Controllers\PushNotificationController::class, 'unsubscribe']);
+    Route::post('/test', [App\Http\Controllers\PushNotificationController::class, 'test']); // Remove in production
+});
