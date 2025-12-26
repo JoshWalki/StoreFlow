@@ -76,7 +76,7 @@ class TestOrderPerformance extends Command
         $createStart = microtime(true);
         $this->createTestOrders($store, $orderCount);
         $createDuration = round((microtime(true) - $createStart) * 1000, 2);
-        $this->info("✅ Created {$this->metrics['orders_created']} orders in {$createDuration}ms");
+        $this->info(" Created {$this->metrics['orders_created']} orders in {$createDuration}ms");
 
         if ($this->metrics['orders_created'] > 0) {
             $this->info("   Average: " . round($createDuration / $this->metrics['orders_created'], 2) . "ms per order");
@@ -94,7 +94,7 @@ class TestOrderPerformance extends Command
         $updateStart = microtime(true);
         $this->testConcurrentUpdates($duration, $concurrent);
         $updateDuration = round(microtime(true) - $updateStart, 2);
-        $this->info("✅ Completed {$this->metrics['status_updates']} status updates in {$updateDuration}s");
+        $this->info(" Completed {$this->metrics['status_updates']} status updates in {$updateDuration}s");
         $this->info("   Average: " . round(($updateDuration * 1000) / $this->metrics['status_updates'], 2) . "ms per update");
         $this->info("   Throughput: " . round($this->metrics['status_updates'] / $updateDuration, 2) . " updates/second");
         $this->newLine();
@@ -111,7 +111,7 @@ class TestOrderPerformance extends Command
         if ($this->option('cleanup')) {
             $this->info("🧹 Cleaning up test data...");
             $this->cleanup();
-            $this->info("✅ Cleanup complete");
+            $this->info(" Cleanup complete");
         }
 
         return 0;
@@ -336,7 +336,7 @@ class TestOrderPerformance extends Command
         $this->metrics['inconsistencies'] = $inconsistencies;
 
         if (empty($inconsistencies)) {
-            $this->info("✅ No data inconsistencies found!");
+            $this->info(" No data inconsistencies found!");
         } else {
             $this->warn("⚠️  Found " . count($inconsistencies) . " inconsistencies:");
             foreach ($inconsistencies as $issue) {
@@ -391,10 +391,10 @@ class TestOrderPerformance extends Command
 
         // Performance assessment
         if ($this->metrics['errors'] === 0 && empty($this->metrics['inconsistencies'])) {
-            $this->info("✅ System Performance: EXCELLENT");
+            $this->info(" System Performance: EXCELLENT");
             $this->info("   No errors or data inconsistencies detected!");
         } elseif ($this->metrics['errors'] < 5 && count($this->metrics['inconsistencies']) === 0) {
-            $this->info("✅ System Performance: GOOD");
+            $this->info(" System Performance: GOOD");
             $this->warn("   Minor errors detected but no data loss");
         } else {
             $this->warn("⚠️  System Performance: NEEDS ATTENTION");

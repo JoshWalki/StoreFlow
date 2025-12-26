@@ -52,80 +52,108 @@
 
                 <!-- Tabs for Pickup/Shipping with Search Toggle -->
                 <div class="flex justify-between items-center mb-3">
-                    <div class="flex space-x-1.5">
-                        <button
-                            @click="activeTab = 'shipping'"
-                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-                            :class="
-                                activeTab === 'shipping'
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'
-                            "
-                        >
-                            <svg
-                                class="w-4 h-4"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
-                                />
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
-                                />
-                            </svg>
-                            <span>Shipping</span>
-                            <span
-                                v-if="shippingPendingCount > 0"
-                                class="inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold rounded-full"
+                    <div class="flex items-center gap-2">
+                        <div class="flex space-x-1.5">
+                            <button
+                                @click="activeTab = 'shipping'"
+                                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
                                 :class="
                                     activeTab === 'shipping'
-                                        ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400'
-                                        : 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-200'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'
                                 "
                             >
-                                {{ shippingPendingCount }}
-                            </span>
-                        </button>
-                        <button
-                            @click="activeTab = 'pickup'"
-                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-                            :class="
-                                activeTab === 'pickup'
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'
-                            "
-                        >
-                            <svg
-                                class="w-4 h-4"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                                />
-                            </svg>
-                            <span>Pickup</span>
-                            <span
-                                v-if="pickupPendingCount > 0"
-                                class="inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold rounded-full"
+                                <svg
+                                    class="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
+                                    />
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
+                                    />
+                                </svg>
+                                <span>Shipping</span>
+                                <span
+                                    v-if="shippingPendingCount > 0"
+                                    class="inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold rounded-full"
+                                    :class="
+                                        activeTab === 'shipping'
+                                            ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400'
+                                            : 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-200'
+                                    "
+                                >
+                                    {{ shippingPendingCount }}
+                                </span>
+                            </button>
+                            <button
+                                @click="activeTab = 'pickup'"
+                                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
                                 :class="
                                     activeTab === 'pickup'
-                                        ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400'
-                                        : 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-200'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'
                                 "
                             >
-                                {{ pickupPendingCount }}
-                            </span>
-                        </button>
+                                <svg
+                                    class="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                                    />
+                                </svg>
+                                <span>Pickup</span>
+                                <span
+                                    v-if="pickupPendingCount > 0"
+                                    class="inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold rounded-full"
+                                    :class="
+                                        activeTab === 'pickup'
+                                            ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400'
+                                            : 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-200'
+                                    "
+                                >
+                                    {{ pickupPendingCount }}
+                                </span>
+                            </button>
+                        </div>
+
+                        <!-- Compact Pickup ETA (next to tabs) -->
+                        <Transition name="search">
+                            <div v-if="activeTab === 'pickup'" class="flex items-center gap-2 px-3 py-1.5 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                                <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span class="text-xs text-green-900 dark:text-green-100">ETA:</span>
+                                <input
+                                    v-model.number="defaultPickupMinutes"
+                                    type="number"
+                                    min="5"
+                                    max="480"
+                                    step="5"
+                                    class="w-14 px-2 py-0.5 text-xs border border-green-300 dark:border-green-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-1 focus:ring-green-500"
+                                />
+                                <span class="text-xs text-green-700 dark:text-green-300">min</span>
+                                <button
+                                    @click="updateDefaultPickupTime"
+                                    :disabled="updatingPickupTime"
+                                    class="px-2 py-0.5 text-xs font-medium text-white bg-green-600 rounded hover:bg-green-700 disabled:opacity-50 transition-colors"
+                                >
+                                    {{ updatingPickupTime ? '...' : 'Save' }}
+                                </button>
+                            </div>
+                        </Transition>
                     </div>
 
                     <!-- Search Toggle Button -->
@@ -354,6 +382,7 @@
                     v-if="selectedOrder"
                     :is-open="isModalOpen"
                     :order="selectedOrder"
+                    :default-pickup-minutes="store?.default_pickup_minutes || 30"
                     @close="closeOrderDetail"
                     @status-updated="handleStatusUpdated"
                 />
@@ -364,6 +393,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
 import { router } from "@inertiajs/vue3";
+import axios from "axios";
 import OrderStatusColumn from "@/Components/Operations/OrderStatusColumn.vue";
 import OrderDetailModal from "@/Components/Operations/OrderDetailModal.vue";
 import { useToast } from "@/Composables/useToast";
@@ -386,6 +416,10 @@ const showSearch = ref(false);
 // Active tab (shipping or pickup)
 const activeTab = ref("pickup");
 
+// Default pickup time
+const defaultPickupMinutes = ref(props.store?.default_pickup_minutes || 30);
+const updatingPickupTime = ref(false);
+
 // Mobile status view
 const mobileStatusView = ref("pending");
 
@@ -396,6 +430,10 @@ const selectedOrder = ref(null);
 // Countdown to closing time
 const timeUntilClose = ref(null);
 let countdownInterval = null;
+
+// Sound notification permission (managed by layout's bell icon)
+const soundEnabled = ref(false);
+const notificationInterval = ref(null);
 
 const calculateTimeUntilClose = () => {
     if (!props.store?.close_time) {
@@ -460,6 +498,74 @@ const calculateTimeUntilClose = () => {
                 router.reload({ only: ['store'] });
             });
         }, 1000);
+    }
+};
+
+// Update default pickup time
+const updateDefaultPickupTime = async () => {
+    if (defaultPickupMinutes.value < 5 || defaultPickupMinutes.value > 480) {
+        toast.error('Pickup time must be between 5 and 480 minutes');
+        return;
+    }
+
+    updatingPickupTime.value = true;
+
+    try {
+        await axios.put('/store/settings/pickup', {
+            default_pickup_minutes: defaultPickupMinutes.value,
+        });
+
+        toast.success('Default pickup time updated');
+    } catch (error) {
+        console.error('Failed to update default pickup time:', error);
+        toast.error('Failed to update default pickup time');
+    } finally {
+        updatingPickupTime.value = false;
+    }
+};
+
+// Sound notification function
+const playNotificationSound = () => {
+    // Only play if user has enabled sound
+    if (!soundEnabled.value) return;
+
+    try {
+        const audio = new Audio('/sounds/notification.wav');
+        audio.volume = 0.7;
+        audio.play().catch(e => {
+            // Browser blocked autoplay - user needs to enable via bell icon
+            console.log("Audio autoplay blocked. Please enable via notification bell icon.");
+        });
+    } catch (error) {
+        console.error('Notification sound error:', error);
+    }
+};
+
+// Start repeating notification for pending orders
+const startRepeatingNotification = () => {
+    // Clear any existing interval
+    if (notificationInterval.value) {
+        clearInterval(notificationInterval.value);
+    }
+
+    // Only start if there are pending orders
+    if (ordersByStatus.pending.length > 0) {
+        notificationInterval.value = setInterval(() => {
+            // Check if there are still pending orders
+            if (ordersByStatus.pending.length > 0) {
+                playNotificationSound();
+            } else {
+                stopRepeatingNotification();
+            }
+        }, 3000); // Repeat every 3 seconds
+    }
+};
+
+// Stop repeating notification
+const stopRepeatingNotification = () => {
+    if (notificationInterval.value) {
+        clearInterval(notificationInterval.value);
+        notificationInterval.value = null;
     }
 };
 
@@ -568,14 +674,32 @@ const initializeOrders = () => {
 };
 
 // Modal handlers
-const openOrderDetail = (order) => {
-    console.log('Dashboard - Opening order detail:', order);
-    console.log('Dashboard - Order items:', order.items);
-    if (order.items && order.items.length > 0) {
-        console.log('Dashboard - First item addons:', order.items[0].addons);
+const openOrderDetail = async (order) => {
+    // Fetch full order details from backend to ensure we have the latest data (including refund status)
+    try {
+        const response = await fetch(route('orders.show', order.id), {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache',
+            },
+        });
+        const fullOrderData = await response.json();
+
+        console.log('Dashboard - Order data received:', fullOrderData);
+        console.log('Dashboard - Order items:', fullOrderData.items);
+        if (fullOrderData.items && fullOrderData.items.length > 0) {
+            console.log('Dashboard - First item refund status:', fullOrderData.items[0].is_refunded);
+        }
+
+        selectedOrder.value = fullOrderData;
+        isModalOpen.value = true;
+    } catch (error) {
+        console.error('Failed to load order details:', error);
+        // Fallback to using the order data we have
+        selectedOrder.value = order;
+        isModalOpen.value = true;
     }
-    selectedOrder.value = order;
-    isModalOpen.value = true;
 };
 
 const closeOrderDetail = () => {
@@ -760,7 +884,12 @@ const setupWebSocket = () => {
         // Subscribe to store orders channel and listen for events
         storeChannel = window.Echo.private(channelName)
             .listen(".OrderCreated", (event) => {
+                // Add order first to ensure it's in the pending array
                 addOrUpdateOrder(event.order);
+                // Play sound immediately for new orders
+                playNotificationSound();
+                // Start repeating notification for pending orders
+                startRepeatingNotification();
             })
             .listen(".OrderStatusUpdated", (event) => {
                 updateOrderStatus(
@@ -865,6 +994,11 @@ const updateOrderStatus = (order, oldStatus, newStatus) => {
         }
     }
 
+    // Stop repeating notification if no more pending orders
+    if (oldStatus === 'pending' && ordersByStatus.pending.length === 0) {
+        stopRepeatingNotification();
+    }
+
     // Update selected order if it's open in modal
     if (selectedOrder.value && selectedOrder.value.id === order.id) {
         selectedOrder.value = order;
@@ -892,10 +1026,20 @@ onMounted(() => {
     // Start countdown timer
     calculateTimeUntilClose();
     countdownInterval = setInterval(calculateTimeUntilClose, 1000);
+
+    // Check if sound permission has been set (managed by layout's bell icon)
+    const soundPref = localStorage.getItem('soundNotificationsEnabled');
+    soundEnabled.value = soundPref === 'true';
+
+    // Start repeating notification if there are already pending orders
+    if (ordersByStatus.pending.length > 0) {
+        startRepeatingNotification();
+    }
 });
 
 onUnmounted(() => {
     cleanupWebSocket();
+    stopRepeatingNotification();
 
     // Clear countdown interval
     if (countdownInterval) {

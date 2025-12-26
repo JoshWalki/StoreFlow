@@ -110,8 +110,12 @@ class StripePaymentService
         }
 
         try {
-            // Retrieve payment intent details
-            $paymentIntent = $this->connectService->retrievePaymentIntent($paymentIntentId);
+            // Retrieve payment intent details from merchant's connected account (Direct Charges)
+            $merchant = $order->store->merchant;
+            $paymentIntent = $this->connectService->retrievePaymentIntent(
+                $paymentIntentId,
+                $merchant->stripe_connect_account_id
+            );
 
             // Extract charge ID
             $chargeId = $paymentIntent['charges']['data'][0]['id'] ?? null;
@@ -207,10 +211,13 @@ class StripePaymentService
         }
 
         try {
+            // Create refund on merchant's connected account (Direct Charges)
+            $merchant = $order->store->merchant;
             $refund = $this->connectService->createRefund(
                 $order->payment_reference,
                 $amountCents,
-                $reason
+                $reason,
+                $merchant->stripe_connect_account_id
             );
 
             // Update order status
@@ -263,13 +270,23 @@ class StripePaymentService
         }
 
         try {
-            $paymentIntent = $this->connectService->retrievePaymentIntent($order->payment_reference);
+            // Retrieve payment intent from merchant's connected account (Direct Charges)
+            $merchant = $order->store->merchant;
+            $paymentIntent = $this->connectService->retrievePaymentIntent(
+                $order->payment_reference,
+                $merchant->stripe_connect_account_id
+            );
 
             if (!isset($paymentIntent['payment_method'])) {
                 return null;
             }
 
-            $paymentMethod = $this->stripe->paymentMethods->retrieve($paymentIntent['payment_method']);
+            // Also need to retrieve payment method from connected account
+            $paymentMethod = $this->stripe->paymentMethods->retrieve(
+                $paymentIntent['payment_method'],
+                [],
+                ['stripe_account' => $merchant->stripe_connect_account_id]
+            );
 
             return [
                 'type' => $paymentMethod->type,

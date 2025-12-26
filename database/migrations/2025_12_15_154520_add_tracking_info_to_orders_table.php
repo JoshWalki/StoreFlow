@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->string('tracking_number')->nullable()->after('status');
-            $table->string('courier_company')->nullable()->after('tracking_number');
+            if (!Schema::hasColumn('orders', 'tracking_number')) {
+                $table->string('tracking_number')->nullable()->after('status');
+            }
+            if (!Schema::hasColumn('orders', 'courier_company')) {
+                $table->string('courier_company')->nullable()->after('tracking_number');
+            }
         });
     }
 

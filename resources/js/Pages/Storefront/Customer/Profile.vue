@@ -15,10 +15,13 @@
                     <div class="flex items-center gap-4">
                         <a :href="`/store/${store.id}`" :class="themeConfig.link">Store</a>
                         <a :href="`/store/${store.id}/orders`" :class="themeConfig.link">Orders</a>
-                        <form :action="`/store/${store.id}/logout`" method="POST" class="inline">
-                            <input type="hidden" name="_token" :value="csrfToken" />
-                            <button type="submit" :class="themeConfig.link">Logout</button>
-                        </form>
+                        <button
+                            @click="handleLogout"
+                            type="button"
+                            :class="themeConfig.link"
+                        >
+                            Logout
+                        </button>
                     </div>
                 </div>
             </div>
@@ -196,7 +199,7 @@
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                                         :class="getStatusClass(order.status)"
                                     >
-                                        {{ order.status }}
+                                        {{ formatStatus(order.status) }}
                                     </span>
                                     <p class="font-semibold mt-1" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
                                         ${{ order.total.toFixed(2) }}
@@ -507,17 +510,40 @@
                         </button>
                     </form>
 
-                    <!-- Privacy Disclosure Button -->
-                    <div class="mt-6 pt-6 border-t" :class="store.theme === 'bold' ? 'border-gray-700' : 'border-gray-200'">
+                    <!-- Privacy & Legal Links -->
+                    <div class="mt-6 pt-6 border-t space-y-2" :class="store.theme === 'bold' ? 'border-gray-700' : 'border-gray-200'">
+                        <h4 class="text-sm font-semibold mb-3" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
+                            Legal & Privacy
+                        </h4>
                         <button
                             @click="showPrivacyModal = true"
-                            class="flex items-center gap-2 text-sm transition-colors"
+                            class="flex items-center gap-2 text-sm transition-colors w-full"
                             :class="store.theme === 'bold' ? 'text-gray-400 hover:text-orange-500' : 'text-gray-600 hover:text-blue-600'"
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
                             Privacy & Data Storage
+                        </button>
+                        <button
+                            @click="showPrivacyPolicyModal = true"
+                            class="flex items-center gap-2 text-sm transition-colors w-full"
+                            :class="store.theme === 'bold' ? 'text-gray-400 hover:text-orange-500' : 'text-gray-600 hover:text-blue-600'"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                            Privacy Policy
+                        </button>
+                        <button
+                            @click="showTermsModal = true"
+                            class="flex items-center gap-2 text-sm transition-colors w-full"
+                            :class="store.theme === 'bold' ? 'text-gray-400 hover:text-orange-500' : 'text-gray-600 hover:text-blue-600'"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Terms of Service
                         </button>
                     </div>
                     </div>
@@ -573,7 +599,7 @@
                                 class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
                                 :class="getStatusClass(selectedOrder.status)"
                             >
-                                {{ selectedOrder.status }}
+                                {{ formatStatus(selectedOrder.status) }}
                             </span>
                         </div>
 
@@ -605,17 +631,38 @@
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y" :class="store.theme === 'bold' ? 'divide-gray-700' : 'divide-gray-200'">
-                                        <tr v-for="item in selectedOrder.items" :key="item.id">
+                                        <tr v-for="item in selectedOrder.items" :key="item.id"
+                                            :class="item.is_refunded ? (store.theme === 'bold' ? 'bg-red-900/20' : 'bg-red-50') : ''">
                                             <td class="px-4 py-3" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
-                                                {{ item.product_name }}
+                                                <div class="flex items-center gap-2">
+                                                    <span>{{ item.product_name }}</span>
+                                                    <span v-if="item.is_refunded"
+                                                        class="px-2 py-0.5 text-xs font-semibold rounded-full"
+                                                        :class="store.theme === 'bold' ? 'bg-red-800 text-red-200 border border-red-600' : 'bg-red-100 text-red-800 border border-red-300'">
+                                                        REFUNDED
+                                                    </span>
+                                                </div>
+                                                <div v-if="item.is_refunded" class="mt-1 text-xs"
+                                                    :class="store.theme === 'bold' ? 'text-red-300' : 'text-red-700'">
+                                                    <p><strong>Refunded:</strong> {{ formatDate(item.refund_date) }}</p>
+                                                    <p><strong>Reason:</strong> {{ item.refund_reason }}</p>
+                                                </div>
                                             </td>
                                             <td class="px-4 py-3 text-center" :class="store.theme === 'bold' ? 'text-gray-300' : 'text-gray-700'">
                                                 {{ item.quantity }}
                                             </td>
-                                            <td class="px-4 py-3 text-right" :class="store.theme === 'bold' ? 'text-gray-300' : 'text-gray-700'">
+                                            <td class="px-4 py-3 text-right"
+                                                :class="[
+                                                    store.theme === 'bold' ? 'text-gray-300' : 'text-gray-700',
+                                                    item.is_refunded ? 'line-through opacity-60' : ''
+                                                ]">
                                                 ${{ (item.price_cents / 100).toFixed(2) }}
                                             </td>
-                                            <td class="px-4 py-3 text-right font-semibold" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
+                                            <td class="px-4 py-3 text-right font-semibold"
+                                                :class="[
+                                                    store.theme === 'bold' ? 'text-white' : 'text-gray-900',
+                                                    item.is_refunded ? 'line-through opacity-60' : ''
+                                                ]">
                                                 ${{ (item.total_cents / 100).toFixed(2) }}
                                             </td>
                                         </tr>
@@ -633,10 +680,10 @@
                                         ${{ (selectedOrder.items_total_cents / 100).toFixed(2) }}
                                     </span>
                                 </div>
-                                <div class="flex justify-between text-sm">
+                                <div v-if="selectedOrder.fulfilment_type === 'shipping'" class="flex justify-between text-sm">
                                     <span :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-600'">Shipping:</span>
                                     <span :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
-                                        ${{ (selectedOrder.shipping_cost_cents / 100).toFixed(2) }}
+                                        {{ selectedOrder.shipping_cost_cents === 0 ? 'FREE' : '$' + (selectedOrder.shipping_cost_cents / 100).toFixed(2) }}
                                     </span>
                                 </div>
                                 <div class="flex justify-between text-base font-bold pt-2 border-t" :class="store.theme === 'bold' ? 'border-gray-700' : 'border-gray-200'">
@@ -698,16 +745,6 @@
                 >
                     <!-- Header -->
                     <div class="flex justify-between items-start mb-6">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 rounded-lg" :class="store.theme === 'bold' ? 'bg-orange-500/10' : 'bg-blue-50'">
-                                <svg class="w-6 h-6" :class="store.theme === 'bold' ? 'text-orange-500' : 'text-blue-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                </svg>
-                            </div>
-                            <h3 class="text-2xl font-bold" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
-                                Privacy & Data Storage Disclosure
-                            </h3>
-                        </div>
                         <button
                             @click="showPrivacyModal = false"
                             class="p-2 rounded-lg transition-colors"
@@ -756,23 +793,23 @@
                             </h4>
                             <div class="ml-7 space-y-3 text-sm">
                                 <div>
-                                    <p class="font-medium mb-1">🔐 Password Encryption</p>
+                                    <p class="font-medium mb-1"> Password Encryption</p>
                                     <p>All passwords are encrypted using bcrypt hashing with 12 rounds. Passwords are never stored in plain text and cannot be retrieved by anyone, including our staff.</p>
                                 </div>
                                 <div>
-                                    <p class="font-medium mb-1">🛡️ Session Security</p>
+                                    <p class="font-medium mb-1"> Session Security</p>
                                     <p>Your login session uses secure, HttpOnly cookies with CSRF protection to prevent unauthorized access and cross-site attacks.</p>
                                 </div>
                                 <div>
-                                    <p class="font-medium mb-1">🧹 Input Sanitization</p>
+                                    <p class="font-medium mb-1"> Input Sanitization</p>
                                     <p>All data you provide is sanitized and validated to protect against malicious input and ensure data integrity.</p>
                                 </div>
                                 <div>
-                                    <p class="font-medium mb-1">🔒 Secure Connections</p>
+                                    <p class="font-medium mb-1"> Secure Connections</p>
                                     <p>All data transmission is encrypted using industry-standard SSL/TLS protocols.</p>
                                 </div>
                                 <div>
-                                    <p class="font-medium mb-1">⚡ Rate Limiting</p>
+                                    <p class="font-medium mb-1"> Rate Limiting</p>
                                     <p>Login attempts are limited to 5 per minute, and registrations to 3 per hour to prevent brute force attacks.</p>
                                 </div>
                             </div>
@@ -865,6 +902,20 @@
                 </div>
             </div>
         </div>
+
+        <!-- Privacy Policy Modal -->
+        <PrivacyPolicyModal
+            :isOpen="showPrivacyPolicyModal"
+            @close="showPrivacyPolicyModal = false"
+            :contactEmail="store.contact_email || 'privacy@storeflow.com'"
+        />
+
+        <!-- Terms of Service Modal -->
+        <TermsOfServiceModal
+            :isOpen="showTermsModal"
+            @close="showTermsModal = false"
+            :contactEmail="store.contact_email || 'legal@storeflow.com'"
+        />
     </div>
 </template>
 
@@ -874,6 +925,8 @@ import { router, usePage } from '@inertiajs/vue3';
 import { useTheme } from '@/Composables/useTheme';
 import { useNotifications } from '@/Composables/useNotifications';
 import ToastContainer from '@/Components/Notifications/ToastContainer.vue';
+import PrivacyPolicyModal from '@/Components/Legal/PrivacyPolicyModal.vue';
+import TermsOfServiceModal from '@/Components/Legal/TermsOfServiceModal.vue';
 
 const notifications = useNotifications();
 const page = usePage();
@@ -949,10 +1002,12 @@ const showOrderModal = ref(false);
 const selectedOrder = ref(null);
 const loadingOrder = ref(false);
 const showPrivacyModal = ref(false);
+const showPrivacyPolicyModal = ref(false);
+const showTermsModal = ref(false);
 
-const csrfToken = computed(() => {
-    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-});
+const handleLogout = () => {
+    router.post(`/store/${props.store.id}/logout`);
+};
 
 const openOrderModal = async (orderId) => {
     showOrderModal.value = true;
@@ -998,9 +1053,32 @@ const formatDate = (date) => {
     });
 };
 
+const formatStatus = (status) => {
+    const statusLabels = {
+        'pending': 'Pending',
+        'accepted': 'Accepted',
+        'in_progress': 'In Progress',
+        'preparing': 'Preparing',
+        'ready': 'Ready',
+        'ready_for_pickup': 'Ready for Pickup',
+        'packing': 'Packing',
+        'packed': 'Packed',
+        'shipped': 'Shipped',
+        'delivered': 'Delivered',
+        'picked_up': 'Picked Up',
+        'completed': 'Completed',
+        'cancelled': 'Cancelled',
+        'refunded': 'Refunded',
+    };
+    return statusLabels[status] || status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+};
+
 const getStatusClass = (status) => {
     const classes = {
         pending: 'bg-yellow-100 text-yellow-800',
+        in_progress: 'bg-purple-100 text-purple-800',
+        ready_for_pickup: 'bg-green-100 text-green-800',
+        picked_up: 'bg-green-100 text-green-800',
         accepted: 'bg-blue-100 text-blue-800',
         preparing: 'bg-purple-100 text-purple-800',
         ready: 'bg-green-100 text-green-800',

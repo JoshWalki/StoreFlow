@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen flex overflow-hidden">
+    <div class="min-h-screen flex flex-col lg:flex-row overflow-hidden">
         <!-- Left Section - Tips -->
         <div
             class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 via-purple-600 to-purple-800 relative overflow-hidden"
@@ -151,6 +151,15 @@
                         >
                     </div>
                 </div>
+
+                <!-- Wombat Mascot - Desktop Middle -->
+                <div class="absolute top-1/2 -right-[10rem] z-20" style="transform: translateY(-15%);">
+                    <img
+                        src="/images/logo/storeflow_wombat_thumbsup.png"
+                        alt="StoreFlow Mascot"
+                        class="w-[40rem] h-[40rem] opacity-90"
+                    />
+                </div>
             </div>
         </div>
 
@@ -278,6 +287,19 @@
                         />
                     </div>
 
+                    <!-- Turnstile Widget -->
+                    <div>
+                        <TurnstileWidget
+                            ref="turnstileRef"
+                            :site-key="page.props.turnstile_site_key"
+                            v-model="form.turnstile_token"
+                            theme="light"
+                        />
+                        <p v-if="form.errors.turnstile_token" class="mt-1 text-sm text-red-600 text-center">
+                            {{ form.errors.turnstile_token }}
+                        </p>
+                    </div>
+
                     <!-- Remember Me -->
                     <div class="flex items-center justify-between">
                         <label class="flex items-center">
@@ -291,7 +313,7 @@
                             >
                         </label>
                         <a
-                            href="#"
+                            :href="route('password.request')"
                             class="text-sm text-purple-600 hover:text-purple-700 font-medium"
                         >
                             Forgot password?
@@ -345,18 +367,33 @@
                 </div>
             </div>
         </div>
+
+        <!-- Wombat Mascot - Mobile Bottom Section -->
+        <div class="lg:hidden w-full">
+            <img
+                src="/images/logo/storeflow_wombat_thumbsup.png"
+                alt="StoreFlow Mascot"
+                class="w-full h-auto opacity-90"
+            />
+        </div>
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { useForm } from "@inertiajs/vue3";
+import { useForm, usePage } from "@inertiajs/vue3";
+import TurnstileWidget from "@/Components/TurnstileWidget.vue";
+
+const page = usePage();
 
 const form = useForm({
     username: "",
     password: "",
     remember: false,
+    turnstile_token: null,
 });
+
+const turnstileRef = ref(null);
 
 // Tips that rotate on page refresh
 const tips = [
@@ -421,8 +458,20 @@ onMounted(() => {
 });
 
 const submit = () => {
+    // Validate Turnstile token
+    if (!turnstileRef.value?.isValid()) {
+        form.errors.turnstile_token = 'Please complete the security verification';
+        return;
+    }
+
     form.post(route("login"), {
-        onFinish: () => form.reset("password"),
+        onFinish: () => {
+            form.reset("password");
+            turnstileRef.value?.reset();
+        },
+        onError: () => {
+            turnstileRef.value?.reset();
+        },
     });
 };
 
@@ -430,6 +479,7 @@ const route = (name) => {
     const routes = {
         login: "/login",
         register: "/register",
+        "password.request": "/forgot-password",
     };
     return routes[name] || "/";
 };

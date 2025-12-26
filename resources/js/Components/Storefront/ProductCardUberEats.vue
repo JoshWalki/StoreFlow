@@ -144,12 +144,32 @@ const handleMouseLeave = () => {
                 {{ product.description }}
             </p>
 
-            <!-- Bottom Row: Price and Rating -->
-            <div class="flex items-center justify-between mt-auto">
-                <!-- Price -->
-                <span class="text-xl font-bold text-gray-900">
-                    {{ formatCurrency(product.price_cents) }}
-                </span>
+            <!-- Bottom Row: Price, Discount Badge and Rating -->
+            <div class="flex items-center justify-between mt-auto gap-2">
+                <!-- Price and Discount -->
+                <div class="flex flex-col gap-1">
+                    <!-- Discount Badge -->
+                    <span v-if="product.has_active_sale && product.discount_badge" class="inline-block bg-red-100 text-red-700 text-xs font-semibold px-1.5 py-0.5 rounded self-start">
+                        {{ product.discount_badge }}
+                    </span>
+
+                    <!-- Price Display -->
+                    <div class="flex items-center gap-2">
+                        <!-- Sale Price -->
+                        <span v-if="product.has_active_sale" class="text-xl font-bold text-red-600">
+                            {{ formatCurrency(product.sale_price) }}
+                        </span>
+                        <!-- Original Price -->
+                        <span
+                            :class="[
+                                'font-bold',
+                                product.has_active_sale ? 'text-sm line-through text-gray-500' : 'text-xl text-gray-900'
+                            ]"
+                        >
+                            {{ formatCurrency(product.price_cents) }}
+                        </span>
+                    </div>
+                </div>
 
                 <!-- Rating Placeholder -->
                 <div class="flex items-center gap-1">

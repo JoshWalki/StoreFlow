@@ -147,12 +147,29 @@ const handleAddToCart = (event) => {
                     {{ product.name }}
                 </h3>
 
-                <!-- Price -->
-                <div class="flex items-center justify-between mt-auto">
-                    <span
-                        class="text-sm font-semibold"
-                        :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'"
-                    >{{ formatCurrency(product.price_cents) }}</span>
+                <!-- Price and Discount Badge -->
+                <div class="flex flex-col gap-1 mt-auto">
+                    <!-- Discount Badge -->
+                    <span v-if="product.has_active_sale && product.discount_badge" class="inline-block bg-red-100 text-red-700 text-xs font-semibold px-1.5 py-0.5 rounded self-start">
+                        {{ product.discount_badge }}
+                    </span>
+
+                    <!-- Price Display -->
+                    <div class="flex items-center gap-2">
+                        <!-- Sale Price -->
+                        <span
+                            v-if="product.has_active_sale"
+                            class="text-sm font-semibold text-red-600"
+                        >{{ formatCurrency(product.sale_price) }}</span>
+                        <!-- Original Price (strikethrough if on sale) -->
+                        <span
+                            :class="[
+                                'text-sm font-semibold',
+                                product.has_active_sale ? 'text-xs line-through' : '',
+                                store.theme === 'bold' ? (product.has_active_sale ? 'text-gray-400' : 'text-white') : (product.has_active_sale ? 'text-gray-500' : 'text-gray-900')
+                            ]"
+                        >{{ formatCurrency(product.price_cents) }}</span>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,13 +1,11 @@
-const CACHE_NAME = 'storeflow-v2';  // Incremented version to force cache refresh
-const OFFLINE_URL = '/offline.html';
+const CACHE_NAME = "storeflow-v3"; // Incremented version to force cache refresh
+const OFFLINE_URL = "/offline.html";
 
-const filesToCache = [
-    OFFLINE_URL
-];
+const filesToCache = [OFFLINE_URL];
 
 // Listen for SKIP_WAITING message
-self.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'SKIP_WAITING') {
+self.addEventListener("message", (event) => {
+    if (event.data && event.data.type === "SKIP_WAITING") {
         self.skipWaiting();
     }
 });
@@ -47,12 +45,11 @@ self.addEventListener("fetch", function (event) {
     }
 
     // For navigation requests (HTML pages)
-    if (event.request.mode === 'navigate') {
+    if (event.request.mode === "navigate") {
         event.respondWith(
-            fetch(event.request)
-                .catch(function () {
-                    return caches.match(OFFLINE_URL);
-                })
+            fetch(event.request).catch(function () {
+                return caches.match(OFFLINE_URL);
+            })
         );
         return;
     }
@@ -60,10 +57,9 @@ self.addEventListener("fetch", function (event) {
     // For all other requests (images, CSS, JS, etc.) - just try to fetch
     // Don't return offline page for failed asset requests
     event.respondWith(
-        fetch(event.request)
-            .catch(function () {
-                // Try to get from cache if network fails
-                return caches.match(event.request);
-            })
+        fetch(event.request).catch(function () {
+            // Try to get from cache if network fails
+            return caches.match(event.request);
+        })
     );
 });

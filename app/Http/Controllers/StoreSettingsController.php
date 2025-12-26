@@ -62,6 +62,7 @@ class StoreSettingsController extends Controller
             'logo_url' => $store->logo_path ? asset('storage/' . $store->logo_path) : null,
             'open_time' => $store->open_time,
             'close_time' => $store->close_time,
+            'default_pickup_minutes' => $store->default_pickup_minutes ?? 30,
         ];
 
         return Inertia::render('Store/Settings', [
@@ -284,5 +285,30 @@ class StoreSettingsController extends Controller
 
         return redirect()->route('store.settings')
             ->with('success', 'Store logo removed successfully.');
+    }
+
+    /**
+     * Update pickup settings.
+     */
+    public function updatePickup(Request $request)
+    {
+        $storeId = session('store_id');
+        $store = Store::findOrFail($storeId);
+
+        // Ensure the user owns this store
+        if ($store->merchant_id !== $request->user()->merchant_id) {
+            abort(403, 'Unauthorized access to store settings.');
+        }
+
+        $validated = $request->validate([
+            'default_pickup_minutes' => ['required', 'integer', 'min:5', 'max:480'],
+        ]);
+
+        $store->update([
+            'default_pickup_minutes' => $validated['default_pickup_minutes'],
+        ]);
+
+        return redirect()->route('store.settings')
+            ->with('success', 'Pickup settings updated successfully.');
     }
 }

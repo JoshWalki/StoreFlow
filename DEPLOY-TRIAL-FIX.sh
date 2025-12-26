@@ -21,7 +21,7 @@ echo "Restarting services..."
 sudo systemctl restart php8.2-fpm
 sudo systemctl restart nginx
 
-echo "✅ Deployment complete!"
+echo " Deployment complete!"
 echo ""
 echo "📊 Testing Instructions:"
 echo "1. Watch logs: tail -f storage/logs/laravel.log | grep -E 'Checkout session created|trial_end|current_period'"

@@ -7,7 +7,7 @@
             </h1>
         </div>
 
-        <!-- Sub-navigation Tabs -->
+        <!-- Main Navigation Tabs -->
         <div
             class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
         >
@@ -16,23 +16,12 @@
                     @click="navigateToSection('basic')"
                     class="px-6 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors"
                     :class="
-                        activeSection === 'basic'
+                        activeSection === 'basic' || activeSection === 'logo' || activeSection === 'theme' || activeSection === 'sales'
                             ? 'border-blue-600 text-blue-600 dark:text-blue-400'
                             : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600'
                     "
                 >
-                    Basic Information
-                </button>
-                <button
-                    @click="navigateToSection('logo')"
-                    class="px-6 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors"
-                    :class="
-                        activeSection === 'logo'
-                            ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                            : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600'
-                    "
-                >
-                    Store Logo
+                    Store Settings
                 </button>
                 <button
                     @click="navigateToSection('contact')"
@@ -57,15 +46,15 @@
                     Business Settings
                 </button>
                 <button
-                    @click="navigateToSection('theme')"
+                    @click="navigateToSection('pickup')"
                     class="px-6 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors"
                     :class="
-                        activeSection === 'theme'
+                        activeSection === 'pickup'
                             ? 'border-blue-600 text-blue-600 dark:text-blue-400'
                             : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600'
                     "
                 >
-                    Storefront Theme
+                    Pickup Settings
                 </button>
                 <button
                     v-if="user && user.role === 'owner'"
@@ -105,17 +94,158 @@
             </nav>
         </div>
 
-        <!-- Basic Information -->
-        <div
-            v-if="activeSection === 'basic'"
-            class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6"
-        >
-            <h2
-                class="text-lg font-semibold text-gray-800 dark:text-white mb-4"
+        <!-- Store Settings Section (with sub-navigation) -->
+        <div v-if="activeSection === 'basic' || activeSection === 'logo' || activeSection === 'theme' || activeSection === 'sales'" class="rounded-lg shadow-sm overflow-hidden">
+            <!-- Sub-navigation - Underline Style -->
+            <nav class="flex bg-gray-50 dark:bg-gray-900/20">
+                <button
+                    @click="navigateToSubSection('basic')"
+                    class="px-5 py-3 text-sm font-medium transition-all duration-200 relative whitespace-nowrap"
+                    :class="
+                        activeSection === 'basic'
+                            ? 'text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800 rounded-t-lg -mb-0.5 z-10'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-gray-800/50'
+                    "
+                >
+                    Information
+                </button>
+                <button
+                    @click="navigateToSubSection('logo')"
+                    class="px-5 py-3 text-sm font-medium transition-all duration-200 relative whitespace-nowrap"
+                    :class="
+                        activeSection === 'logo'
+                            ? 'text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800 rounded-t-lg -mb-0.5 z-10'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-gray-800/50'
+                    "
+                >
+                    Logo
+                </button>
+                <button
+                    @click="navigateToSubSection('theme')"
+                    class="px-5 py-3 text-sm font-medium transition-all duration-200 relative whitespace-nowrap"
+                    :class="
+                        activeSection === 'theme'
+                            ? 'text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800 rounded-t-lg -mb-0.5 z-10'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-gray-800/50'
+                    "
+                >
+                    Theme
+                </button>
+                <button
+                    v-if="user && user.role === 'owner'"
+                    @click="navigateToSubSection('sales')"
+                    class="px-5 py-3 text-sm font-medium transition-all duration-200 relative whitespace-nowrap"
+                    :class="
+                        activeSection === 'sales'
+                            ? 'text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800 rounded-t-lg -mb-0.5 z-10'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-gray-800/50'
+                    "
+                >
+                    Sales & Discounts
+                </button>
+            </nav>
+
+            <!-- Store Information Content -->
+            <div
+                v-if="activeSection === 'basic'"
+                class="p-6 bg-white dark:bg-gray-800 rounded-b-lg transition-all"
             >
-                Basic Information
-            </h2>
+                <h2
+                    class="text-lg font-semibold mb-4"
+                    :class="!basicForm.is_active
+                        ? 'text-red-800 dark:text-red-300'
+                        : 'text-gray-800 dark:text-white'"
+                >
+                    Store Information
+                </h2>
+
+            <!-- Store Inactive Warning -->
+            <div
+                v-if="!basicForm.is_active"
+                class="mb-6 p-4 bg-red-100 dark:bg-red-900/40 border-l-4 border-red-500 rounded-r-lg"
+            >
+                <div class="flex items-start">
+                    <svg
+                        class="w-6 h-6 text-red-600 dark:text-red-400 mr-3 flex-shrink-0 mt-0.5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                        />
+                    </svg>
+                    <div>
+                        <p class="font-semibold text-red-800 dark:text-red-300">
+                            Store is Currently Inactive
+                        </p>
+                        <p class="mt-1 text-sm text-red-700 dark:text-red-400">
+                            Your store is not accepting orders. Customers cannot browse products or place orders.
+                            Enable the toggle below to activate your store.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             <form @submit.prevent="saveBasicInfo" class="space-y-4">
+                <!-- Store Active Toggle (Moved to top) -->
+                <div class="p-4 rounded-lg" :class="!basicForm.is_active
+                    ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
+                    : 'bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600'">
+
+                    <!-- Subscription Warning -->
+                    <div
+                        v-if="!hasActiveSubscription"
+                        class="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg"
+                    >
+                        <div class="flex items-start">
+                            <svg
+                                class="w-5 h-5 text-yellow-600 dark:text-yellow-500 mr-3 flex-shrink-0 mt-0.5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                                />
+                            </svg>
+                            <div>
+                                <p class="text-sm font-medium text-yellow-800 dark:text-yellow-300">
+                                    No Active Subscription
+                                </p>
+                                <p class="mt-1 text-sm text-yellow-700 dark:text-yellow-400">
+                                    You need an active subscription to enable your store.
+                                    <a
+                                        href="/store/settings#subscription"
+                                        class="font-semibold underline hover:text-yellow-900 dark:hover:text-yellow-200"
+                                    >
+                                        Subscribe now
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ToggleSwitch
+                        v-model="basicForm.is_active"
+                        label="Store is active and accepting orders"
+                        :disabled="!hasActiveSubscription"
+                    />
+                    <p class="mt-2 text-xs" :class="!basicForm.is_active
+                        ? 'text-red-600 dark:text-red-400'
+                        : 'text-gray-500 dark:text-gray-400'">
+                        {{ basicForm.is_active
+                            ? '✓ Your store is live and customers can place orders'
+                            : '✗ Your store is offline - customers cannot browse or order' }}
+                    </p>
+                </div>
+
                 <div>
                     <label
                         for="name"
@@ -232,53 +362,6 @@
                     </div>
                 </div>
 
-                <!-- Subscription Warning -->
-                <div
-                    v-if="!hasActiveSubscription"
-                    class="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg"
-                >
-                    <div class="flex items-start">
-                        <svg
-                            class="w-5 h-5 text-yellow-600 dark:text-yellow-500 mr-3 flex-shrink-0 mt-0.5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                            />
-                        </svg>
-                        <div>
-                            <p
-                                class="text-sm font-medium text-yellow-800 dark:text-yellow-300"
-                            >
-                                No Active Subscription
-                            </p>
-                            <p
-                                class="mt-1 text-sm text-yellow-700 dark:text-yellow-400"
-                            >
-                                You need an active subscription to enable your
-                                store.
-                                <a
-                                    href="/store/settings#subscription"
-                                    class="font-semibold underline hover:text-yellow-900 dark:hover:text-yellow-200"
-                                >
-                                    Subscribe now
-                                </a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <ToggleSwitch
-                    v-model="basicForm.is_active"
-                    label="Store is active and accepting orders"
-                    :disabled="!hasActiveSubscription"
-                />
-
                 <div class="flex justify-end">
                     <button
                         type="submit"
@@ -298,7 +381,7 @@
         <!-- Store Logo -->
         <div
             v-if="activeSection === 'logo'"
-            class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6"
+            class="p-6 bg-white dark:bg-gray-800 rounded-b-lg"
         >
             <h2
                 class="text-lg font-semibold text-gray-800 dark:text-white mb-4"
@@ -596,12 +679,12 @@
                         class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
                     />
                 </div>
-
+                <!-- Deprecated
                 <ToggleSwitch
                     v-model="businessForm.auto_fulfill"
                     label="Automatically fulfill orders when paid"
                 />
-
+                -->
                 <div class="flex justify-end">
                     <button
                         type="submit"
@@ -618,10 +701,59 @@
             </form>
         </div>
 
+        <!-- Pickup Settings Section -->
+        <div
+            v-if="activeSection === 'pickup'"
+            class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6"
+        >
+            <h2
+                class="text-lg font-semibold text-gray-800 dark:text-white mb-4"
+            >
+                Pickup Settings
+            </h2>
+            <form @submit.prevent="savePickupSettings" class="space-y-4">
+                <div>
+                    <label
+                        for="default_pickup_minutes"
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    >
+                        Default Pickup Time (minutes)
+                    </label>
+                    <input
+                        id="default_pickup_minutes"
+                        v-model.number="pickupForm.default_pickup_minutes"
+                        type="number"
+                        step="5"
+                        min="5"
+                        max="480"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="30"
+                    />
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        This sets the default estimated time for order pickup (5-480 minutes)
+                    </p>
+                </div>
+
+                <div class="flex justify-end">
+                    <button
+                        type="submit"
+                        :disabled="pickupForm.processing"
+                        class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+                    >
+                        {{
+                            pickupForm.processing
+                                ? "Saving..."
+                                : "Save Pickup Settings"
+                        }}
+                    </button>
+                </div>
+            </form>
+        </div>
+
         <!-- Storefront Theme -->
         <div
             v-if="activeSection === 'theme'"
-            class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6"
+            class="p-6 bg-white dark:bg-gray-800 rounded-b-lg"
         >
             <h2
                 class="text-lg font-semibold text-gray-800 dark:text-white mb-4"
@@ -995,6 +1127,16 @@
             <SubscriptionTab />
         </div>
 
+        <!-- Sales & Discounts -->
+        <div
+            v-if="activeSection === 'sales' && user && user.role === 'owner'"
+            class="p-6 bg-white dark:bg-gray-800 rounded-b-lg"
+        >
+            <SalesTab />
+        </div>
+        </div>
+        <!-- End Store Settings Section -->
+
         <!-- Data Migration -->
         <div
             v-if="activeSection === 'migration'"
@@ -1008,10 +1150,14 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { useForm, router } from "@inertiajs/vue3";
+import { useToast } from "@/Composables/useToast";
 import ToggleSwitch from "@/Components/ToggleSwitch.vue";
 import StripeConnectWidget from "@/Components/StripeConnectWidget.vue";
 import DataMigrationTab from "@/Components/DataMigration/DataMigrationTab.vue";
 import SubscriptionTab from "@/Components/Settings/SubscriptionTab.vue";
+import SalesTab from "@/Components/Settings/SalesTab.vue";
+
+const toast = useToast();
 
 const props = defineProps({
     storeSettings: Object,
@@ -1039,9 +1185,11 @@ onMounted(() => {
             "logo",
             "contact",
             "business",
+            "pickup",
             "theme",
             "stripe",
             "subscription",
+            "sales",
             "migration",
         ].includes(hash)
     ) {
@@ -1058,9 +1206,11 @@ onMounted(() => {
                 "logo",
                 "contact",
                 "business",
+                "pickup",
                 "theme",
                 "stripe",
                 "subscription",
+                "sales",
                 "migration",
             ].includes(newHash)
         ) {
@@ -1073,6 +1223,12 @@ onMounted(() => {
 const navigateToSection = (section) => {
     activeSection.value = section;
     window.location.hash = section;
+};
+
+// Navigate to sub-section within Store Settings
+const navigateToSubSection = (subSection) => {
+    activeSection.value = subSection;
+    window.location.hash = subSection;
 };
 
 // Logo upload state
@@ -1112,6 +1268,10 @@ const businessForm = useForm({
     auto_fulfill: props.storeSettings?.auto_fulfill || false,
 });
 
+const pickupForm = useForm({
+    default_pickup_minutes: props.store?.default_pickup_minutes || 30,
+});
+
 const themeForm = useForm({
     theme_key: props.store?.theme_key || "classic",
 });
@@ -1119,24 +1279,70 @@ const themeForm = useForm({
 const saveBasicInfo = () => {
     basicForm.put(route("store.settings.basic"), {
         preserveScroll: true,
+        onSuccess: (page) => {
+            const flash = page.props?.flash;
+            if (flash?.success) {
+                toast.success(flash.success);
+            } else if (flash?.error) {
+                toast.error(flash.error);
+            }
+        },
     });
 };
 
 const saveContactInfo = () => {
     contactForm.put(route("store.settings.contact"), {
         preserveScroll: true,
+        onSuccess: (page) => {
+            const flash = page.props?.flash;
+            if (flash?.success) {
+                toast.success(flash.success);
+            } else if (flash?.error) {
+                toast.error(flash.error);
+            }
+        },
     });
 };
 
 const saveBusinessSettings = () => {
     businessForm.put(route("store.settings.business"), {
         preserveScroll: true,
+        onSuccess: (page) => {
+            const flash = page.props?.flash;
+            if (flash?.success) {
+                toast.success(flash.success);
+            } else if (flash?.error) {
+                toast.error(flash.error);
+            }
+        },
+    });
+};
+
+const savePickupSettings = () => {
+    pickupForm.put(route("store.settings.pickup"), {
+        preserveScroll: true,
+        onSuccess: (page) => {
+            const flash = page.props?.flash;
+            if (flash?.success) {
+                toast.success(flash.success);
+            } else if (flash?.error) {
+                toast.error(flash.error);
+            }
+        },
     });
 };
 
 const saveTheme = () => {
     themeForm.put(route("store.settings.theme"), {
         preserveScroll: true,
+        onSuccess: (page) => {
+            const flash = page.props?.flash;
+            if (flash?.success) {
+                toast.success(flash.success);
+            } else if (flash?.error) {
+                toast.error(flash.error);
+            }
+        },
     });
 };
 
@@ -1161,7 +1367,13 @@ const uploadLogo = () => {
     logoForm.logo = logoFile.value;
     logoForm.post(route("store.settings.logo"), {
         forceFormData: true,
-        onSuccess: () => {
+        onSuccess: (page) => {
+            const flash = page.props?.flash;
+            if (flash?.success) {
+                toast.success(flash.success);
+            } else if (flash?.error) {
+                toast.error(flash.error);
+            }
             logoFile.value = null;
             logoPreview.value = null;
             if (logoInput.value) {
@@ -1173,7 +1385,16 @@ const uploadLogo = () => {
 
 const removeLogo = () => {
     if (confirm("Are you sure you want to remove the store logo?")) {
-        router.delete(route("store.settings.logo.remove"));
+        router.delete(route("store.settings.logo.remove"), {
+            onSuccess: (page) => {
+                const flash = page.props?.flash;
+                if (flash?.success) {
+                    toast.success(flash.success);
+                } else if (flash?.error) {
+                    toast.error(flash.error);
+                }
+            },
+        });
     }
 };
 </script>

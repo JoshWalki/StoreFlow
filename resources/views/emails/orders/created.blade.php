@@ -52,10 +52,29 @@
             @foreach($items as $item)
                 <tr>
                     <td>{{ $item->product->name ?? 'Unknown Product' }}</td>
-                    <td style="text-align: center;">{{ $item->qty }}</td>
+                    <td style="text-align: center;">{{ $item->quantity }}</td>
                     <td style="text-align: right;">${{ number_format($item->unit_price_cents / 100, 2) }}</td>
-                    <td style="text-align: right;">${{ number_format(($item->qty * $item->unit_price_cents) / 100, 2) }}</td>
+                    <td style="text-align: right;">${{ number_format($item->total_cents / 100, 2) }}</td>
                 </tr>
+                @if($item->special_instructions)
+                    <tr>
+                        <td colspan="4" style="padding-left: 20px; font-style: italic; color: #666; font-size: 0.9em;">
+                            <em>Special Instructions:</em> {{ $item->special_instructions }}
+                        </td>
+                    </tr>
+                @endif
+                @if($item->addons && $item->addons->isNotEmpty())
+                    @foreach($item->addons as $addon)
+                        <tr style="background-color: #f9f9f9;">
+                            <td style="padding-left: 20px; color: #555;">
+                                &rarr; {{ $addon->name }}
+                            </td>
+                            <td style="text-align: center; color: #555;">{{ $addon->quantity }}</td>
+                            <td style="text-align: right; color: #555;">${{ number_format($addon->unit_price_cents / 100, 2) }}</td>
+                            <td style="text-align: right; color: #555;">${{ number_format($addon->total_price_cents / 100, 2) }}</td>
+                        </tr>
+                    @endforeach
+                @endif
             @endforeach
         </tbody>
         <tfoot>

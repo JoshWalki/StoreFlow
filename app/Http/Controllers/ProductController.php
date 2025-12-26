@@ -635,7 +635,7 @@ class ProductController extends Controller
             ->get();
 
         if ($products->count() !== count($productIds)) {
-            return back()->withErrors(['error' => 'Some products could not be found or do not belong to your merchant.']);
+            return back()->with('error', 'Some products could not be found or do not belong to your merchant.');
         }
 
         $count = $products->count();
@@ -704,7 +704,7 @@ class ProductController extends Controller
             ->get();
 
         if ($products->count() !== count($productIds)) {
-            return back()->withErrors(['error' => 'Some products could not be found or do not belong to your merchant.']);
+            return back()->with('error', 'Some products could not be found or do not belong to your merchant.');
         }
 
         // Prepare update data (only include fields that were provided)

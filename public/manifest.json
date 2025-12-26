@@ -10,31 +10,10 @@
     "icons": [
         {
             "src": "/images/logo/logo.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "/images/logo/logo.png",
-            "sizes": "192x192",
+            "sizes": "200x200",
             "type": "image/png",
             "purpose": "any"
         }
     ],
-    "screenshots": [
-        {
-            "src": "/images/logo/logo.png",
-            "sizes": "540x720",
-            "type": "image/png",
-            "form_factor": "narrow",
-            "label": "StoreFlow Mobile View"
-        },
-        {
-            "src": "/images/logo/logo.png",
-            "sizes": "1280x720",
-            "type": "image/png",
-            "form_factor": "wide",
-            "label": "StoreFlow Desktop View"
-        }
-    ]
+    "screenshots": []
 }

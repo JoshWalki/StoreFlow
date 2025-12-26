@@ -85,6 +85,46 @@ class OrderController extends Controller
     }
 
     /**
+     * Update pickup ETA for an order.
+     */
+    public function updatePickupEta(Request $request, Order $order)
+    {
+        // Authorize using policy (same as updateShipping)
+        $this->authorize('updateShipping', $order);
+
+        // Validate the request
+        $validated = $request->validate([
+            'pickup_eta' => 'required|date',
+        ]);
+
+        try {
+            // Update pickup ETA
+            $order->update([
+                'pickup_eta' => $validated['pickup_eta'],
+            ]);
+
+            // Return JSON response for AJAX requests
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'message' => 'Pickup ETA updated successfully.',
+                    'order' => $order->fresh(),
+                ]);
+            }
+
+            return back()->with('success', 'Pickup ETA updated successfully.');
+        } catch (\Exception $e) {
+            // Return JSON error for AJAX requests
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
      * Get full order details for modal view.
      */
     public function show(Request $request, Order $order)
@@ -92,10 +132,10 @@ class OrderController extends Controller
         // Authorize using policy
         $this->authorize('view', $order);
 
-        // Load all relationships
-        $order->load(['customer', 'items.product']);
+        // Load all relationships including addons for refund functionality
+        $order->load(['customer', 'items.product', 'items.addons', 'store']);
 
-        // Format the response
+        // Format the response - add no-cache headers
         return response()->json([
             'id' => $order->id,
             'public_id' => $order->public_id,
@@ -140,18 +180,179 @@ class OrderController extends Controller
             'items' => $order->items->map(function ($item) {
                 return [
                     'id' => $item->id,
-                    'product_name' => $item->product_name,
+                    'product_name' => $item->name ?? $item->product_name,
                     'quantity' => $item->quantity,
-                    'price_cents' => $item->price_cents,
+                    'unit_price_cents' => $item->unit_price_cents,
+                    'price_cents' => $item->unit_price_cents,
                     'total_cents' => $item->total_cents,
-                    'addons' => $item->addons ?? [],
+                    'product' => $item->product ? [
+                        'id' => $item->product->id,
+                        'name' => $item->product->name,
+                        'price_cents' => $item->product->price_cents,
+                    ] : null,
+                    'addons' => $item->addons->map(function ($addon) {
+                        return [
+                            'name' => $addon->name,
+                            'quantity' => $addon->quantity,
+                            'total_price_cents' => $addon->total_price_cents,
+                        ];
+                    }),
+                    'special_instructions' => $item->special_instructions,
+                    'is_refunded' => (bool) $item->is_refunded,
+                    'refund_date' => $item->refund_date,
+                    'refund_reason' => $item->refund_reason,
                 ];
             }),
 
             // Timestamps
             'created_at' => $order->created_at,
             'updated_at' => $order->updated_at,
+        ])->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+          ->header('Pragma', 'no-cache')
+          ->header('Expires', '0');
+    }
+
+    /**
+     * Refund an order item.
+     */
+    public function refundItem(Request $request, Order $order, $itemId)
+    {
+        // Authorize using policy
+        $this->authorize('updateStatus', $order);
+
+        // Validate the request
+        $validated = $request->validate([
+            'refund_reason' => 'required|string|max:255',
         ]);
+
+        try {
+            // Load order with relationships
+            $order->load(['items', 'store.merchant']);
+
+            // Find the order item
+            $orderItem = $order->items()->findOrFail($itemId);
+
+            // Check if already refunded
+            if ($orderItem->is_refunded) {
+                return response()->json([
+                    'message' => 'This item has already been refunded.',
+                ], 422);
+            }
+
+            // Check if order was paid via Stripe
+            if ($order->payment_status !== 'paid' || empty($order->payment_reference)) {
+                return response()->json([
+                    'message' => 'Cannot process refund. Order was not paid or payment reference is missing.',
+                ], 422);
+            }
+
+            // Calculate refund amount (item total including addons)
+            $refundAmount = $orderItem->calculateTotalWithAddons();
+
+            // Process Stripe refund
+            $stripeService = app(\App\Services\StripeConnectService::class);
+            $merchant = $order->store->merchant;
+
+            // Map our refund reason to Stripe's accepted values
+            // Stripe only accepts: duplicate, fraudulent, or requested_by_customer
+            // We store the full reason in our database, but send 'requested_by_customer' to Stripe
+            $stripeReason = 'requested_by_customer';
+
+            \Log::info('Processing Stripe refund', [
+                'order_id' => $order->id,
+                'item_id' => $orderItem->id,
+                'payment_intent_id' => $order->payment_reference,
+                'refund_amount' => $refundAmount,
+                'stripe_account_id' => $merchant->stripe_connect_account_id,
+                'user_reason' => $validated['refund_reason'],
+                'stripe_reason' => $stripeReason,
+            ]);
+
+            $stripeRefund = $stripeService->createRefund(
+                $order->payment_reference,
+                $refundAmount,
+                $stripeReason,
+                $merchant->stripe_connect_account_id
+            );
+
+            // Update the order item only after successful Stripe refund
+            $orderItem->update([
+                'is_refunded' => true,
+                'refund_date' => now(),
+                'refund_reason' => $validated['refund_reason'],
+            ]);
+
+            \Log::info('Item refunded successfully', [
+                'order_id' => $order->id,
+                'item_id' => $orderItem->id,
+                'refund_id' => $stripeRefund['id'],
+                'amount' => $refundAmount,
+            ]);
+
+            // Send refund email to customer
+            try {
+                \Mail::to($order->customer_email)->send(
+                    new \App\Mail\RefundProcessedMail(
+                        $order,
+                        $orderItem,
+                        $stripeRefund['id'],
+                        $refundAmount
+                    )
+                );
+
+                \Log::info('Refund email sent', [
+                    'order_id' => $order->id,
+                    'customer_email' => $order->customer_email,
+                ]);
+            } catch (\Exception $e) {
+                // Log email error but don't fail the refund
+                \Log::error('Failed to send refund email', [
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
+            // Return JSON response for AJAX requests
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'message' => 'Item refunded successfully via Stripe. Confirmation email sent to customer.',
+                    'item' => $orderItem->fresh(),
+                    'refund_id' => $stripeRefund['id'],
+                ]);
+            }
+
+            return back()->with('success', 'Item refunded successfully via Stripe. Confirmation email sent to customer.');
+        } catch (\Stripe\Exception\ApiErrorException $e) {
+            \Log::error('Stripe refund failed', [
+                'order_id' => $order->id,
+                'item_id' => $itemId,
+                'error' => $e->getMessage(),
+            ]);
+
+            // Return JSON error for AJAX requests
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'message' => 'Stripe refund failed: ' . $e->getMessage(),
+                ], 422);
+            }
+
+            return back()->with('error', 'Stripe refund failed: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            \Log::error('Refund processing error', [
+                'order_id' => $order->id,
+                'item_id' => $itemId,
+                'error' => $e->getMessage(),
+            ]);
+
+            // Return JSON error for AJAX requests
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     /**

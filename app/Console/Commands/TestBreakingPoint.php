@@ -117,7 +117,7 @@ class TestBreakingPoint extends Command
                 $this->peakVendors = $currentVendors;
             }
 
-            $this->info("✅ Stage {$stage} completed successfully");
+            $this->info(" Stage {$stage} completed successfully");
             $this->newLine();
 
             // Next stage
@@ -357,7 +357,7 @@ class TestBreakingPoint extends Command
         // Stage-by-stage results
         $tableData = [];
         foreach ($this->stageMetrics as $stage => $metrics) {
-            $status = $metrics['error_rate'] > 0 ? '⚠️' : '✅';
+            $status = $metrics['error_rate'] > 0 ? '⚠️' : '';
             $tableData[] = [
                 "Stage {$stage}",
                 $metrics['vendors'],
@@ -388,13 +388,13 @@ class TestBreakingPoint extends Command
             $this->error("   Throughput: " . round($failedStage['throughput'], 2) . " orders/s");
             $this->newLine();
 
-            $this->info("✅ MAXIMUM SAFE CAPACITY");
+            $this->info(" MAXIMUM SAFE CAPACITY");
             $this->info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
             $this->info("   Vendors: {$this->peakVendors} (safe operational limit)");
             $this->info("   Peak Throughput: " . round($this->peakThroughput, 2) . " orders/s");
             $this->info("   Recommended Max: " . floor($this->peakVendors * 0.7) . " vendors (70% capacity)");
         } else {
-            $this->info("✅ NO BREAKING POINT FOUND");
+            $this->info(" NO BREAKING POINT FOUND");
             $this->info("   System stable up to {$this->option('max-vendors')} vendors");
             $this->info("   Peak Throughput: " . round($this->peakThroughput, 2) . " orders/s");
         }
@@ -428,12 +428,12 @@ class TestBreakingPoint extends Command
             $this->info("   3. Use queue workers for background jobs");
             $this->info("   4. Consider database read replicas");
         } elseif ($this->peakVendors < 100) {
-            $this->info("   ✅ Good capacity for small-medium deployment");
+            $this->info("    Good capacity for small-medium deployment");
             $this->info("   • Safe for up to " . floor($this->peakVendors * 0.7) . " concurrent vendors");
             $this->info("   • Monitor during peak hours");
             $this->info("   • Plan horizontal scaling beyond " . $this->peakVendors . " vendors");
         } else {
-            $this->info("   ✅ EXCELLENT - Production ready for large scale");
+            $this->info("    EXCELLENT - Production ready for large scale");
             $this->info("   • Supports 100+ concurrent vendors");
             $this->info("   • System is well-optimized");
             $this->info("   • Can handle significant growth");
@@ -475,6 +475,6 @@ class TestBreakingPoint extends Command
             @unlink($log);
         }
 
-        $this->info("✅ Cleanup complete");
+        $this->info(" Cleanup complete");
     }
 }

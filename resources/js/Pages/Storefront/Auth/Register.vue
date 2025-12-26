@@ -205,8 +205,40 @@
                         </a>
                     </p>
                 </div>
+
+                <!-- Legal Links -->
+                <div class="mt-4 text-center text-xs" :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-600'">
+                    By creating an account, you agree to our
+                    <button
+                        type="button"
+                        @click="showTermsModal = true"
+                        class="underline"
+                        :class="themeConfig.link"
+                    >Terms of Service</button>
+                    and
+                    <button
+                        type="button"
+                        @click="showPrivacyModal = true"
+                        class="underline"
+                        :class="themeConfig.link"
+                    >Privacy Policy</button>
+                </div>
             </div>
         </main>
+
+        <!-- Privacy Policy Modal -->
+        <PrivacyPolicyModal
+            :isOpen="showPrivacyModal"
+            @close="showPrivacyModal = false"
+            :contactEmail="store.contact_email || 'hello@storeflow.com'"
+        />
+
+        <!-- Terms of Service Modal -->
+        <TermsOfServiceModal
+            :isOpen="showTermsModal"
+            @close="showTermsModal = false"
+            :contactEmail="store.contact_email || 'hello@storeflow.com'"
+        />
     </div>
 </template>
 
@@ -214,6 +246,8 @@
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { useTheme } from '@/Composables/useTheme';
+import PrivacyPolicyModal from '@/Components/Legal/PrivacyPolicyModal.vue';
+import TermsOfServiceModal from '@/Components/Legal/TermsOfServiceModal.vue';
 
 const props = defineProps({
     store: {
@@ -240,6 +274,10 @@ const form = ref({
 const showPassword = ref(false);
 const showPasswordConfirm = ref(false);
 const processing = ref(false);
+
+// Modal states
+const showPrivacyModal = ref(false);
+const showTermsModal = ref(false);
 
 const submitRegister = () => {
     processing.value = true;

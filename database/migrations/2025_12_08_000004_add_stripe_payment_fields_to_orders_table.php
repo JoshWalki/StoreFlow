@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -17,46 +18,69 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            // Update payment_reference comment
-            $table->string('payment_reference', 255)
-                ->nullable()
-                ->comment('Stripe PaymentIntent ID (pi_xxx) or other gateway reference')
-                ->change();
+            // Update payment_reference comment only if column exists
+            if (Schema::hasColumn('orders', 'payment_reference')) {
+                $table->string('payment_reference', 255)
+                    ->nullable()
+                    ->comment('Stripe PaymentIntent ID (pi_xxx) or other gateway reference')
+                    ->change();
+            }
 
             // Add Stripe-specific fields
-            $table->string('stripe_charge_id', 255)
-                ->nullable()
-                ->after('payment_reference')
-                ->comment('Stripe Charge ID (ch_xxx) when payment succeeds');
+            if (!Schema::hasColumn('orders', 'stripe_charge_id')) {
+                $table->string('stripe_charge_id', 255)
+                    ->nullable()
+                    ->after('payment_reference')
+                    ->comment('Stripe Charge ID (ch_xxx) when payment succeeds');
+            }
 
-            $table->integer('platform_fee_cents')
-                ->nullable()
-                ->after('stripe_charge_id')
-                ->comment('Platform fee amount in cents for this order');
+            if (!Schema::hasColumn('orders', 'platform_fee_cents')) {
+                $table->integer('platform_fee_cents')
+                    ->nullable()
+                    ->after('stripe_charge_id')
+                    ->comment('Platform fee amount in cents for this order');
+            }
 
-            $table->integer('merchant_net_cents')
-                ->nullable()
-                ->after('platform_fee_cents')
-                ->comment('Net amount to merchant after platform fee (in cents)');
+            if (!Schema::hasColumn('orders', 'merchant_net_cents')) {
+                $table->integer('merchant_net_cents')
+                    ->nullable()
+                    ->after('platform_fee_cents')
+                    ->comment('Net amount to merchant after platform fee (in cents)');
+            }
 
-            $table->string('stripe_transfer_id', 255)
-                ->nullable()
-                ->after('merchant_net_cents')
-                ->comment('Stripe Transfer ID (tr_xxx) to merchant Connect account');
+            if (!Schema::hasColumn('orders', 'stripe_transfer_id')) {
+                $table->string('stripe_transfer_id', 255)
+                    ->nullable()
+                    ->after('merchant_net_cents')
+                    ->comment('Stripe Transfer ID (tr_xxx) to merchant Connect account');
+            }
 
-            $table->timestamp('stripe_transferred_at')
-                ->nullable()
-                ->after('stripe_transfer_id')
-                ->comment('When funds transferred to merchant');
+            if (!Schema::hasColumn('orders', 'stripe_transferred_at')) {
+                $table->timestamp('stripe_transferred_at')
+                    ->nullable()
+                    ->after('stripe_transfer_id')
+                    ->comment('When funds transferred to merchant');
+            }
 
-            $table->json('stripe_metadata')
-                ->nullable()
-                ->after('stripe_transferred_at')
-                ->comment('Additional Stripe payment metadata');
+            if (!Schema::hasColumn('orders', 'stripe_metadata')) {
+                $table->json('stripe_metadata')
+                    ->nullable()
+                    ->after('stripe_transferred_at')
+                    ->comment('Additional Stripe payment metadata');
+            }
+        });
 
-            // Add indexes for Stripe lookups
-            $table->index('payment_reference', 'idx_orders_payment_reference');
-            $table->index('stripe_charge_id', 'idx_orders_stripe_charge');
+        // Add indexes for Stripe lookups
+        Schema::table('orders', function (Blueprint $table) {
+            $indexes = DB::select("SHOW INDEX FROM orders WHERE Key_name IN ('idx_orders_payment_reference', 'idx_orders_stripe_charge')");
+            $existingIndexes = array_column($indexes, 'Key_name');
+
+            if (!in_array('idx_orders_payment_reference', $existingIndexes)) {
+                $table->index('payment_reference', 'idx_orders_payment_reference');
+            }
+            if (!in_array('idx_orders_stripe_charge', $existingIndexes)) {
+                $table->index('stripe_charge_id', 'idx_orders_stripe_charge');
+            }
         });
     }
 

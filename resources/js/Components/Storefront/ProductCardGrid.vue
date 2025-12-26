@@ -169,7 +169,41 @@ const handleMouseLeave = () => {
             </div>
 
             <!-- Product Info (Bottom on mobile) -->
-            <div class="p-3 flex-1 flex flex-col justify-between">
+            <div class="p-3 flex-1 flex flex-col justify-between relative">
+                <!-- Quick Add Button (when no image) -->
+                <button
+                    v-if="!product.image"
+                    @click.prevent.stop="handleAddToCart"
+                    :class="[
+                        'absolute bottom-2 right-2 w-9 h-9 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 border-2 z-10',
+                        justAdded
+                            ? 'bg-green-500 border-green-600 scale-110'
+                            : 'bg-white border-gray-200 hover:bg-gray-50 hover:scale-105'
+                    ]"
+                    :disabled="isAdding"
+                    title="Add to cart"
+                >
+                    <svg
+                        v-if="!justAdded"
+                        class="w-5 h-5 text-gray-900 transition-transform"
+                        :class="{ 'scale-0': isAdding }"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <svg
+                        v-else
+                        class="w-5 h-5 text-white animate-scale-in"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                    </svg>
+                </button>
+
                 <!-- Product Name -->
                 <h3
                     class="text-base font-medium mb-1"
@@ -181,13 +215,29 @@ const handleMouseLeave = () => {
                 <!-- Price and Badge Row -->
                 <div class="flex items-center justify-between">
                     <div class="flex flex-col">
+                        <!-- Sale Price Display -->
+                        <div v-if="product.has_active_sale" class="flex items-center gap-2">
+                            <span
+                                class="text-sm font-semibold text-red-600"
+                            >{{ formatCurrency(product.sale_price) }}</span>
+                            <span
+                                class="text-xs line-through"
+                                :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-500'"
+                            >{{ formatCurrency(product.price_cents) }}</span>
+                        </div>
+                        <!-- Regular Price Display -->
                         <span
+                            v-else
                             class="text-sm font-semibold"
                             :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'"
                         >{{ formatCurrency(product.price_cents) }}</span>
 
                         <!-- Badges Container -->
                         <div class="mt-1 flex flex-wrap gap-1">
+                            <!-- Discount Badge -->
+                            <span v-if="product.has_active_sale && product.discount_badge" class="inline-block bg-red-100 text-red-700 text-xs font-semibold px-1.5 py-0.5 rounded">
+                                {{ product.discount_badge }}
+                            </span>
                             <!-- Popular Badge -->
                             <span class="floating-badge inline-block bg-orange-100 text-orange-700 text-xs font-semibold px-1.5 py-0.5 rounded">
                                 ⭐ Popular
@@ -237,7 +287,41 @@ const handleMouseLeave = () => {
         <!-- Horizontal Layout (For regular items on mobile AND all items on desktop) -->
         <div :class="showPopular ? 'hidden md:flex h-full' : 'flex h-full'">
             <!-- Left Side: Product Info (65%) -->
-            <div class="flex-1 p-3 flex flex-col justify-between">
+            <div class="flex-1 p-3 flex flex-col justify-between relative">
+                <!-- Quick Add Button (when no image) -->
+                <button
+                    v-if="!product.image"
+                    @click.prevent.stop="handleAddToCart"
+                    :class="[
+                        'absolute bottom-2 right-2 w-8 h-8 rounded-full shadow-md flex items-center justify-center transition-all duration-300 border-2 z-10',
+                        justAdded
+                            ? 'bg-green-500 border-green-600 scale-110'
+                            : 'bg-white border-gray-200 hover:bg-gray-50 hover:scale-105'
+                    ]"
+                    :disabled="isAdding"
+                    title="Add to cart"
+                >
+                    <svg
+                        v-if="!justAdded"
+                        class="w-4 h-4 text-gray-900 transition-transform"
+                        :class="{ 'scale-0': isAdding }"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <svg
+                        v-else
+                        class="w-4 h-4 text-white animate-scale-in"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                    </svg>
+                </button>
+
                 <!-- Product Name and Price Row -->
                 <div class="flex items-center justify-between gap-2 mb-1">
                     <h3
@@ -246,7 +330,17 @@ const handleMouseLeave = () => {
                     >
                         {{ product.name }}
                     </h3>
+                    <!-- Sale Price Display -->
+                    <div v-if="product.has_active_sale" class="flex flex-col items-end flex-shrink-0">
+                        <span class="text-sm font-semibold text-red-600">{{ formatCurrency(product.sale_price) }}</span>
+                        <span
+                            class="text-xs line-through"
+                            :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-500'"
+                        >{{ formatCurrency(product.price_cents) }}</span>
+                    </div>
+                    <!-- Regular Price Display -->
                     <span
+                        v-else
                         class="text-sm font-semibold flex-shrink-0"
                         :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'"
                     >{{ formatCurrency(product.price_cents) }}</span>
@@ -262,6 +356,11 @@ const handleMouseLeave = () => {
 
                 <!-- Badges Row -->
                 <div class="mt-1 flex flex-wrap gap-1">
+                    <!-- Discount Badge -->
+                    <span v-if="product.has_active_sale && product.discount_badge" class="inline-block bg-red-100 text-red-700 text-xs font-semibold px-1.5 py-0.5 rounded">
+                        {{ product.discount_badge }}
+                    </span>
+
                     <!-- Popular Badge -->
                     <span v-if="showPopular" class="floating-badge inline-block bg-orange-100 text-orange-700 text-xs font-semibold px-1.5 py-0.5 rounded">
                         ⭐ Popular

@@ -65,9 +65,12 @@ class CustomerDashboardController extends Controller
                 'items_count' => $order->items->count(),
                 'items' => $order->items->map(function ($item) {
                     return [
-                        'product_name' => $item->product->name ?? 'Product Removed',
+                        'product_name' => $item->name,
                         'quantity' => $item->quantity,
                         'price' => $item->unit_price_cents / 100,
+                        'is_refunded' => (bool) $item->is_refunded,
+                        'refund_date' => $item->refund_date,
+                        'refund_reason' => $item->refund_reason,
                         'addons' => $item->addons ? $item->addons->map(function ($addon) {
                             return [
                                 'name' => $addon->name,
@@ -131,9 +134,12 @@ class CustomerDashboardController extends Controller
                 'items_count' => $order->items->count(),
                 'items' => $order->items->map(function ($item) {
                     return [
-                        'product_name' => $item->product->name ?? 'Product Removed',
+                        'product_name' => $item->name,
                         'quantity' => $item->quantity,
                         'price' => $item->unit_price_cents / 100,
+                        'is_refunded' => (bool) $item->is_refunded,
+                        'refund_date' => $item->refund_date,
+                        'refund_reason' => $item->refund_reason,
                         'addons' => $item->addons ? $item->addons->map(function ($addon) {
                             return [
                                 'name' => $addon->name,
@@ -219,9 +225,12 @@ class CustomerDashboardController extends Controller
                 'items_count' => $order->items->count(),
                 'items' => $order->items->map(function ($item) {
                     return [
-                        'product_name' => $item->product->name ?? 'Product Removed',
+                        'product_name' => $item->name,
                         'quantity' => $item->quantity,
                         'price' => $item->unit_price_cents / 100,
+                        'is_refunded' => (bool) $item->is_refunded,
+                        'refund_date' => $item->refund_date,
+                        'refund_reason' => $item->refund_reason,
                         'addons' => $item->addons ? $item->addons->map(function ($addon) {
                             return [
                                 'name' => $addon->name,
@@ -368,10 +377,13 @@ class CustomerDashboardController extends Controller
             'items' => $order->items->map(function ($item) {
                 return [
                     'id' => $item->id,
-                    'product_name' => $item->product_name,
+                    'product_name' => $item->name,
                     'quantity' => $item->quantity,
-                    'price_cents' => $item->price_cents,
+                    'price_cents' => $item->unit_price_cents,
                     'total_cents' => $item->total_cents,
+                    'is_refunded' => (bool) $item->is_refunded,
+                    'refund_date' => $item->refund_date,
+                    'refund_reason' => $item->refund_reason,
                 ];
             }),
         ]);

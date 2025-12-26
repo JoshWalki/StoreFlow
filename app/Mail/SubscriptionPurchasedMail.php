@@ -38,7 +38,7 @@ class SubscriptionPurchasedMail extends Mailable
      */
     public function content(): Content
     {
-        $cost = '$29.00'; // Default - will be replaced with actual pricing
+        $cost = '$30.00';
         $billingInterval = 'month';
         $nextBillingDate = $this->merchant->subscription_current_period_end?->format('F j, Y') ?? 'Unknown';
 

@@ -28,6 +28,8 @@ class User extends Authenticatable
         'name',
         'email_verified_at',
         'email_verification_token',
+        'reset_token',
+        'reset_token_expires_at',
     ];
 
     /**
@@ -39,6 +41,7 @@ class User extends Authenticatable
         'password',
         'remember_token',
         'email_verification_token',
+        'reset_token',
     ];
 
     /**
@@ -49,6 +52,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'reset_token_expires_at' => 'datetime',
     ];
 
     /**

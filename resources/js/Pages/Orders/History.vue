@@ -289,9 +289,19 @@ const openOrderDetails = async (order) => {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
                 'Accept': 'application/json',
+                'Cache-Control': 'no-cache',
             },
         });
         const fullOrderData = await response.json();
+
+        // Debug logging
+        console.log('Order data received:', fullOrderData);
+        console.log('Items:', fullOrderData.items);
+        if (fullOrderData.items && fullOrderData.items.length > 0) {
+            console.log('First item refund status:', fullOrderData.items[0].is_refunded);
+            console.log('First item data:', JSON.stringify(fullOrderData.items[0]));
+        }
+
         selectedOrder.value = fullOrderData;
         isModalOpen.value = true;
     } catch (error) {

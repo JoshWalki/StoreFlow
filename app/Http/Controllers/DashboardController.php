@@ -45,6 +45,7 @@ class DashboardController extends Controller
                         ->where('status', '!=', 'cancelled')
                         ->count(),
                     'pickup_time' => $order->pickup_time,
+                    'pickup_eta' => $order->pickup_eta,
                     'shipping_name' => $order->shipping_name,
                     'line1' => $order->line1,
                     'line2' => $order->line2,
@@ -61,7 +62,7 @@ class DashboardController extends Controller
                         return [
                             'id' => $item->id,
                             'product_id' => $item->product_id,
-                            'product_name' => $item->product->name ?? 'Unknown Product',
+                            'product_name' => $item->name ?? 'Unknown Product',
                             'quantity' => $item->quantity,
                             'price_cents' => $item->unit_price_cents,
                             'total_cents' => $item->total_cents,
@@ -117,6 +118,7 @@ class DashboardController extends Controller
                         ->where('status', '!=', 'cancelled')
                         ->count(),
                     'pickup_time' => $order->pickup_time,
+                    'pickup_eta' => $order->pickup_eta,
                     'shipping_name' => $order->shipping_name,
                     'line1' => $order->line1,
                     'line2' => $order->line2,
@@ -133,7 +135,7 @@ class DashboardController extends Controller
                         return [
                             'id' => $item->id,
                             'product_id' => $item->product_id,
-                            'product_name' => $item->product->name ?? 'Unknown Product',
+                            'product_name' => $item->name ?? 'Unknown Product',
                             'quantity' => $item->quantity,
                             'price_cents' => $item->unit_price_cents,
                             'total_cents' => $item->total_cents,
@@ -226,6 +228,7 @@ class DashboardController extends Controller
                         ->where('status', '!=', 'cancelled')
                         ->count(),
                     'pickup_time' => $order->pickup_time,
+                    'pickup_eta' => $order->pickup_eta,
                     'shipping_name' => $order->shipping_name,
                     'line1' => $order->line1,
                     'line2' => $order->line2,
@@ -242,7 +245,7 @@ class DashboardController extends Controller
                         return [
                             'id' => $item->id,
                             'product_id' => $item->product_id,
-                            'product_name' => $item->product->name ?? 'Unknown Product',
+                            'product_name' => $item->name ?? 'Unknown Product',
                             'quantity' => $item->quantity,
                             'price_cents' => $item->unit_price_cents,
                             'total_cents' => $item->total_cents,

@@ -12,10 +12,13 @@
                     <div class="flex items-center gap-4">
                         <a :href="`/store/${store.id}`" :class="themeConfig.link">Store</a>
                         <a :href="`/store/${store.id}/orders`" :class="themeConfig.link">Orders</a>
-                        <form :action="`/store/${store.id}/logout`" method="POST" class="inline">
-                            <input type="hidden" name="_token" :value="csrfToken" />
-                            <button type="submit" :class="themeConfig.link">Logout</button>
-                        </form>
+                        <button
+                            @click="handleLogout"
+                            type="button"
+                            :class="themeConfig.link"
+                        >
+                            Logout
+                        </button>
                     </div>
                 </div>
             </div>
@@ -126,7 +129,7 @@
                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                                     :class="getStatusClass(order.status)"
                                 >
-                                    {{ order.status }}
+                                    {{ formatStatus(order.status) }}
                                 </span>
                                 <p class="font-semibold mt-1" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
                                     ${{ order.total.toFixed(2) }}
@@ -185,9 +188,9 @@ const props = defineProps({
 
 const { config: themeConfig } = useTheme(props.store.theme);
 
-const csrfToken = computed(() => {
-    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-});
+const handleLogout = () => {
+    router.post(`/store/${props.store.id}/logout`);
+};
 
 const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -195,6 +198,26 @@ const formatDate = (date) => {
         month: 'short',
         day: 'numeric',
     });
+};
+
+const formatStatus = (status) => {
+    const statusLabels = {
+        'pending': 'Pending',
+        'accepted': 'Accepted',
+        'in_progress': 'In Progress',
+        'preparing': 'Preparing',
+        'ready': 'Ready',
+        'ready_for_pickup': 'Ready for Pickup',
+        'packing': 'Packing',
+        'packed': 'Packed',
+        'shipped': 'Shipped',
+        'delivered': 'Delivered',
+        'picked_up': 'Picked Up',
+        'completed': 'Completed',
+        'cancelled': 'Cancelled',
+        'refunded': 'Refunded',
+    };
+    return statusLabels[status] || status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 };
 
 const getStatusClass = (status) => {

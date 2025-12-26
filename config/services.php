@@ -56,4 +56,11 @@ return [
         'timeout' => env('SCRAPER_SERVICE_TIMEOUT', 300),
     ],
 
+    'turnstile' => [
+        'site_key' => env('TURNSTILE_SITE_KEY'),
+        'secret_key' => env('TURNSTILE_SECRET_KEY'),
+        'enabled' => env('TURNSTILE_ENABLED', true),
+        'verify_url' => 'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+    ],
+
 ];

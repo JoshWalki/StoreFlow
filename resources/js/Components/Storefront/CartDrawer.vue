@@ -224,13 +224,22 @@
                                                                             : 'text-gray-900'
                                                                     "
                                                                 >
-                                                                    <h3>
-                                                                        {{
-                                                                            item
-                                                                                .product
-                                                                                .name
-                                                                        }}
-                                                                    </h3>
+                                                                    <div class="flex-1">
+                                                                        <h3>
+                                                                            {{
+                                                                                item
+                                                                                    .product
+                                                                                    .name
+                                                                            }}
+                                                                        </h3>
+                                                                        <!-- Discount Badge -->
+                                                                        <span
+                                                                            v-if="item.product.has_active_sale && item.product.discount_badge"
+                                                                            class="inline-block mt-1 bg-red-100 text-red-700 text-xs font-semibold px-2 py-0.5 rounded"
+                                                                        >
+                                                                            {{ item.product.discount_badge }}
+                                                                        </span>
+                                                                    </div>
                                                                     <p
                                                                         class="ml-4"
                                                                     >

@@ -69,8 +69,18 @@ class ProductDisplayService
                 $productIds = $productIds->merge($fallbackIds);
             }
 
-            // Fetch full product models with relationships
-            return Product::with(['category', 'images'])
+            // Fetch full product models with relationships including sales
+            return Product::with(['category', 'images', 'sales' => function ($query) {
+                    $query->where('is_active', true)
+                        ->where(function ($q) {
+                            $q->whereNull('starts_at')
+                                ->orWhere('starts_at', '<=', now());
+                        })
+                        ->where(function ($q) {
+                            $q->whereNull('ends_at')
+                                ->orWhere('ends_at', '>=', now());
+                        });
+                }])
                 ->where('merchant_id', $merchantId) // CRITICAL: Ensure merchant isolation
                 ->whereIn('id', $productIds)
                 ->get()
@@ -105,7 +115,17 @@ class ProductDisplayService
                           ->orWhereNull('store_id');
                     })
                     ->where('is_active', true)
-                    ->with('images')
+                    ->with(['images', 'sales' => function ($q) {
+                        $q->where('is_active', true)
+                            ->where(function ($query) {
+                                $query->whereNull('starts_at')
+                                    ->orWhere('starts_at', '<=', now());
+                            })
+                            ->where(function ($query) {
+                                $query->whereNull('ends_at')
+                                    ->orWhere('ends_at', '>=', now());
+                            });
+                    }])
                     ->orderBy('created_at', 'desc');
 
                     if ($productsPerCategory) {
@@ -133,7 +153,17 @@ class ProductDisplayService
         $cacheKey = "storefront:featured:{$merchantId}:{$storeId}";
 
         return Cache::remember($cacheKey, 3600, function () use ($merchantId, $storeId) {
-            return Product::with(['category', 'images'])
+            return Product::with(['category', 'images', 'sales' => function ($query) {
+                    $query->where('is_active', true)
+                        ->where(function ($q) {
+                            $q->whereNull('starts_at')
+                                ->orWhere('starts_at', '<=', now());
+                        })
+                        ->where(function ($q) {
+                            $q->whereNull('ends_at')
+                                ->orWhere('ends_at', '>=', now());
+                        });
+                }])
                 ->where('merchant_id', $merchantId)
                 ->where(function ($q) use ($storeId) {
                     $q->where('store_id', $storeId)->orWhereNull('store_id');
@@ -189,11 +219,26 @@ class ProductDisplayService
             $primaryImage = $product->images->where('is_primary', true)->first();
             $allImages = $product->images->map(fn($img) => '/storage/' . $img->image_path);
 
+            // Get sale information
+            $activeSale = $product->activeSale();
+            $hasActiveSale = $activeSale !== null;
+
             return [
                 'id' => $product->id,
                 'name' => $product->name,
                 'description' => $product->description,
                 'price_cents' => $product->price_cents,
+                'sale_price' => $hasActiveSale ? $product->sale_price : null,
+                'savings_amount' => $hasActiveSale ? $product->savings_amount : null,
+                'discount_percentage' => $hasActiveSale ? $product->discount_percentage : null,
+                'discount_badge' => $hasActiveSale ? $product->discount_badge : null,
+                'has_active_sale' => $hasActiveSale,
+                'sale' => $hasActiveSale ? [
+                    'id' => $activeSale->id,
+                    'name' => $activeSale->name,
+                    'type' => $activeSale->type,
+                    'ends_at' => $activeSale->ends_at ? $activeSale->ends_at->toISOString() : null,
+                ] : null,
                 'category' => $product->category?->name,
                 'category_id' => $product->category?->id,
                 'is_shippable' => $product->is_shippable,
@@ -227,7 +272,17 @@ class ProductDisplayService
                 $q->where('store_id', $storeId)->orWhereNull('store_id');
             })
             ->where('is_active', true)
-            ->with('images')
+            ->with(['images', 'sales' => function ($query) {
+                $query->where('is_active', true)
+                    ->where(function ($q) {
+                        $q->whereNull('starts_at')
+                            ->orWhere('starts_at', '<=', now());
+                    })
+                    ->where(function ($q) {
+                        $q->whereNull('ends_at')
+                            ->orWhere('ends_at', '>=', now());
+                    });
+            }])
             ->orderBy('created_at', 'desc')
             ->skip($offset)
             ->take($limit)

@@ -22,6 +22,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// CSRF token refresh endpoint
+Route::get('/csrf-token', function () {
+    return response()->json([
+        'token' => csrf_token(),
+    ]);
+})->middleware('web');
+
 /*
 |--------------------------------------------------------------------------
 | Public Storefront API (v1)

@@ -96,8 +96,16 @@
                                         {{ product.name }}
                                     </h2>
 
-                                    <!-- Category and Fulfillment Badges -->
+                                    <!-- Category, Discount and Fulfillment Badges -->
                                     <div class="flex flex-wrap gap-2 mb-4">
+                                        <!-- Discount Badge -->
+                                        <span
+                                            v-if="product.has_active_sale && product.discount_badge"
+                                            class="inline-flex items-center bg-red-100 text-red-700 text-sm font-semibold px-3 py-1 rounded-full"
+                                        >
+                                            {{ product.discount_badge }}
+                                        </span>
+
                                         <span
                                             v-if="product.category"
                                             class="inline-flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full"
@@ -166,7 +174,20 @@
 
                                     <!-- Price -->
                                     <div class="mb-6">
-                                        <span class="text-4xl font-bold text-blue-600 dark:text-blue-400">
+                                        <!-- Sale Price Display -->
+                                        <div v-if="product.has_active_sale" class="flex items-baseline gap-3">
+                                            <span class="text-4xl font-bold text-red-600 dark:text-red-400">
+                                                {{ formatCurrency(product.sale_price) }}
+                                            </span>
+                                            <span class="text-2xl line-through text-gray-500 dark:text-gray-400">
+                                                {{ formatCurrency(product.price_cents) }}
+                                            </span>
+                                            <span v-if="product.savings_amount" class="text-sm font-medium text-green-600 dark:text-green-400">
+                                                Save {{ formatCurrency(product.savings_amount) }}
+                                            </span>
+                                        </div>
+                                        <!-- Regular Price Display -->
+                                        <span v-else class="text-4xl font-bold text-blue-600 dark:text-blue-400">
                                             {{ formatCurrency(product.price_cents) }}
                                         </span>
                                     </div>

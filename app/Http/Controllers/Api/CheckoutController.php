@@ -137,6 +137,7 @@ class CheckoutController extends Controller
                 'client_secret' => $paymentIntent['client_secret'],
                 'amount_cents' => $totalCents,
                 'payment_intent_id' => $paymentIntent['id'],
+                'stripe_account' => $merchant->stripe_connect_account_id,
             ]);
 
         } catch (\Exception $e) {
@@ -199,7 +200,11 @@ class CheckoutController extends Controller
 
                     for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
                         try {
-                            $paymentIntent = $this->stripeConnectService->retrievePaymentIntent($paymentIntentId);
+                            // For Direct Charges, retrieve from merchant's connected account
+                            $paymentIntent = $this->stripeConnectService->retrievePaymentIntent(
+                                $paymentIntentId,
+                                $store->merchant->stripe_connect_account_id
+                            );
                             break; // Success, exit retry loop
                         } catch (\Exception $e) {
                             $errorCode = $e->getCode();
@@ -393,9 +398,22 @@ class CheckoutController extends Controller
         $shippingCost = 0;
         $processedItems = [];
 
-        // Get all products
+        // Get all products with sales relationship
         $productIds = collect($items)->pluck('product_id')->unique();
-        $products = Product::whereIn('id', $productIds)
+        $products = Product::with([
+                'sales' => function ($query) {
+                    $query->where('is_active', true)
+                        ->where(function ($q) {
+                            $q->whereNull('starts_at')
+                                ->orWhere('starts_at', '<=', now());
+                        })
+                        ->where(function ($q) {
+                            $q->whereNull('ends_at')
+                                ->orWhere('ends_at', '>=', now());
+                        });
+                }
+            ])
+            ->whereIn('id', $productIds)
             ->where('is_active', true)
             ->get()
             ->keyBy('id');
@@ -408,7 +426,10 @@ class CheckoutController extends Controller
                 return ['error' => "Product with ID {$item['product_id']} is not available."];
             }
 
-            $itemTotal = $product->price_cents * $item['qty'];
+            // Use sale price if available, otherwise use regular price
+            $activeSale = $product->activeSale();
+            $unitPrice = $activeSale ? $product->sale_price : $product->price_cents;
+            $itemTotal = $unitPrice * $item['qty'];
 
             // Add customization costs
             $customizationCost = 0;
@@ -452,7 +473,7 @@ class CheckoutController extends Controller
             $processedItems[] = [
                 'product' => $product,
                 'qty' => $item['qty'],
-                'unit_price_cents' => $product->price_cents,
+                'unit_price_cents' => $unitPrice,  // Use sale price if available
                 'customizations' => $item['customizations'] ?? [],
                 'addons' => $processedAddons,
                 'specialMessage' => $item['specialMessage'] ?? null,
@@ -597,7 +618,8 @@ class CheckoutController extends Controller
             }
 
             // Calculate financial breakdown
-            $unitPriceTotal = $product->price_cents + $customizationCostPerUnit;
+            // Use the sale price from processedItems (already includes discount if applicable)
+            $unitPriceTotal = $item['unit_price_cents'] + $customizationCostPerUnit;
             $lineSubtotal = $unitPriceTotal * $quantity;
             $taxAmount = 0; // TODO: Implement tax calculation based on store tax rate
             $lineTotal = $lineSubtotal + $taxAmount;

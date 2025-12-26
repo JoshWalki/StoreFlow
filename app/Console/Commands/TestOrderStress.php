@@ -383,11 +383,11 @@ class TestOrderStress extends Command
         $targetVendorQPS = ($vendors * $ordersPerVendorPerSec * 3 * $totalQueriesPerCycle);
 
         if ($queriesPerSecond < 100) {
-            $this->info("✅ EXCELLENT - System can easily handle {$vendors}+ concurrent vendors");
+            $this->info(" EXCELLENT - System can easily handle {$vendors}+ concurrent vendors");
             $this->info("   Current QPS: {$queriesPerSecond}");
             $this->info("   Capacity: ~" . round(1000 / $totalQueriesPerCycle / 3 * 60) . " orders/min system-wide");
         } elseif ($queriesPerSecond < 500) {
-            $this->info("✅ GOOD - System performing well");
+            $this->info(" GOOD - System performing well");
             $this->info("   Current QPS: {$queriesPerSecond}");
             $this->info("   Can handle {$vendors} vendors with current load");
         } elseif ($queriesPerSecond < 1000) {
@@ -420,6 +420,6 @@ class TestOrderStress extends Command
         Order::where('public_id', 'LIKE', 'STRESS-%')->delete();
         Customer::where('email', 'stress@test.local')->delete();
 
-        $this->info("✅ Cleanup complete");
+        $this->info(" Cleanup complete");
     }
 }

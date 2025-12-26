@@ -52,6 +52,12 @@ class Order extends Model
         'payment_status',
         'payment_method',
         'payment_reference',
+        'stripe_charge_id',
+        'platform_fee_cents',
+        'merchant_net_cents',
+        'stripe_transfer_id',
+        'stripe_transferred_at',
+        'stripe_metadata',
 
         // Financial breakdown
         'items_total_cents',
@@ -62,6 +68,7 @@ class Order extends Model
 
         // Pickup details
         'pickup_time',
+        'pickup_eta',
         'pickup_notes',
 
         // Shipping details
@@ -97,6 +104,7 @@ class Order extends Model
         'shipping_cost_cents' => 'integer',
         'total_cents' => 'integer',
         'pickup_time' => 'datetime',
+        'pickup_eta' => 'datetime',
         'placed_at' => 'datetime',
         'accepted_at' => 'datetime',
         'ready_at' => 'datetime',

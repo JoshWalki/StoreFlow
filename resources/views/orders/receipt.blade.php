@@ -195,6 +195,12 @@
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
+
+            div[style*="background: #fffbea"] {
+                background: #fffbea !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
         }
     </style>
 
@@ -248,6 +254,13 @@
                 <div class="item-name">{{ $item->name }}</div>
                 <div class="item-qty">{{ $item->quantity }}</div>
             </div>
+
+            {{-- Display special instructions --}}
+            @if($item->special_instructions)
+                <div style="padding: 2px 0 2px 8px; font-size: 10px; color: #666; font-style: italic; background: #fffbea; margin: 1px 0;">
+                    Note: {{ $item->special_instructions }}
+                </div>
+            @endif
 
             {{-- Display addons as sub-items --}}
             @if($item->addons && $item->addons->isNotEmpty())

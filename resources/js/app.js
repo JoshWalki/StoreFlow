@@ -10,6 +10,32 @@ import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
 import flashMessages from "./Plugins/flashMessages";
 
+// Refresh CSRF token periodically to prevent expiration
+const refreshCsrfToken = async () => {
+    try {
+        const response = await fetch('/api/csrf-token');
+        if (response.ok) {
+            const data = await response.json();
+            const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+            if (tokenMeta && data.token) {
+                tokenMeta.setAttribute('content', data.token);
+            }
+        }
+    } catch (error) {
+        console.error('Failed to refresh CSRF token:', error);
+    }
+};
+
+// Refresh token every 60 minutes (before the 120-minute session expires)
+setInterval(refreshCsrfToken, 60 * 60 * 1000);
+
+// Also refresh on page visibility change (when user comes back to tab)
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        refreshCsrfToken();
+    }
+});
+
 const appName =
     window.document.getElementsByTagName("title")[0]?.innerText || "StoreFlow";
 
@@ -91,6 +117,16 @@ createInertiaApp({
         includeCSS: true,
         showSpinner: false, // Disable default small spinner - we'll use custom one
     },
+});
+
+// Handle 419 CSRF token expiration globally
+document.addEventListener('inertia:error', (event) => {
+    const response = event.detail.response;
+
+    if (response?.status === 419) {
+        // CSRF token has expired - reload the page to get a fresh token
+        window.location.reload();
+    }
 });
 
 // Custom centered loading spinner with minimum display time

@@ -27,15 +27,19 @@ class Customer extends Authenticatable
         'address_state',
         'address_postcode',
         'address_country',
+        'reset_token',
+        'reset_token_expires_at',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
+        'reset_token',
     ];
 
     protected $casts = [
         // Removed 'password' => 'hashed' to avoid conflicts with explicit Hash::make()
+        'reset_token_expires_at' => 'datetime',
     ];
 
     /**

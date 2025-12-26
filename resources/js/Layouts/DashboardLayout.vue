@@ -6,48 +6,6 @@
         <!-- Toast Notifications -->
         <ToastContainer />
 
-        <!-- Sound Notification Permission Banner -->
-        <div
-            v-if="showSoundPermissionBanner"
-            class="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 max-w-md w-full mx-4"
-        >
-            <div
-                class="bg-blue-600 text-white rounded-lg shadow-xl p-4 flex items-center justify-between"
-            >
-                <div class="flex items-center space-x-3">
-                    <svg
-                        class="w-6 h-6"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                    >
-                        <path
-                            d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
-                        />
-                    </svg>
-                    <div>
-                        <p class="font-medium">Enable Sound Notifications?</p>
-                        <p class="text-sm text-blue-100">
-                            Get audio alerts for new orders
-                        </p>
-                    </div>
-                </div>
-                <div class="flex space-x-2">
-                    <button
-                        @click="enableSoundNotifications"
-                        class="px-4 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors"
-                    >
-                        Enable
-                    </button>
-                    <button
-                        @click="dismissSoundPermission"
-                        class="px-3 py-2 text-blue-100 hover:text-white transition-colors"
-                    >
-                        ✕
-                    </button>
-                </div>
-            </div>
-        </div>
-
         <!-- Top Navigation Bar -->
         <nav
             class="bg-white dark:bg-gray-800 shadow-sm border-gray-200 dark:border-gray-700"
@@ -55,24 +13,7 @@
             <div class="mx-auto px-2 sm:px-3 lg:px-6">
                 <div class="flex justify-between items-center h-12 sm:h-14">
                     <div class="flex items-center gap-1.5">
-                        <img
-                            :src="
-                                isDark
-                                    ? '/images/logo/logo-banner-white.png'
-                                    : '/images/logo/logo-banner.png'
-                            "
-                            alt="StoreFlow"
-                            class="h-8 w-auto transition-opacity duration-300"
-                        />
-                        <span
-                            v-if="currentStore"
-                            class="hidden sm:inline ml-1.5 text-xs sm:text-sm text-gray-600 dark:text-gray-300"
-                            >{{ currentStore.name }}</span
-                        >
-                    </div>
-
-                    <div class="flex items-center space-x-1.5 sm:space-x-3">
-                        <!-- Mobile Menu Button -->
+                        <!-- Mobile Menu Button (Left of Logo) -->
                         <button
                             @click="toggleMobileSidebar"
                             class="lg:hidden p-1.5 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
@@ -91,6 +32,24 @@
                                 />
                             </svg>
                         </button>
+
+                        <img
+                            :src="
+                                isDark
+                                    ? '/images/logo/logo-banner-white.png'
+                                    : '/images/logo/logo-banner.png'
+                            "
+                            alt="StoreFlow"
+                            class="h-8 w-auto transition-opacity duration-300"
+                        />
+                        <span
+                            v-if="currentStore"
+                            class="hidden sm:inline ml-1.5 text-xs sm:text-sm text-gray-600 dark:text-gray-300"
+                            >{{ currentStore.name }}</span
+                        >
+                    </div>
+
+                    <div class="flex items-center space-x-1.5 sm:space-x-3">
 
                         <!-- Store Link with Copy Button -->
                         <div
@@ -139,6 +98,80 @@
                                     />
                                 </svg>
                             </button>
+                        </div>
+
+                        <!-- Bell Notification Icon -->
+                        <div class="relative">
+                            <button
+                                @click="showBellDropdown = !showBellDropdown"
+                                class="relative p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                                title="Notification Settings"
+                            >
+                                <svg
+                                    class="w-5 h-5"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                >
+                                    <path
+                                        d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
+                                    />
+                                </svg>
+                                <!-- Notification indicator dot when enabled -->
+                                <span
+                                    v-if="soundEnabled"
+                                    class="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full"
+                                ></span>
+                            </button>
+
+                            <!-- Notification Settings Dropdown -->
+                            <Transition name="dropdown">
+                                <div
+                                    v-if="showBellDropdown"
+                                    @click.stop
+                                    class="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50"
+                                >
+                                    <div class="p-4">
+                                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+                                            Sound Notifications
+                                        </h3>
+
+                                        <div class="flex items-center justify-between mb-3">
+                                            <div class="flex-1">
+                                                <p class="text-sm text-gray-700 dark:text-gray-300">
+                                                    Order Alerts
+                                                </p>
+                                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                    Play sound for new orders
+                                                </p>
+                                            </div>
+
+                                            <!-- Toggle Switch -->
+                                            <button
+                                                @click="toggleSoundNotifications"
+                                                class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                                :class="soundEnabled ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-600'"
+                                            >
+                                                <span
+                                                    class="inline-block w-4 h-4 transform bg-white rounded-full transition-transform"
+                                                    :class="soundEnabled ? 'translate-x-6' : 'translate-x-1'"
+                                                ></span>
+                                            </button>
+                                        </div>
+
+                                        <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                <span v-if="soundEnabled" class="text-green-600 dark:text-green-400 font-medium">
+                                                    ✓ Enabled
+                                                </span>
+                                                <span v-else class="text-gray-500">
+                                                    Disabled
+                                                </span>
+                                                - You will {{ soundEnabled ? '' : 'not' }} receive audio alerts when new orders arrive.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Transition>
                         </div>
 
                         <span
@@ -251,7 +284,7 @@
                         clip-rule="evenodd"
                     />
                 </svg>
-                <span>Your store is currently not accepting orders.</span>
+                <span><a href="/store/settings#basic">Your store is currently not accepting orders. Fix now ></a></span>
             </div>
         </div>
 
@@ -644,16 +677,7 @@
                                                 "
                                                 class="block px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md transition-colors"
                                             >
-                                                Basic Information
-                                            </a>
-                                            <a
-                                                :href="
-                                                    route('store.settings') +
-                                                    '#logo'
-                                                "
-                                                class="block px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md transition-colors"
-                                            >
-                                                Store Logo
+                                                Store Settings
                                             </a>
                                             <a
                                                 :href="
@@ -672,15 +696,6 @@
                                                 class="block px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md transition-colors"
                                             >
                                                 Business Settings
-                                            </a>
-                                            <a
-                                                :href="
-                                                    route('store.settings') +
-                                                    '#theme'
-                                                "
-                                                class="block px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md transition-colors"
-                                            >
-                                                Storefront Theme
                                             </a>
                                             <a
                                                 v-if="
@@ -1415,19 +1430,13 @@ const storeUrl = computed(() => {
 
 const linkCopied = ref(false);
 
-// Sound notification permission
-const showSoundPermissionBanner = ref(false);
+// Sound notification permission (managed by bell icon)
 const soundEnabled = ref(false);
 
 // Check if sound permission has been set
 onMounted(() => {
     const soundPref = localStorage.getItem("soundNotificationsEnabled");
-    if (soundPref === null) {
-        // Show banner if not set
-        showSoundPermissionBanner.value = true;
-    } else {
-        soundEnabled.value = soundPref === "true";
-    }
+    soundEnabled.value = soundPref === "true";
 
     // Check if system notice has been dismissed
     checkNoticeDismissed();
@@ -1443,7 +1452,6 @@ const enableSoundNotifications = async () => {
 
         soundEnabled.value = true;
         localStorage.setItem("soundNotificationsEnabled", "true");
-        showSoundPermissionBanner.value = false;
         success(
             "Sound Enabled!",
             "You will now hear audio alerts for new orders"
@@ -1453,9 +1461,16 @@ const enableSoundNotifications = async () => {
     }
 };
 
-const dismissSoundPermission = () => {
-    localStorage.setItem("soundNotificationsEnabled", "false");
-    showSoundPermissionBanner.value = false;
+const toggleSoundNotifications = async () => {
+    if (!soundEnabled.value) {
+        // Enabling sound
+        await enableSoundNotifications();
+    } else {
+        // Disabling sound
+        soundEnabled.value = false;
+        localStorage.setItem("soundNotificationsEnabled", "false");
+        success("Sound Disabled", "Audio alerts are now turned off");
+    }
 };
 
 const copyStoreLink = async () => {
@@ -1485,6 +1500,9 @@ const mobileSidebarOpen = ref(false);
 // Settings submenu state
 const showSettingsSubmenu = ref(false);
 
+// Bell notification dropdown state
+const showBellDropdown = ref(false);
+
 // Toggle sidebar collapsed state
 const toggleSidebar = () => {
     sidebarCollapsed.value = !sidebarCollapsed.value;
@@ -1497,6 +1515,16 @@ const toggleSidebar = () => {
 // Toggle mobile sidebar
 const toggleMobileSidebar = () => {
     mobileSidebarOpen.value = !mobileSidebarOpen.value;
+};
+
+// Close bell dropdown when clicking outside
+const handleClickOutside = (event) => {
+    const bellButton = event.target.closest('button[title="Notification Settings"]');
+    const bellDropdown = event.target.closest('.absolute.right-0.mt-2.w-72');
+
+    if (!bellButton && !bellDropdown && showBellDropdown.value) {
+        showBellDropdown.value = false;
+    }
 };
 
 // Watch systemNotice for changes to re-check dismissal state
@@ -1514,6 +1542,9 @@ onMounted(() => {
     if (savedState !== null) {
         sidebarCollapsed.value = JSON.parse(savedState);
     }
+
+    // Add click outside listener for bell dropdown
+    document.addEventListener('click', handleClickOutside);
 
     // WebSocket setup for real-time order notifications
     if (typeof window.Echo !== "undefined" && props.store?.id) {
@@ -1549,6 +1580,9 @@ onBeforeUnmount(() => {
     if (typeof window.Echo !== "undefined" && props.store?.id) {
         window.Echo.leave(`store.${props.store.id}.orders`);
     }
+
+    // Remove click outside listener
+    document.removeEventListener('click', handleClickOutside);
 });
 
 // Notification sound
@@ -1560,10 +1594,8 @@ const playNotificationSound = () => {
         const audio = new Audio("/sounds/notification.wav");
         audio.volume = 0.7;
         audio.play().catch((e) => {
-            // Browser blocked autoplay - show permission banner again
-            if (e.name === "NotAllowedError") {
-                showSoundPermissionBanner.value = true;
-            }
+            // Browser blocked autoplay - user needs to enable via bell icon
+            console.log("Audio autoplay blocked. Please enable via notification bell icon.");
         });
     } catch (error) {
         console.error("Notification sound error:", error);
@@ -1657,5 +1689,31 @@ const logout = () => {
     opacity: 0;
     transform: translateY(-8px);
     max-height: 0;
+}
+
+/* Dropdown animation for bell notifications */
+.dropdown-enter-active,
+.dropdown-leave-active {
+    transition: all 0.2s ease;
+}
+
+.dropdown-enter-from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+}
+
+.dropdown-enter-to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.dropdown-leave-from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.dropdown-leave-to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
 }
 </style>

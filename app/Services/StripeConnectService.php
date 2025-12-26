@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
  * - Account creation and onboarding
  * - Account link generation
  * - Account status verification
- * - Payment intent creation with destination charges
+ * - Payment intent creation with direct charges
  * - Platform fee calculation
  * - Webhook signature verification
  */
@@ -251,7 +251,8 @@ class StripeConnectService
     }
 
     /**
-     * Create a payment intent with destination charge to merchant.
+     * Create a payment intent with direct charge to merchant's connected account.
+     * Uses Stripe Direct Charges where the merchant pays Stripe fees and platform collects application fee.
      *
      * @param Merchant $merchant
      * @param int $amountCents Total amount in cents
@@ -281,9 +282,6 @@ class StripeConnectService
                 'currency' => $currency,
                 'payment_method_types' => ['card'],
                 'application_fee_amount' => $platformFee,
-                'transfer_data' => [
-                    'destination' => $merchant->stripe_connect_account_id,
-                ],
                 'metadata' => array_merge([
                     'merchant_id' => $merchant->id,
                     'platform' => config('app.name'),
@@ -295,7 +293,12 @@ class StripeConnectService
                 $paymentIntentData['customer'] = $stripeCustomerId;
             }
 
-            $paymentIntent = $this->stripe->paymentIntents->create($paymentIntentData);
+            // Create payment intent using Direct Charges (charges directly on merchant's connected account)
+            // The stripe_account header makes this a Direct Charge where merchant pays Stripe fees
+            $paymentIntent = $this->stripe->paymentIntents->create(
+                $paymentIntentData,
+                ['stripe_account' => $merchant->stripe_connect_account_id]
+            );
 
             return $paymentIntent->toArray();
         } catch (ApiErrorException $e) {
@@ -322,19 +325,24 @@ class StripeConnectService
 
     /**
      * Retrieve payment intent details.
+     * For Direct Charges, must specify the connected account.
      *
      * @param string $paymentIntentId
+     * @param string|null $stripeAccountId Stripe Connect account ID (required for Direct Charges)
      * @return array PaymentIntent data
      * @throws ApiErrorException
      */
-    public function retrievePaymentIntent(string $paymentIntentId): array
+    public function retrievePaymentIntent(string $paymentIntentId, ?string $stripeAccountId = null): array
     {
         try {
-            $paymentIntent = $this->stripe->paymentIntents->retrieve($paymentIntentId);
+            // For Direct Charges, retrieve from the connected account
+            $options = $stripeAccountId ? ['stripe_account' => $stripeAccountId] : [];
+            $paymentIntent = $this->stripe->paymentIntents->retrieve($paymentIntentId, [], $options);
             return $paymentIntent->toArray();
         } catch (ApiErrorException $e) {
             Log::error('Failed to retrieve payment intent', [
                 'payment_intent_id' => $paymentIntentId,
+                'stripe_account_id' => $stripeAccountId,
                 'error' => $e->getMessage(),
             ]);
             throw $e;
@@ -343,14 +351,16 @@ class StripeConnectService
 
     /**
      * Create a refund for a payment intent.
+     * For Direct Charges, must specify the connected account.
      *
      * @param string $paymentIntentId
      * @param int|null $amountCents Amount to refund (null = full refund)
      * @param string|null $reason Refund reason
+     * @param string|null $stripeAccountId Stripe Connect account ID (required for Direct Charges)
      * @return array Refund data
      * @throws ApiErrorException
      */
-    public function createRefund(string $paymentIntentId, ?int $amountCents = null, ?string $reason = null): array
+    public function createRefund(string $paymentIntentId, ?int $amountCents = null, ?string $reason = null, ?string $stripeAccountId = null): array
     {
         try {
             $params = [
@@ -365,7 +375,9 @@ class StripeConnectService
                 $params['reason'] = $reason;
             }
 
-            $refund = $this->stripe->refunds->create($params);
+            // For Direct Charges, create refund on the connected account
+            $options = $stripeAccountId ? ['stripe_account' => $stripeAccountId] : [];
+            $refund = $this->stripe->refunds->create($params, $options);
 
             Log::info('Refund created', [
                 'payment_intent_id' => $paymentIntentId,

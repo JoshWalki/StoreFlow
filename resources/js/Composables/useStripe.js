@@ -19,9 +19,10 @@ export function useStripe() {
      * Initialize Stripe with publishable key
      *
      * @param {string} publishableKey - Stripe publishable key
+     * @param {string|null} stripeAccount - Stripe Connect account ID (for Direct Charges)
      * @returns {object} Stripe instance
      */
-    const initializeStripe = (publishableKey) => {
+    const initializeStripe = (publishableKey, stripeAccount = null) => {
         if (!window.Stripe) {
             error.value = 'Stripe.js is not loaded. Please check your internet connection.';
             console.error('Stripe.js not loaded');
@@ -29,7 +30,10 @@ export function useStripe() {
         }
 
         if (!stripeInstance) {
-            stripeInstance = window.Stripe(publishableKey);
+            // For Direct Charges with Stripe Connect, pass the connected account ID
+            const options = stripeAccount ? { stripeAccount } : {};
+            stripeInstance = window.Stripe(publishableKey, options);
+            console.log('Stripe initialized with options:', options);
         }
 
         return stripeInstance;

@@ -10,7 +10,7 @@
                     <!-- Logo -->
                     <div class="flex items-center">
                         <img
-                            :src="scrolled ? '/images/logo/logo-banner.png' : '/images/logo/logo-banner-white.png'"
+                            src="/images/logo/logo-banner.png"
                             alt="StoreFlow"
                             class="h-10 w-auto transition-opacity duration-300"
                         />
@@ -25,7 +25,7 @@
                             @click.prevent="scrollToSection(item.id)"
                             class="text-sm font-medium transition-colors hover:text-blue-600"
                             :class="[
-                                scrolled ? 'text-gray-700' : 'text-white',
+                                scrolled ? 'text-gray-700' : 'text-gray-900',
                                 activeSection === item.id
                                     ? 'text-blue-600'
                                     : '',
@@ -35,11 +35,17 @@
                         </a>
                     </div>
 
-                    <!-- Login Button -->
+                    <!-- Action Buttons -->
                     <div class="flex items-center space-x-4">
                         <a
+                            href="/register"
+                            class="hidden md:block px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium text-sm"
+                        >
+                            Free Trial
+                        </a>
+                        <a
                             :href="route('login')"
-                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium text-sm"
+                            class="px-6 py-2 bg-black text-white rounded-lg hover:bg-black transition-all duration-300 shadow-lg hover:shadow-xl font-medium text-sm"
                         >
                             Login
                         </a>
@@ -47,8 +53,7 @@
                         <!-- Mobile Menu Button -->
                         <button
                             @click="mobileMenuOpen = !mobileMenuOpen"
-                            class="md:hidden p-2 rounded-lg"
-                            :class="scrolled ? 'text-gray-900' : 'text-white'"
+                            class="md:hidden p-2 rounded-lg text-gray-900"
                         >
                             <svg
                                 class="w-6 h-6"
@@ -100,6 +105,13 @@
                         >
                             {{ item.label }}
                         </a>
+                        <a
+                            href="/register"
+                            @click="mobileMenuOpen = false"
+                            class="block mx-4 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg font-medium"
+                        >
+                            Free Trial
+                        </a>
                     </div>
                 </transition>
             </div>
@@ -113,9 +125,7 @@
             <!-- Gradient Background with Scroll Animation -->
             <div
                 class="absolute inset-0 transition-all duration-700 ease-out"
-                :style="{
-                    background: `linear-gradient(${135 + gradientPosition * 0.5}deg, rgb(37, 99, 235) ${0 + gradientPosition * 0.2}%, rgb(147, 51, 234) ${50 - gradientPosition * 0.1}%, rgb(107, 33, 168) ${100 - gradientPosition * 0.2}%)`
-                }"
+                style="background: #F5EA61;"
             ></div>
 
             <!-- Animated Shapes -->
@@ -129,11 +139,11 @@
             </div>
 
             <!-- Mascot -->
-            <div class="absolute left-0 bottom-24 z-10">
+            <div class="absolute -bottom-[5rem] -right-[10rem] z-20 sm:bottom-12 sm:left-0 sm:right-auto sm:z-5 lg:bottom-24 lg:z-5 xl:z-20">
                 <img
-                    src="/images/logo/mascot.svg"
+                    src="/images/logo/storeflow_wombat_thumbsup.png"
                     alt="StoreFlow Mascot"
-                    class="w-32 h-32 sm:w-48 sm:h-48 lg:w-64 lg:h-64 opacity-90 animate-float"
+                    class="w-[30rem] h-[30rem] sm:w-48 sm:h-48 lg:w-[30rem] lg:h-[30rem] xl:w-[40rem] xl:h-[40rem] 2xl:w-[50rem] 2xl:h-[50rem]"
                 />
             </div>
 
@@ -146,18 +156,18 @@
                     :class="{ 'animation-started': heroVisible }"
                 >
                     <h1
-                        class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight"
+                        class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight"
                     >
                         Transform Your Business<br />
                         <!-- THIS IS A SECRET MESSAGE -->
                         <span
-                            class="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-purple-200"
+                            class="text-gray-800"
                         >
                             Into Digital Success
                         </span>
                     </h1>
                     <p
-                        class="text-xl sm:text-2xl text-blue-100 mb-10 max-w-3xl mx-auto"
+                        class="text-xl sm:text-2xl text-gray-700 mb-10 max-w-3xl mx-auto"
                     >
                         StoreFlow is a power full e-commerce platform designed for
                         merchants and the customers.
@@ -169,14 +179,14 @@
                     >
                         <a
                             :href="route('register')"
-                            class="px-8 py-4 bg-white text-blue-600 rounded-lg hover:bg-gray-50 transition-all duration-300 shadow-2xl hover:shadow-3xl font-semibold text-lg transform hover:scale-105"
+                            class="px-8 py-4 bg-[#F5EA61] text-gray-900 rounded-lg hover:bg-[#e8de55] transition-all duration-300 shadow-2xl hover:shadow-3xl font-semibold text-lg transform hover:scale-105"
                         >
                             Get Started For Free
                         </a>
                         <a
                             href="#features"
                             @click.prevent="scrollToSection('features')"
-                            class="px-8 py-4 bg-transparent text-white border-2 border-white rounded-lg hover:bg-white hover:text-blue-600 transition-all duration-300 font-semibold text-lg transform hover:scale-105"
+                            class="px-8 py-4 bg-transparent text-gray-900 border-2 border-gray-900 rounded-lg hover:bg-gray-900 hover:text-[#F5EA61] transition-all duration-300 font-semibold text-lg transform hover:scale-105"
                         >
                             Learn More
                         </a>
@@ -191,7 +201,7 @@
                     <a
                         href="#showcase"
                         @click.prevent="scrollToSection('showcase')"
-                        class="text-white opacity-75 hover:opacity-100 transition-opacity"
+                        class="text-gray-900 opacity-75 hover:opacity-100 transition-opacity"
                     >
                         <svg
                             class="w-6 h-6"
@@ -211,8 +221,8 @@
             </div>
 
             <!-- Wave Transition - White wave on gradient background -->
-            <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
-                <svg class="relative block w-full h-24" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-none" style="z-index: 1;">
+                <svg class="block w-full h-24" viewBox="0 0 1200 120" preserveAspectRatio="none">
                     <path d="M0,0 C150,80 350,0 600,40 C850,80 1050,20 1200,60 L1200,120 L0,120 Z" fill="#ffffff"></path>
                 </svg>
             </div>
@@ -359,7 +369,7 @@
         </section>
 
         <!-- Free Trial CTA Section -->
-        <section class="relative py-20 overflow-hidden">
+        <section id="free-trial" class="relative py-20 overflow-hidden">
             <!-- Gradient Background -->
             <div class="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500"></div>
 
@@ -370,11 +380,21 @@
                 <div class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl animate-float"></div>
             </div>
 
+            <!-- Static Wombat - Fully Visible -->
+            <div class="absolute -right-40 w-[30rem] h-[30rem] z-20 sm:top-1/2 sm:-translate-y-1/2 sm:right-12 sm:w-48 sm:h-48 lg:right-20 lg:w-[50rem] lg:h-[50rem]">
+                <img
+                    src="/images/logo/storeflow_wombat.png"
+                    alt=""
+                    class="w-full h-full object-contain"
+                />
+            </div>
+
             <!-- Content -->
             <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 md:p-12 border border-white/20">
                     <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">
-                        Cut the bullsh*t. Let's get going.
+                        Cut the bull. <br>
+                        Start your 14 day trial.
                     </h2>
                     <p class="text-lg md:text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
                         Full access to all features. Cancel anytime.
@@ -390,7 +410,7 @@
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                             </svg>
-                            <span>It's easy as</span>
+                            <span>Cancel anytime</span>
                         </div>
                     </div>
                 </div>
@@ -620,8 +640,8 @@
                                     </div>
                                 </div>
                                 <div class="ml-4">
-                                    <h4 class="text-lg font-semibold text-gray-900 mb-2">Cost breakdown</h4>
-                                    <p class="text-gray-600">Stripe takes 1.5% per transaction + $0.30. StoreFlow takes 1.0% per transaction. <br>After your trial, we charge $30 a month for our all services.</br></p>
+                                    <h4 class="text-lg font-semibold text-gray-900 mb-2">Monthly cost</h4>
+                                    <p class="text-gray-600">After your 14 day trial, we charge $30 a month for all our services.</p>
                                 </div>
                             </div>
                         </div>
@@ -678,15 +698,167 @@
                 <!-- Trust Badge -->
                 <div class="mt-12 text-center">
                     <p class="text-sm text-gray-500 mb-4">Trusted payment processing by</p>
-                    <div class="flex justify-center items-center">
-                        <div class="px-8 py-4 bg-white rounded-lg shadow-md mb-4">
-                            <span class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Stripe</span>
+                    <a href="https://stripe.com" target="_blank" rel="noopener noreferrer" class="inline-block">
+                        <div class="flex justify-center items-center">
+                            <div class="px-8 py-4 bg-white rounded-lg shadow-md mb-4">
+                                <span class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Stripe</span>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                     <p class="text-sm text-gray-800 max-w-2xl mx-auto">
                         Why do we use Stripe? We want you to handle your own money, not us.<br>
                         Stripe is a global leader in the financial industry, trusted by millions of businesses for secure and reliable payment processing.
                     </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Form Section -->
+        <section id="contact" class="py-20 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+                    <!-- Left Side - Text Content -->
+                    <div class="lg:pr-8">
+                        <h2 class="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+                            Looking for something tailored?
+                        </h2>
+                        <p class="text-xl text-gray-600 mb-8 leading-relaxed">
+                            Have specific requirements or questions? We'd love to hear from you.
+                            Send us a message and we'll get back to you within 24 hours.
+                        </p>
+
+                        <!-- Contact Info -->
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <svg class="w-6 h-6 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                                <a href="mailto:hello@storeflow.com.au" class="text-lg text-gray-700 hover:text-blue-600 transition-colors">
+                                    hello@storeflow.com.au
+                                </a>
+                            </div>
+                            <div class="flex items-start mt-6">
+                                <svg class="w-6 h-6 text-blue-600 mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>
+                                    <p class="text-gray-700 leading-relaxed">
+                                        Whether you're looking for custom features, enterprise solutions, or have questions about our platform, our team is ready to help you succeed.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Side - Form Card -->
+                    <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl shadow-xl p-8 md:p-10">
+                    <form @submit.prevent="submitContactForm">
+                        <!-- Name Input -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Your Name <span class="text-red-500">*</span>
+                            </label>
+                            <input
+                                v-model="contactForm.name"
+                                type="text"
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                :class="contactErrors.name ? 'border-red-500' : ''"
+                                placeholder="John Doe"
+                            />
+                            <p v-if="contactErrors.name" class="mt-1 text-sm text-red-600">
+                                {{ contactErrors.name }}
+                            </p>
+                        </div>
+
+                        <!-- Email Input -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Email Address <span class="text-red-500">*</span>
+                            </label>
+                            <input
+                                v-model="contactForm.email"
+                                type="email"
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                :class="contactErrors.email ? 'border-red-500' : ''"
+                                placeholder="john@example.com"
+                            />
+                            <p v-if="contactErrors.email" class="mt-1 text-sm text-red-600">
+                                {{ contactErrors.email }}
+                            </p>
+                        </div>
+
+                        <!-- Message Textarea -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Your Message <span class="text-red-500">*</span>
+                            </label>
+                            <textarea
+                                v-model="contactForm.message"
+                                required
+                                rows="6"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                                :class="contactErrors.message ? 'border-red-500' : ''"
+                                placeholder="Tell us about your requirements..."
+                            ></textarea>
+                            <p v-if="contactErrors.message" class="mt-1 text-sm text-red-600">
+                                {{ contactErrors.message }}
+                            </p>
+                        </div>
+
+                        <!-- Turnstile Widget -->
+                        <TurnstileWidget
+                            ref="turnstileRef"
+                            :site-key="page.props.turnstile_site_key"
+                            v-model="contactForm.turnstile_token"
+                            theme="light"
+                        />
+                        <p v-if="contactErrors.turnstile_token" class="mt-1 text-sm text-red-600 text-center">
+                            {{ contactErrors.turnstile_token }}
+                        </p>
+
+                        <!-- Submit Button -->
+                        <div class="text-center">
+                            <button
+                                type="submit"
+                                :disabled="contactProcessing"
+                                class="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                            >
+                                <span v-if="!contactProcessing">Send Message</span>
+                                <span v-else class="flex items-center justify-center">
+                                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Sending...
+                                </span>
+                            </button>
+                        </div>
+
+                        <!-- Success Message with transition -->
+                        <transition
+                            enter-active-class="transition-all duration-300 ease-out"
+                            enter-from-class="opacity-0 transform scale-95"
+                            enter-to-class="opacity-100 transform scale-100"
+                            leave-active-class="transition-all duration-200 ease-in"
+                            leave-from-class="opacity-100 transform scale-100"
+                            leave-to-class="opacity-0 transform scale-95"
+                        >
+                            <div v-if="contactSuccess" class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                                <div class="flex items-center">
+                                    <svg class="w-6 h-6 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="font-semibold text-green-800">Message sent successfully!</p>
+                                        <p class="text-sm text-green-700">We'll get back to you within 24 hours.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </transition>
+                    </form>
+                </div>
                 </div>
             </div>
         </section>
@@ -784,6 +956,25 @@
                             </li>
                         </ul>
                     </div>
+                    <div>
+                        <h4 class="font-semibold mb-4">Legal</h4>
+                        <ul class="space-y-2 text-gray-400">
+                            <li>
+                                <button
+                                    @click="showPrivacyModal = true"
+                                    class="hover:text-white transition-colors"
+                                    >Privacy Policy</button
+                                >
+                            </li>
+                            <li>
+                                <button
+                                    @click="showTermsModal = true"
+                                    class="hover:text-white transition-colors"
+                                    >Terms of Service</button
+                                >
+                            </li>
+                        </ul>
+                    </div>
                 </div>
                 <div
                     class="border-t border-gray-800 pt-8 text-center text-gray-400"
@@ -795,12 +986,31 @@
                 </div>
             </div>
         </footer>
+
+        <!-- Privacy Policy Modal -->
+        <PrivacyPolicyModal
+            :isOpen="showPrivacyModal"
+            @close="showPrivacyModal = false"
+            contactEmail="hello@storeflow.com"
+        />
+
+        <!-- Terms of Service Modal -->
+        <TermsOfServiceModal
+            :isOpen="showTermsModal"
+            @close="showTermsModal = false"
+            contactEmail="hello@storeflow.com"
+        />
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
-import { router } from "@inertiajs/vue3";
+import { router, usePage } from "@inertiajs/vue3";
+import PrivacyPolicyModal from "@/Components/Legal/PrivacyPolicyModal.vue";
+import TermsOfServiceModal from "@/Components/Legal/TermsOfServiceModal.vue";
+import TurnstileWidget from "@/Components/TurnstileWidget.vue";
+
+const page = usePage();
 
 const scrolled = ref(false);
 const activeSection = ref("hero");
@@ -810,6 +1020,7 @@ const mobileMenuOpen = ref(false);
 const heroVisible = ref(false);
 const featuresVisible = ref(false);
 const aboutVisible = ref(false);
+const contactVisible = ref(false);
 const ctaVisible = ref(false);
 
 // Showcase 3D tilt effect state
@@ -825,12 +1036,30 @@ const showcaseHovered = ref({
 // Gradient animation based on scroll
 const gradientPosition = ref(0);
 
+// Modal states
+const showPrivacyModal = ref(false);
+const showTermsModal = ref(false);
+
+// Contact form state
+const contactForm = ref({
+    name: '',
+    email: '',
+    message: '',
+    turnstile_token: null
+});
+const contactErrors = ref({});
+const contactProcessing = ref(false);
+const contactSuccess = ref(false);
+const turnstileRef = ref(null);
+
 const navItems = [
     { id: "hero", label: "Home" },
     { id: "showcase", label: "Showcase" },
+    { id: "free-trial", label: "Free Trial" },
     { id: "features", label: "Features" },
     { id: "about", label: "About" },
     { id: "pricing", label: "Pricing" },
+    { id: "contact", label: "Contact" },
     { id: "cta", label: "Get Started" },
 ];
 
@@ -935,6 +1164,76 @@ const scrollToSection = (sectionId) => {
     }
 };
 
+// Submit contact form
+const submitContactForm = () => {
+    contactErrors.value = {};
+    contactSuccess.value = false;
+    contactProcessing.value = true;
+
+    // Frontend validation
+    if (!contactForm.value.name.trim()) {
+        contactErrors.value.name = 'Name is required';
+        contactProcessing.value = false;
+        return;
+    }
+
+    if (!contactForm.value.email.trim()) {
+        contactErrors.value.email = 'Email is required';
+        contactProcessing.value = false;
+        return;
+    }
+
+    if (!contactForm.value.message.trim()) {
+        contactErrors.value.message = 'Message is required';
+        contactProcessing.value = false;
+        return;
+    }
+
+    // Validate Turnstile token
+    if (!turnstileRef.value?.isValid()) {
+        contactErrors.value.turnstile_token = 'Please complete the security verification';
+        contactProcessing.value = false;
+        return;
+    }
+
+    // Submit via Inertia
+    router.post('/contact', contactForm.value, {
+        preserveScroll: true,
+        onSuccess: () => {
+            contactSuccess.value = true;
+            contactForm.value = { name: '', email: '', message: '', turnstile_token: null };
+            turnstileRef.value?.reset();
+
+            // Ensure we're viewing the contact section
+            setTimeout(() => {
+                const contactSection = document.getElementById('contact');
+                if (contactSection) {
+                    const offset = 100;
+                    const elementPosition = contactSection.getBoundingClientRect().top + window.pageYOffset;
+                    const offsetPosition = elementPosition - offset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            }, 100);
+
+            // Hide success message after 5 seconds
+            setTimeout(() => {
+                contactSuccess.value = false;
+            }, 5000);
+        },
+        onError: (errors) => {
+            contactErrors.value = errors;
+            turnstileRef.value?.reset();
+        },
+        onFinish: () => {
+            contactProcessing.value = false;
+        }
+    });
+};
+
 // Handle scroll events
 const handleScroll = () => {
     // Update scrolled state for navbar
@@ -946,7 +1245,7 @@ const handleScroll = () => {
     gradientPosition.value = scrollPercentage * 100; // 0 to 100
 
     // Update active section
-    const sections = ["hero", "showcase", "features", "about", "pricing", "cta"];
+    const sections = ["hero", "showcase", "features", "about", "pricing", "contact", "cta"];
     const scrollPosition = window.scrollY + 100;
 
     for (const sectionId of sections) {
@@ -980,6 +1279,7 @@ const handleScroll = () => {
     triggerAnimation("hero", heroVisible);
     triggerAnimation("features", featuresVisible);
     triggerAnimation("about", aboutVisible);
+    triggerAnimation("contact", contactVisible);
     triggerAnimation("cta", ctaVisible);
 };
 

@@ -30,6 +30,11 @@ class OrderItem extends Model
 
         // Special instructions
         'special_instructions',
+
+        // Refund information
+        'is_refunded',
+        'refund_date',
+        'refund_reason',
     ];
 
     protected $casts = [
@@ -38,6 +43,8 @@ class OrderItem extends Model
         'line_subtotal_cents' => 'integer',
         'tax_cents' => 'integer',
         'total_cents' => 'integer',
+        'is_refunded' => 'boolean',
+        'refund_date' => 'datetime',
     ];
 
     public function order(): BelongsTo

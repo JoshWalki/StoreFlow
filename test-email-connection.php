@@ -41,7 +41,7 @@ if (!$socket) {
 }
 
 $response = fgets($socket, 1024);
-echo "  ✅ SUCCESS: Connected to SMTP server\n";
+echo "   SUCCESS: Connected to SMTP server\n";
 echo "  Response: " . trim($response) . "\n\n";
 
 // Test 2: EHLO command
@@ -52,7 +52,7 @@ while ($line = fgets($socket, 1024)) {
     $response .= $line;
     if (substr($line, 3, 1) == ' ') break;
 }
-echo "  ✅ Server capabilities received\n";
+echo "   Server capabilities received\n";
 echo "  " . str_replace("\n", "\n  ", trim($response)) . "\n\n";
 
 // Test 3: STARTTLS
@@ -62,12 +62,12 @@ $response = fgets($socket, 1024);
 echo "  Response: " . trim($response) . "\n";
 
 if (strpos($response, '220') === 0) {
-    echo "  ✅ STARTTLS accepted\n\n";
+    echo "   STARTTLS accepted\n\n";
 
     // Enable TLS encryption
     $crypto_method = STREAM_CRYPTO_METHOD_TLS_CLIENT;
     if (stream_socket_enable_crypto($socket, true, $crypto_method)) {
-        echo "  ✅ TLS encryption established\n\n";
+        echo "   TLS encryption established\n\n";
 
         // Test 4: Authentication
         echo "[4/4] Testing authentication...\n";
@@ -89,10 +89,10 @@ if (strpos($response, '220') === 0) {
         $response = fgets($socket, 1024);
 
         if (strpos($response, '235') === 0) {
-            echo "  ✅ SUCCESS: Authentication successful!\n\n";
+            echo "   SUCCESS: Authentication successful!\n\n";
 
             echo "=================================================================\n";
-            echo "✅ ALL TESTS PASSED\n";
+            echo " ALL TESTS PASSED\n";
             echo "=================================================================\n\n";
             echo "Your Office 365 SMTP configuration is CORRECT!\n\n";
             echo "Next steps:\n";

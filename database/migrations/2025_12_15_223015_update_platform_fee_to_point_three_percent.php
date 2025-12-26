@@ -25,24 +25,27 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Update all existing merchants to new fee structure
-        DB::table('merchants')->update([
-            'platform_fee_percentage' => 0.30,  // 0.30%
-            'platform_fee_fixed_cents' => 0,    // No fixed fee
-        ]);
+        // Only update columns if they exist
+        if (Schema::hasColumn('merchants', 'platform_fee_percentage') && Schema::hasColumn('merchants', 'platform_fee_fixed_cents')) {
+            // Update all existing merchants to new fee structure
+            DB::table('merchants')->update([
+                'platform_fee_percentage' => 0.30,  // 0.30%
+                'platform_fee_fixed_cents' => 0,    // No fixed fee
+            ]);
 
-        // Update default values for new merchants
-        Schema::table('merchants', function (Blueprint $table) {
-            $table->decimal('platform_fee_percentage', 5, 2)
-                ->default(0.30)
-                ->change()
-                ->comment('Platform application fee percentage (0.30 = 0.3%)');
+            // Update default values for new merchants
+            Schema::table('merchants', function (Blueprint $table) {
+                $table->decimal('platform_fee_percentage', 5, 2)
+                    ->default(0.30)
+                    ->change()
+                    ->comment('Platform application fee percentage (0.30 = 0.3%)');
 
-            $table->integer('platform_fee_fixed_cents')
-                ->default(0)
-                ->change()
-                ->comment('Fixed platform fee per transaction in cents (set to 0)');
-        });
+                $table->integer('platform_fee_fixed_cents')
+                    ->default(0)
+                    ->change()
+                    ->comment('Fixed platform fee per transaction in cents (set to 0)');
+            });
+        }
     }
 
     /**

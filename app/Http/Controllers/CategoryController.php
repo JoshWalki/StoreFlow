@@ -213,7 +213,7 @@ class CategoryController extends Controller
             ->get();
 
         if ($categories->count() !== count($categoryIds)) {
-            return back()->withErrors(['error' => 'Some categories could not be found or do not belong to your merchant.']);
+            return back()->with('error', 'Some categories could not be found or do not belong to your merchant.');
         }
 
         // Update sort_order for each category based on position in array
@@ -223,6 +223,6 @@ class CategoryController extends Controller
                 ->update(['sort_order' => $index]);
         }
 
-        return back();
+        return back()->with('success', 'Categories reordered successfully.');
     }
 }

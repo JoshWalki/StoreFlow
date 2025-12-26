@@ -117,7 +117,7 @@
                                 <div class="flex justify-between items-start">
                                     <div class="flex-1">
                                         <div class="flex items-center space-x-2">
-                                            <span class="font-medium text-gray-900 dark:text-white">{{ rate.name }}</span>
+                                            <span class="font-medium text-gray-900 dark:text-black">{{ rate.name }}</span>
                                             <span
                                                 :class="[
                                                     rate.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800',
@@ -201,7 +201,7 @@
                                                     v-model="form.zone_id"
                                                     id="zone_id"
                                                     required
-                                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 >
                                                     <option value="">Select a zone...</option>
                                                     <option v-for="zone in zones" :key="zone.id" :value="zone.id">
@@ -218,7 +218,7 @@
                                                     type="text"
                                                     id="name"
                                                     required
-                                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                     placeholder="e.g., Standard Shipping, Express"
                                                 />
                                             </div>
@@ -230,7 +230,7 @@
                                                     v-model="form.description"
                                                     id="description"
                                                     rows="2"
-                                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                     placeholder="Optional description"
                                                 ></textarea>
                                             </div>
@@ -242,7 +242,7 @@
                                                     v-model="form.carrier"
                                                     type="text"
                                                     id="carrier"
-                                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                     placeholder="e.g., AusPost, FedEx, UPS"
                                                 />
                                             </div>
@@ -254,7 +254,7 @@
                                                     v-model="form.service_code"
                                                     type="text"
                                                     id="service_code"
-                                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                     placeholder="e.g., express, standard"
                                                 />
                                             </div>
@@ -268,7 +268,7 @@
                                                         type="number"
                                                         id="min_delivery_days"
                                                         min="0"
-                                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                        class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                     />
                                                 </div>
                                                 <div>
@@ -278,7 +278,7 @@
                                                         type="number"
                                                         id="max_delivery_days"
                                                         min="0"
-                                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                        class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                     />
                                                 </div>
                                             </div>
@@ -291,7 +291,7 @@
                                                     type="number"
                                                     id="display_order"
                                                     min="0"
-                                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                                 <p class="mt-1 text-xs text-gray-500">Lower numbers appear first</p>
                                             </div>
@@ -359,7 +359,7 @@
                                                     type="text"
                                                     id="rate_name"
                                                     required
-                                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                     placeholder="e.g., Standard Rate, Express Rate"
                                                 />
                                             </div>
@@ -371,7 +371,7 @@
                                                     v-model="rateForm.pricing_model"
                                                     id="pricing_model"
                                                     required
-                                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 >
                                                     <option value="">Select pricing model...</option>
                                                     <option value="flat">Flat Rate</option>
@@ -391,9 +391,10 @@
                                                     step="0.01"
                                                     min="0"
                                                     required
-                                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                                    placeholder="10.00"
+                                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    placeholder="10.00 (Enter 0 for free shipping)"
                                                 />
+                                                <p class="mt-1 text-xs text-gray-500">Enter 0 for free shipping</p>
                                             </div>
 
                                             <!-- Weight Based Fields -->
@@ -407,7 +408,7 @@
                                                             id="min_weight"
                                                             step="0.01"
                                                             min="0"
-                                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                         />
                                                     </div>
                                                     <div>
@@ -418,7 +419,7 @@
                                                             id="max_weight"
                                                             step="0.01"
                                                             min="0"
-                                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                         />
                                                     </div>
                                                 </div>
@@ -431,7 +432,7 @@
                                                             id="base_rate"
                                                             step="0.01"
                                                             min="0"
-                                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                         />
                                                     </div>
                                                     <div>
@@ -442,7 +443,7 @@
                                                             id="weight_rate"
                                                             step="0.01"
                                                             min="0"
-                                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                         />
                                                     </div>
                                                 </div>
@@ -459,7 +460,7 @@
                                                             id="min_cart_total"
                                                             step="0.01"
                                                             min="0"
-                                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                         />
                                                     </div>
                                                     <div>
@@ -470,7 +471,7 @@
                                                             id="max_cart_total"
                                                             step="0.01"
                                                             min="0"
-                                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                         />
                                                     </div>
                                                 </div>
@@ -483,7 +484,7 @@
                                                         step="0.01"
                                                         min="0"
                                                         required
-                                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                        class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                     />
                                                 </div>
                                             </div>
@@ -498,7 +499,7 @@
                                                             type="number"
                                                             id="min_items"
                                                             min="0"
-                                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                         />
                                                     </div>
                                                     <div>
@@ -508,7 +509,7 @@
                                                             type="number"
                                                             id="max_items"
                                                             min="0"
-                                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                         />
                                                     </div>
                                                 </div>
@@ -521,7 +522,7 @@
                                                         step="0.01"
                                                         min="0"
                                                         required
-                                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                        class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                     />
                                                 </div>
                                             </div>
@@ -535,7 +536,7 @@
                                                     id="free_shipping"
                                                     step="0.01"
                                                     min="0"
-                                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                     placeholder="e.g., 100.00"
                                                 />
                                                 <p class="mt-1 text-xs text-gray-500">Orders above this amount get free shipping</p>
@@ -814,23 +815,23 @@ const resetRateForm = () => {
 const submitRateForm = () => {
     processingRate.value = true;
 
-    // Convert AUD to cents
+    // Convert AUD to cents (allow 0 values for free shipping)
     const data = {
         shipping_method_id: rateForm.value.shipping_method_id,
         name: rateForm.value.name,
         pricing_model: rateForm.value.pricing_model,
-        flat_rate_cents: rateForm.value.flat_rate ? Math.round(rateForm.value.flat_rate * 100) : null,
-        min_weight_grams: rateForm.value.min_weight ? Math.round(rateForm.value.min_weight * 1000) : null,
-        max_weight_grams: rateForm.value.max_weight ? Math.round(rateForm.value.max_weight * 1000) : null,
-        weight_rate_cents: rateForm.value.weight_rate ? Math.round(rateForm.value.weight_rate * 100) : null,
-        base_weight_rate_cents: rateForm.value.base_weight_rate ? Math.round(rateForm.value.base_weight_rate * 100) : null,
-        min_cart_total_cents: rateForm.value.min_cart_total ? Math.round(rateForm.value.min_cart_total * 100) : null,
-        max_cart_total_cents: rateForm.value.max_cart_total ? Math.round(rateForm.value.max_cart_total * 100) : null,
-        cart_total_rate_cents: rateForm.value.cart_total_rate ? Math.round(rateForm.value.cart_total_rate * 100) : null,
+        flat_rate_cents: rateForm.value.flat_rate != null ? Math.round(rateForm.value.flat_rate * 100) : null,
+        min_weight_grams: rateForm.value.min_weight != null ? Math.round(rateForm.value.min_weight * 1000) : null,
+        max_weight_grams: rateForm.value.max_weight != null ? Math.round(rateForm.value.max_weight * 1000) : null,
+        weight_rate_cents: rateForm.value.weight_rate != null ? Math.round(rateForm.value.weight_rate * 100) : null,
+        base_weight_rate_cents: rateForm.value.base_weight_rate != null ? Math.round(rateForm.value.base_weight_rate * 100) : null,
+        min_cart_total_cents: rateForm.value.min_cart_total != null ? Math.round(rateForm.value.min_cart_total * 100) : null,
+        max_cart_total_cents: rateForm.value.max_cart_total != null ? Math.round(rateForm.value.max_cart_total * 100) : null,
+        cart_total_rate_cents: rateForm.value.cart_total_rate != null ? Math.round(rateForm.value.cart_total_rate * 100) : null,
         min_items: rateForm.value.min_items,
         max_items: rateForm.value.max_items,
-        item_rate_cents: rateForm.value.item_rate ? Math.round(rateForm.value.item_rate * 100) : null,
-        free_shipping_threshold_cents: rateForm.value.free_shipping_threshold ? Math.round(rateForm.value.free_shipping_threshold * 100) : null,
+        item_rate_cents: rateForm.value.item_rate != null ? Math.round(rateForm.value.item_rate * 100) : null,
+        free_shipping_threshold_cents: rateForm.value.free_shipping_threshold != null ? Math.round(rateForm.value.free_shipping_threshold * 100) : null,
         is_active: rateForm.value.is_active,
     };
 

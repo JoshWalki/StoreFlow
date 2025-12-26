@@ -19,8 +19,14 @@ class OrderShippedMail extends Mailable
     public function __construct(
         public Order $order
     ) {
-        // Load necessary relationships
-        $this->order->load(['store', 'items.product', 'customer']);
+        // Load necessary relationships including product images
+        $this->order->load([
+            'store',
+            'items.product.primaryImage',
+            'items.product.images',
+            'items.addons',
+            'customer'
+        ]);
     }
 
     /**
@@ -39,14 +45,19 @@ class OrderShippedMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.orders.shipped',
+            view: 'emails.orders.shipped',
             with: [
                 'order' => $this->order,
                 'store' => $this->order->store,
                 'items' => $this->order->items,
+                'subtotal' => $this->order->items_total_cents / 100,
+                'discount' => $this->order->discount_cents / 100,
+                'tax' => $this->order->tax_cents / 100,
+                'shipping' => $this->order->shipping_cost_cents / 100,
                 'total' => $this->order->total_cents / 100,
                 'trackingCode' => $this->order->tracking_code,
                 'trackingUrl' => $this->order->tracking_url,
+                'headerSubtitle' => 'Order Shipped',
             ],
         );
     }

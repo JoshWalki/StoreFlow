@@ -175,15 +175,22 @@
                                         for="address"
                                         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                                     >
-                                        Street Address
+                                        Street Address <span class="text-red-500">*</span>
                                     </label>
                                     <input
                                         id="address"
                                         v-model="form.address"
                                         type="text"
+                                        required
                                         placeholder="123 Main Street"
                                         class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                                     />
+                                    <p
+                                        v-if="form.errors.address"
+                                        class="mt-1 text-sm text-red-600 dark:text-red-400"
+                                    >
+                                        {{ form.errors.address }}
+                                    </p>
                                 </div>
 
                                 <div
@@ -194,15 +201,22 @@
                                             for="city"
                                             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                                         >
-                                            City
+                                            City <span class="text-red-500">*</span>
                                         </label>
                                         <input
                                             id="city"
                                             v-model="form.city"
                                             type="text"
+                                            required
                                             placeholder="Melbourne"
                                             class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                                         />
+                                        <p
+                                            v-if="form.errors.city"
+                                            class="mt-1 text-sm text-red-600 dark:text-red-400"
+                                        >
+                                            {{ form.errors.city }}
+                                        </p>
                                     </div>
 
                                     <div>
@@ -210,15 +224,22 @@
                                             for="state"
                                             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                                         >
-                                            State/Province
+                                            State/Province <span class="text-red-500">*</span>
                                         </label>
                                         <input
                                             id="state"
                                             v-model="form.state"
                                             type="text"
+                                            required
                                             placeholder="Victoria"
                                             class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                                         />
+                                        <p
+                                            v-if="form.errors.state"
+                                            class="mt-1 text-sm text-red-600 dark:text-red-400"
+                                        >
+                                            {{ form.errors.state }}
+                                        </p>
                                     </div>
 
                                     <div>
@@ -226,15 +247,22 @@
                                             for="postcode"
                                             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                                         >
-                                            Postal Code
+                                            Postal Code <span class="text-red-500">*</span>
                                         </label>
                                         <input
                                             id="postcode"
                                             v-model="form.postcode"
                                             type="text"
+                                            required
                                             placeholder="3004"
                                             class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                                         />
+                                        <p
+                                            v-if="form.errors.postcode"
+                                            class="mt-1 text-sm text-red-600 dark:text-red-400"
+                                        >
+                                            {{ form.errors.postcode }}
+                                        </p>
                                     </div>
 
                                     <div>
@@ -242,15 +270,22 @@
                                             for="country"
                                             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                                         >
-                                            Country
+                                            Country <span class="text-red-500">*</span>
                                         </label>
                                         <input
                                             id="country"
                                             v-model="form.country"
                                             type="text"
+                                            required
                                             placeholder="Australia"
                                             class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                                         />
+                                        <p
+                                            v-if="form.errors.country"
+                                            class="mt-1 text-sm text-red-600 dark:text-red-400"
+                                        >
+                                            {{ form.errors.country }}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -264,7 +299,7 @@
                         <div class="flex justify-end">
                             <button
                                 type="submit"
-                                :disabled="form.processing || !form.name"
+                                :disabled="form.processing || !form.name || !form.address || !form.city || !form.state || !form.postcode || !form.country"
                                 class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                             >
                                 <span v-if="!form.processing"

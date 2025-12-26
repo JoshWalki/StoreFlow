@@ -87,6 +87,8 @@ class HandleInertiaRequests extends Middleware
             'stripe' => [
                 'publishableKey' => config('services.stripe.key'),
             ],
+            'turnstile_site_key' => config('services.turnstile.site_key'),
+            'turnstile_enabled' => config('services.turnstile.enabled'),
         ];
     }
 }

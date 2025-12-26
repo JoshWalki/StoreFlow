@@ -1,5 +1,36 @@
 <template>
     <div class="min-h-screen" :class="themeConfig.background">
+        <!-- Processing Overlay -->
+        <div
+            v-if="processing"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-90"
+        >
+            <div class="text-center">
+                <svg
+                    class="animate-spin h-16 w-16 mx-auto mb-4 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                >
+                    <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                    ></circle>
+                    <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                </svg>
+                <h2 class="text-2xl font-bold text-white mb-2">Processing Your Payment</h2>
+                <p class="text-gray-300">Please wait while we complete your order...</p>
+                <p class="text-sm text-gray-400 mt-4">Do not close this window or press the back button</p>
+            </div>
+        </div>
+
         <!-- Header -->
         <header :class="store.theme === 'bold' ? 'bg-gray-900 border-b border-orange-500/20' : 'bg-white shadow-sm'">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -227,9 +258,14 @@
                         <div class="mt-4 pt-4 border-t text-center" :class="store.theme === 'bold' ? 'border-gray-700' : 'border-gray-200'">
                             <p class="text-sm" :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-600'">
                                 Already have an account?
-                                <a :href="`/store/${store.id}/login`" :class="themeConfig.link" class="font-medium">
+                                <button
+                                    type="button"
+                                    @click="showLoginModal = true"
+                                    :class="themeConfig.link"
+                                    class="font-medium hover:underline"
+                                >
                                     Login
-                                </a>
+                                </button>
                             </p>
                         </div>
                     </div>
@@ -276,7 +312,15 @@
                                     class="h-4 w-4 mt-0.5"
                                 />
                                 <div class="ml-3 flex-1">
-                                    <span class="block text-sm font-medium mb-1" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">Pickup</span>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-sm font-medium" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">Pickup</span>
+                                        <span v-if="store.default_pickup_minutes" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            Ready in ~{{ store.default_pickup_minutes }} min
+                                        </span>
+                                    </div>
                                     <!-- Store Address -->
                                     <div v-if="store.address_primary || store.address_city" class="flex items-start mt-2">
                                         <svg class="w-4 h-4 text-gray-400 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -462,6 +506,7 @@
                                 v-if="paymentClientSecret"
                                 :publishable-key="$page.props.stripe.publishableKey"
                                 :client-secret="paymentClientSecret"
+                                :stripe-account="stripeAccount"
                                 :return-url="paymentReturnUrl"
                                 @payment-success="handlePaymentSuccess"
                                 @payment-error="handlePaymentError"
@@ -520,6 +565,12 @@
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <p class="text-sm font-medium truncate" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">{{ item.product.name }}</p>
+
+                                    <!-- Discount Badge -->
+                                    <span v-if="item.product.has_active_sale && item.product.discount_badge" class="inline-block mt-0.5 bg-red-100 text-red-700 text-xs font-semibold px-1.5 py-0.5 rounded">
+                                        {{ item.product.discount_badge }}
+                                    </span>
+
                                     <p class="text-sm" :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-500'">Qty: {{ item.quantity }}</p>
 
                                     <!-- Addons -->
@@ -530,7 +581,14 @@
                                         </div>
                                     </div>
 
-                                    <p class="text-sm font-medium mt-1" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">{{ formatPrice(getItemTotal(item)) }}</p>
+                                    <!-- Price Display -->
+                                    <div class="mt-1">
+                                        <div v-if="item.product.has_active_sale" class="flex items-center gap-2">
+                                            <p class="text-sm font-medium text-red-600">{{ formatPrice(getItemTotal(item)) }}</p>
+                                            <p class="text-xs line-through" :class="store.theme === 'bold' ? 'text-gray-500' : 'text-gray-400'">{{ formatPrice(item.product.price_cents * item.quantity) }}</p>
+                                        </div>
+                                        <p v-else class="text-sm font-medium" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">{{ formatPrice(getItemTotal(item)) }}</p>
+                                    </div>
                                 </div>
                                 <!-- Remove Button -->
                                 <button
@@ -610,9 +668,15 @@
                                 <span :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-600'">Subtotal</span>
                                 <span :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">{{ formatPrice(cartSubtotal) }}</span>
                             </div>
-                            <div v-if="form.fulfilment_type === 'delivery' && selectedShippingCost > 0" class="flex justify-between text-sm">
+                            <div v-if="totalSavings > 0" class="flex justify-between text-sm">
+                                <span class="text-green-600 dark:text-green-400">Sale Savings</span>
+                                <span class="text-green-600 dark:text-green-400">-{{ formatPrice(totalSavings) }}</span>
+                            </div>
+                            <div v-if="form.fulfilment_type === 'delivery' && form.shipping_method_id" class="flex justify-between text-sm">
                                 <span :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-600'">Delivery</span>
-                                <span :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">{{ formatPrice(selectedShippingCost) }}</span>
+                                <span :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
+                                    {{ selectedShippingCost === 0 ? 'FREE' : formatPrice(selectedShippingCost) }}
+                                </span>
                             </div>
                             <div v-if="applyLoyaltyReward && loyaltyDiscount > 0" class="flex justify-between text-sm">
                                 <span class="text-purple-600 dark:text-purple-400">Loyalty Discount</span>
@@ -632,6 +696,15 @@
                 </div>
             </form>
         </main>
+
+        <!-- Login Modal -->
+        <CheckoutLoginModal
+            :is-open="showLoginModal"
+            :store="store"
+            :theme-config="themeConfig"
+            @close="showLoginModal = false"
+            @success="handleLoginSuccess"
+        />
     </div>
 </template>
 
@@ -641,6 +714,7 @@ import { router, usePage } from '@inertiajs/vue3';
 import { useCart } from '@/Composables/useCart';
 import { useTheme } from '@/Composables/useTheme';
 import StripePaymentForm from '@/Components/Storefront/StripePaymentForm.vue';
+import CheckoutLoginModal from '@/Components/Storefront/CheckoutLoginModal.vue';
 import axios from 'axios';
 
 const props = defineProps({
@@ -700,12 +774,14 @@ const shippingOptions = ref([]);
 const loadingShipping = ref(false);
 const processing = ref(false);
 const applyLoyaltyReward = ref(false);
+const showLoginModal = ref(false);
 
 // Payment state
 const showPaymentForm = ref(false);
 const preparingPayment = ref(false);
 const paymentClientSecret = ref(null);
 const paymentIntentId = ref(null);
+const stripeAccount = ref(null);
 const paymentError = ref(null);
 
 // Check if cart has any pickup-only items
@@ -747,6 +823,18 @@ const selectedShippingCost = computed(() => {
 });
 
 // Calculate order total (before loyalty discount)
+// Calculate total savings from sales
+const totalSavings = computed(() => {
+    return cartItems.value.reduce((total, item) => {
+        if (item.product.has_active_sale && item.product.price_cents && item.product.sale_price) {
+            const originalPrice = item.product.price_cents * item.quantity;
+            const salePrice = item.product.sale_price * item.quantity;
+            return total + (originalPrice - salePrice);
+        }
+        return total;
+    }, 0);
+});
+
 const orderTotal = computed(() => {
     return cartSubtotal.value + selectedShippingCost.value;
 });
@@ -879,6 +967,7 @@ const preparePayment = async () => {
 
         paymentClientSecret.value = response.data.client_secret;
         paymentIntentId.value = response.data.payment_intent_id;
+        stripeAccount.value = response.data.stripe_account;
         showPaymentForm.value = true;
     } catch (error) {
         console.error('Failed to prepare payment:', error);
@@ -952,5 +1041,12 @@ const placeOrder = () => {
             paymentError.value = error.response?.data?.message || 'Failed to complete order. Please contact support.';
             processing.value = false;
         });
+};
+
+// Handle successful login from modal
+const handleLoginSuccess = () => {
+    // The modal will reload the page to get updated customer data
+    // This function is called before the reload
+    console.log('Login successful, page will reload with customer data');
 };
 </script>

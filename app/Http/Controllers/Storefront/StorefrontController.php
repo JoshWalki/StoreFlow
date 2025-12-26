@@ -196,11 +196,38 @@ class StorefrontController extends Controller
             abort(404);
         }
 
-        // Load product images
-        $product->load(['category', 'images']);
+        // Load product images and sales
+        $product->load([
+            'category',
+            'images',
+            'sales' => function ($query) {
+                $query->where('is_active', true)
+                    ->where(function ($q) {
+                        $q->whereNull('starts_at')
+                            ->orWhere('starts_at', '<=', now());
+                    })
+                    ->where(function ($q) {
+                        $q->whereNull('ends_at')
+                            ->orWhere('ends_at', '>=', now());
+                    });
+            }
+        ]);
 
-        // Load related products from same category
-        $relatedProducts = Product::with('images')
+        // Load related products from same category with sales
+        $relatedProducts = Product::with([
+            'images',
+            'sales' => function ($query) {
+                $query->where('is_active', true)
+                    ->where(function ($q) {
+                        $q->whereNull('starts_at')
+                            ->orWhere('starts_at', '<=', now());
+                    })
+                    ->where(function ($q) {
+                        $q->whereNull('ends_at')
+                            ->orWhere('ends_at', '>=', now());
+                    });
+            }
+        ])
             ->where('merchant_id', $store->merchant_id)
             ->where(function ($q) use ($store) {
                 $q->where('store_id', $store->id)
@@ -213,10 +240,16 @@ class StorefrontController extends Controller
             ->get()
             ->map(function ($relatedProduct) {
                 $primaryImage = $relatedProduct->images->where('is_primary', true)->first();
+                $activeSale = $relatedProduct->activeSale();
+                $hasActiveSale = $activeSale !== null;
+
                 return [
                     'id' => $relatedProduct->id,
                     'name' => $relatedProduct->name,
                     'price_cents' => $relatedProduct->price_cents,
+                    'sale_price' => $hasActiveSale ? $relatedProduct->sale_price : null,
+                    'has_active_sale' => $hasActiveSale,
+                    'discount_badge' => $hasActiveSale ? $relatedProduct->discount_badge : null,
                     'is_shippable' => $relatedProduct->is_shippable,
                     'image' => $primaryImage ? '/storage/' . $primaryImage->image_path : null,
                 ];
@@ -224,12 +257,27 @@ class StorefrontController extends Controller
 
         $primaryImage = $product->images->where('is_primary', true)->first();
 
+        // Get sale information
+        $activeSale = $product->activeSale();
+        $hasActiveSale = $activeSale !== null;
+
         // Build product data
         $productData = [
             'id' => $product->id,
             'name' => $product->name,
             'description' => $product->description,
             'price_cents' => $product->price_cents,
+            'sale_price' => $hasActiveSale ? $product->sale_price : null,
+            'savings_amount' => $hasActiveSale ? $product->savings_amount : null,
+            'discount_percentage' => $hasActiveSale ? $product->discount_percentage : null,
+            'discount_badge' => $hasActiveSale ? $product->discount_badge : null,
+            'has_active_sale' => $hasActiveSale,
+            'sale' => $hasActiveSale ? [
+                'id' => $activeSale->id,
+                'name' => $activeSale->name,
+                'type' => $activeSale->type,
+                'ends_at' => $activeSale->ends_at ? $activeSale->ends_at->toISOString() : null,
+            ] : null,
             'category' => $product->category ? $product->category->name : null,
             'is_active' => $product->is_active,
             'is_shippable' => $product->is_shippable,
@@ -338,6 +386,7 @@ class StorefrontController extends Controller
                 'address_city' => $store->address_city,
                 'address_state' => $store->address_state,
                 'address_postcode' => $store->address_postcode,
+                'default_pickup_minutes' => $store->default_pickup_minutes ?? 30,
             ],
             'zones' => $zones,
             'customer' => $customerData,
@@ -391,7 +440,17 @@ class StorefrontController extends Controller
             // Validate that all items are shippable if delivery is selected
             if ($validated['fulfilment_type'] === 'delivery') {
                 foreach ($validated['items'] as $item) {
-                    $product = Product::findOrFail($item['product_id']);
+                    $product = Product::with([
+                        'sales' => function ($query) {
+                            $query->where('is_active', true)
+                                ->where(function ($q) {
+                                    $q->whereNull('starts_at')->orWhere('starts_at', '<=', now());
+                                })
+                                ->where(function ($q) {
+                                    $q->whereNull('ends_at')->orWhere('ends_at', '>=', now());
+                                });
+                        }
+                    ])->findOrFail($item['product_id']);
                     if (!$product->is_shippable) {
                         return back()->withErrors([
                             'error' => 'Your cart contains pickup-only items that cannot be shipped. Please select pickup or remove these items.'
@@ -432,8 +491,22 @@ class StorefrontController extends Controller
             $cartItems = [];
 
             foreach ($validated['items'] as $item) {
-                $product = Product::findOrFail($item['product_id']);
-                $lineTotal = $product->price_cents * $item['quantity'];
+                $product = Product::with([
+                    'sales' => function ($query) {
+                        $query->where('is_active', true)
+                            ->where(function ($q) {
+                                $q->whereNull('starts_at')->orWhere('starts_at', '<=', now());
+                            })
+                            ->where(function ($q) {
+                                $q->whereNull('ends_at')->orWhere('ends_at', '>=', now());
+                            });
+                    }
+                ])->findOrFail($item['product_id']);
+
+                // Use sale price if available, otherwise use regular price
+                $activeSale = $product->activeSale();
+                $unitPrice = $activeSale ? $product->sale_price : $product->price_cents;
+                $lineTotal = $unitPrice * $item['quantity'];
 
                 // Add addon costs to line total
                 if (!empty($item['addons'])) {
@@ -453,6 +526,9 @@ class StorefrontController extends Controller
                     'product_id' => $product->id,
                     'product_name' => $product->name,
                     'base_price' => $product->price_cents,
+                    'sale_price' => $activeSale ? $product->sale_price : null,
+                    'active_sale_id' => $activeSale ? $activeSale->id : null,
+                    'unit_price_used' => $unitPrice,
                     'quantity' => $item['quantity'],
                     'has_addons' => !empty($item['addons']),
                     'line_total_cents' => $lineTotal,
@@ -461,7 +537,7 @@ class StorefrontController extends Controller
                 $cartItems[] = [
                     'product' => $product,
                     'quantity' => $item['quantity'],
-                    'unit_price_cents' => $product->price_cents,
+                    'unit_price_cents' => $unitPrice,
                     'line_total_cents' => $lineTotal,
                 ];
             }
@@ -688,6 +764,8 @@ class StorefrontController extends Controller
                 'customer_name' => $orderRecord->customer_name,
                 'customer_email' => $orderRecord->customer_email,
                 'customer_mobile' => $orderRecord->customer_mobile,
+                'pickup_time' => $orderRecord->pickup_time,
+                'pickup_eta' => $orderRecord->pickup_eta,
                 'shipping_address' => $shippingAddress,
                 'items' => $orderRecord->items->map(function ($item) {
                     $imageUrl = null;

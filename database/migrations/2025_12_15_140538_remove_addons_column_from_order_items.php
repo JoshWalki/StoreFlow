@@ -12,7 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('order_items', function (Blueprint $table) {
-            $table->dropColumn('addons');
+            // Only drop column if it exists
+            if (Schema::hasColumn('order_items', 'addons')) {
+                $table->dropColumn('addons');
+            }
         });
     }
 

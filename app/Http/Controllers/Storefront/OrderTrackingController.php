@@ -99,6 +99,9 @@ class OrderTrackingController extends Controller
                     'customizations' => $item->customizations,
                     'addons' => $item->addons,
                     'special_instructions' => $item->special_instructions,
+                    'is_refunded' => (bool) $item->is_refunded,
+                    'refund_date' => $item->refund_date,
+                    'refund_reason' => $item->refund_reason,
                 ];
             }),
         ];
@@ -124,6 +127,7 @@ class OrderTrackingController extends Controller
             ];
         } else {
             $orderData['pickup_time'] = $order->pickup_time;
+            $orderData['pickup_eta'] = $order->pickup_eta;
             $orderData['pickup_notes'] = $order->pickup_notes;
         }
 

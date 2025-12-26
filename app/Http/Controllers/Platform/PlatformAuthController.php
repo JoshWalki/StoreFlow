@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Platform;
 
 use App\Http\Controllers\Controller;
+use App\Rules\ValidTurnstile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
@@ -25,6 +26,7 @@ class PlatformAuthController extends Controller
     {
         $request->validate([
             'password' => 'required|string',
+            'turnstile_token' => ['required', 'string', new ValidTurnstile()],
         ]);
 
         $platformPassword = config('app.platform_password');

@@ -284,7 +284,7 @@
                                         {{ form.reward_value }}% off
                                     </template>
                                     <template v-else>
-                                        ${{ form.reward_value.toFixed(2) }} off
+                                        ${{ Number(form.reward_value || 0).toFixed(2) }} off
                                     </template>
                                 </p>
                                 <p>
@@ -319,7 +319,7 @@
                                         When customers reach
                                         {{ form.min_redemption_points }} points,
                                         they can redeem for ${{
-                                            form.reward_value.toFixed(2)
+                                            Number(form.reward_value || 0).toFixed(2)
                                         }}
                                         off their order total at checkout
                                     </li>
@@ -339,7 +339,7 @@
                     </div>
                 </div>
 
-                <!-- Tier System -->
+                <!-- Tier System
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
                     <div class="flex items-center justify-between mb-4">
                         <div>
@@ -398,9 +398,9 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
-                <!-- Expiration Settings -->
+                <!-- Expiration Settings
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
                     <h2
                         class="text-lg font-semibold text-gray-800 dark:text-white mb-4"
@@ -442,6 +442,7 @@
                         </p>
                     </div>
                 </div>
+            </div> -->
             </div>
 
             <!-- Save Button -->
@@ -470,18 +471,18 @@ const props = defineProps({
 
 const form = useForm({
     is_enabled: props.settings?.is_enabled || false,
-    points_per_dollar: props.settings?.points_per_dollar || 1,
-    signup_bonus: props.settings?.signup_bonus || 100,
-    birthday_bonus: props.settings?.birthday_bonus || 50,
-    min_redemption_points: props.settings?.min_redemption_points || 100,
+    points_per_dollar: Number(props.settings?.points_per_dollar) || 1,
+    signup_bonus: Number(props.settings?.signup_bonus) || 100,
+    birthday_bonus: Number(props.settings?.birthday_bonus) || 50,
+    min_redemption_points: Number(props.settings?.min_redemption_points) || 100,
     reward_type: props.loyaltyConfig?.reward_json?.type || "percentage",
-    reward_value: props.loyaltyConfig?.reward_json?.value || 10,
+    reward_value: Number(props.loyaltyConfig?.reward_json?.value) || 10,
     reward_description:
         props.loyaltyConfig?.reward_json?.description ||
         "10% off your next purchase",
     enable_tiers: props.settings?.enable_tiers || false,
     enable_expiration: props.settings?.enable_expiration || false,
-    expiration_months: props.settings?.expiration_months || 12,
+    expiration_months: Number(props.settings?.expiration_months) || 12,
 });
 
 const saveSettings = () => {

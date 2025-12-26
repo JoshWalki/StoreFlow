@@ -60,6 +60,10 @@ export function useCart() {
                     id: product.id,
                     name: product.name,
                     price_cents: product.price_cents,
+                    sale_price: product.sale_price || null,
+                    has_active_sale: product.has_active_sale || false,
+                    savings_amount: product.savings_amount || null,
+                    discount_badge: product.discount_badge || null,
                     image: product.image,
                     is_shippable: product.is_shippable,
                     weight_grams: product.weight_grams,
@@ -116,7 +120,11 @@ export function useCart() {
 
     // Calculate item price (base + customizations + addons)
     const getItemPrice = (item) => {
-        const basePrice = item.product.price_cents;
+        // Use sale price if available, otherwise use regular price
+        const basePrice = item.product.has_active_sale && item.product.sale_price
+            ? item.product.sale_price
+            : item.product.price_cents;
+
         const customizationsPrice = item.customizations.reduce(
             (sum, c) => sum + (c.price_delta_cents || 0),
             0

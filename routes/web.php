@@ -2,7 +2,10 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\Auth\CustomerPasswordResetController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Platform\PlatformAuthController;
@@ -36,6 +39,11 @@ Route::get('/', function () {
     return Inertia::render('Landing');
 })->name('landing');
 
+// Contact Form Submission
+Route::post('/contact', [ContactController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('contact.store');
+
 // Platform Owner Dashboard Routes
 Route::prefix('platform')->name('platform.')->group(function () {
     // Platform login (not authenticated)
@@ -67,9 +75,17 @@ Route::middleware(['auth', 'tenant.context', 'store.selected'])->prefix('store')
     Route::put('/settings/contact', [App\Http\Controllers\StoreSettingsController::class, 'updateContact'])->name('store.settings.contact');
     Route::put('/settings/business', [App\Http\Controllers\StoreSettingsController::class, 'updateBusiness'])->name('store.settings.business');
     Route::put('/settings/shipping', [App\Http\Controllers\StoreSettingsController::class, 'updateShipping'])->name('store.settings.shipping');
+    Route::put('/settings/pickup', [App\Http\Controllers\StoreSettingsController::class, 'updatePickup'])->name('store.settings.pickup');
     Route::put('/settings/theme', [App\Http\Controllers\StoreSettingsController::class, 'updateTheme'])->name('store.settings.theme');
     Route::post('/settings/logo', [App\Http\Controllers\StoreSettingsController::class, 'updateLogo'])->name('store.settings.logo');
     Route::delete('/settings/logo', [App\Http\Controllers\StoreSettingsController::class, 'removeLogo'])->name('store.settings.logo.remove');
+
+    // Sales Management Routes (Owner only - checked in controller)
+    Route::get('/sales', [App\Http\Controllers\SaleController::class, 'index'])->name('sales.index');
+    Route::post('/sales', [App\Http\Controllers\SaleController::class, 'store'])->name('sales.store');
+    Route::put('/sales/{sale}', [App\Http\Controllers\SaleController::class, 'update'])->name('sales.update');
+    Route::delete('/sales/{sale}', [App\Http\Controllers\SaleController::class, 'destroy'])->name('sales.destroy');
+    Route::get('/sales/products/available', [App\Http\Controllers\SaleController::class, 'availableProducts'])->name('sales.products.available');
 });
 
 // Public Storefront Routes
@@ -99,6 +115,17 @@ Route::prefix('store/{store}')->group(function () {
         Route::post('/register', [CustomerAuthController::class, 'register'])
             ->middleware('throttle:3,60')
             ->name('customer.register.post');
+
+        // Customer Password Reset Routes
+        Route::get('/forgot-password', [CustomerPasswordResetController::class, 'showForgotForm'])
+            ->name('customer.password.request');
+        Route::post('/forgot-password', [CustomerPasswordResetController::class, 'sendResetLink'])
+            ->middleware('throttle:3,1')
+            ->name('customer.password.email');
+        Route::get('/reset-password/{token}', [CustomerPasswordResetController::class, 'showResetForm'])
+            ->name('customer.password.reset');
+        Route::post('/reset-password', [CustomerPasswordResetController::class, 'resetPassword'])
+            ->name('customer.password.update');
     });
 
     // Customer Authenticated Routes (Protected)
@@ -133,6 +160,17 @@ Route::middleware('guest')->group(function () {
     // Merchant Registration
     Route::get('/register', [App\Http\Controllers\Auth\RegisterController::class, 'create'])->name('register');
     Route::post('/register', [App\Http\Controllers\Auth\RegisterController::class, 'store'])->name('register.post');
+
+    // Dashboard User Password Reset Routes
+    Route::get('/forgot-password', [PasswordResetController::class, 'showForgotForm'])
+        ->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'])
+        ->middleware('throttle:3,1')
+        ->name('password.email');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])
+        ->name('password.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])
+        ->name('password.update');
 });
 
 Route::middleware(['auth', 'tenant.context'])->group(function () {
@@ -163,6 +201,8 @@ Route::middleware(['auth', 'tenant.context'])->group(function () {
                 Route::get('/orders/{order}/receipt', [App\Http\Controllers\OrderReceiptController::class, 'show'])->name('orders.receipt');
                 Route::put('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status.update');
                 Route::put('/orders/{order}/shipping', [OrderController::class, 'updateShipping'])->name('orders.shipping.update');
+                Route::patch('/orders/{order}/pickup-eta', [OrderController::class, 'updatePickupEta'])->name('orders.pickup-eta.update');
+                Route::post('/orders/{order}/items/{item}/refund', [OrderController::class, 'refundItem'])->name('orders.items.refund');
             });
 
             // Products & Categories (with policy authorization)

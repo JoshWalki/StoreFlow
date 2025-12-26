@@ -185,39 +185,80 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Estimated Pickup Time (centered under status timeline) -->
+                    <div v-if="order.fulfilment_type === 'pickup' && order.pickup_eta" class="mt-6 flex justify-center">
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-4 inline-flex items-start">
+                            <svg class="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-medium text-green-900">Estimated Pickup Time</p>
+                                <p class="text-sm text-green-700 mt-1">
+                                    Your order should be ready by {{ formatDateTime(order.pickup_eta) }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Order Items -->
                 <div v-if="order.items && order.items.length > 0" class="bg-white rounded-lg shadow-sm p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Order Items</h3>
                     <div class="space-y-4">
-                        <div v-for="item in order.items" :key="item.id" class="flex justify-between items-start border-b border-gray-200 pb-4 last:border-0 last:pb-0">
-                            <div class="flex-1">
-                                <p class="font-medium text-gray-900">{{ item.name }}</p>
-                                <p class="text-sm text-gray-600">Quantity: {{ item.quantity }}</p>
+                        <div
+                            v-for="item in order.items"
+                            :key="item.id"
+                            class="border-b border-gray-200 pb-4 last:border-0 last:pb-0"
+                            :class="item.is_refunded ? 'bg-red-50 p-4 rounded-lg' : ''"
+                        >
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2">
+                                        <p class="font-medium text-gray-900">{{ item.name }}</p>
+                                        <span
+                                            v-if="item.is_refunded"
+                                            class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 border border-red-200"
+                                        >
+                                            REFUNDED
+                                        </span>
+                                    </div>
+                                    <p class="text-sm text-gray-600">Quantity: {{ item.quantity }}</p>
 
-                                <!-- Customizations -->
-                                <div v-if="item.customizations && item.customizations.length > 0" class="mt-1">
-                                    <p class="text-xs text-gray-500">
-                                        {{ item.customizations.map(c => `${c.group_name}: ${c.option_name}`).join(', ') }}
+                                    <!-- Refund Details -->
+                                    <div v-if="item.is_refunded" class="mt-2 text-sm text-red-700 space-y-1">
+                                        <p><strong>Refunded:</strong> {{ formatDateTime(item.refund_date) }}</p>
+                                        <p><strong>Reason:</strong> {{ item.refund_reason }}</p>
+                                        <p class="text-xs text-red-600 italic mt-1">
+                                            Your refund has been processed and will appear in your account within 5-10 business days.
+                                        </p>
+                                    </div>
+
+                                    <!-- Customizations -->
+                                    <div v-if="item.customizations && item.customizations.length > 0" class="mt-1">
+                                        <p class="text-xs text-gray-500">
+                                            {{ item.customizations.map(c => `${c.group_name}: ${c.option_name}`).join(', ') }}
+                                        </p>
+                                    </div>
+
+                                    <!-- Addons -->
+                                    <div v-if="item.addons && item.addons.length > 0" class="mt-1">
+                                        <p class="text-xs text-gray-500">
+                                            Add-ons: {{ item.addons.map(a => `${a.addon_name}: ${a.option_name} (x${a.quantity || 1})`).join(', ') }}
+                                        </p>
+                                    </div>
+
+                                    <!-- Special Instructions -->
+                                    <div v-if="item.special_instructions" class="mt-1">
+                                        <p class="text-xs text-gray-500 italic">Note: {{ item.special_instructions }}</p>
+                                    </div>
+                                </div>
+                                <div class="ml-4 text-right">
+                                    <p class="font-medium" :class="item.is_refunded ? 'text-red-600 line-through' : 'text-gray-900'">
+                                        {{ formatCurrency(item.total_cents) }}
                                     </p>
+                                    <p class="text-xs text-gray-500">{{ formatCurrency(item.unit_price_cents) }} each</p>
                                 </div>
-
-                                <!-- Addons -->
-                                <div v-if="item.addons && item.addons.length > 0" class="mt-1">
-                                    <p class="text-xs text-gray-500">
-                                        Add-ons: {{ item.addons.map(a => `${a.addon_name}: ${a.option_name} (x${a.quantity || 1})`).join(', ') }}
-                                    </p>
-                                </div>
-
-                                <!-- Special Instructions -->
-                                <div v-if="item.special_instructions" class="mt-1">
-                                    <p class="text-xs text-gray-500 italic">Note: {{ item.special_instructions }}</p>
-                                </div>
-                            </div>
-                            <div class="ml-4 text-right">
-                                <p class="font-medium text-gray-900">{{ formatCurrency(item.total_cents) }}</p>
-                                <p class="text-xs text-gray-500">{{ formatCurrency(item.unit_price_cents) }} each</p>
                             </div>
                         </div>
                     </div>
@@ -228,9 +269,11 @@
                             <span class="text-gray-600">Subtotal</span>
                             <span class="text-gray-900">{{ formatCurrency(order.items_total_cents) }}</span>
                         </div>
-                        <div v-if="order.shipping_cost_cents > 0" class="flex justify-between text-sm">
+                        <div v-if="order.fulfilment_type === 'shipping'" class="flex justify-between text-sm">
                             <span class="text-gray-600">Delivery</span>
-                            <span class="text-gray-900">{{ formatCurrency(order.shipping_cost_cents) }}</span>
+                            <span class="text-gray-900">
+                                {{ order.shipping_cost_cents === 0 ? 'FREE' : formatCurrency(order.shipping_cost_cents) }}
+                            </span>
                         </div>
                         <div v-if="order.discount_cents > 0" class="flex justify-between text-sm">
                             <span class="text-gray-600">Discount</span>

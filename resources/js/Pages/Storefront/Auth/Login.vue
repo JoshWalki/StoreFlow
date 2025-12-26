@@ -169,30 +169,51 @@
                         </p>
                     </div>
 
-                    <!-- Remember Me -->
-                    <div class="flex items-center mb-6">
-                        <input
-                            v-model="form.remember"
-                            type="checkbox"
-                            id="remember"
-                            class="h-4 w-4 rounded"
-                            :class="
-                                store.theme === 'bold'
-                                    ? 'text-orange-500 focus:ring-orange-500'
-                                    : 'text-blue-600 focus:ring-blue-500'
-                            "
+                    <!-- Turnstile Widget -->
+                    <div class="mb-4">
+                        <TurnstileWidget
+                            ref="turnstileRef"
+                            :site-key="page.props.turnstile_site_key"
+                            v-model="form.turnstile_token"
+                            :theme="store.theme === 'bold' ? 'dark' : 'light'"
                         />
-                        <label
-                            for="remember"
-                            class="ml-2 text-sm"
-                            :class="
-                                store.theme === 'bold'
-                                    ? 'text-gray-300'
-                                    : 'text-gray-700'
-                            "
-                        >
-                            Remember me
+                        <p v-if="errors.turnstile_token" class="mt-1 text-sm text-red-600 text-center">
+                            {{ errors.turnstile_token }}
+                        </p>
+                    </div>
+
+                    <!-- Remember Me & Forgot Password -->
+                    <div class="flex items-center justify-between mb-6">
+                        <label class="flex items-center">
+                            <input
+                                v-model="form.remember"
+                                type="checkbox"
+                                id="remember"
+                                class="h-4 w-4 rounded"
+                                :class="
+                                    store.theme === 'bold'
+                                        ? 'text-orange-500 focus:ring-orange-500'
+                                        : 'text-blue-600 focus:ring-blue-500'
+                                "
+                            />
+                            <span
+                                class="ml-2 text-sm"
+                                :class="
+                                    store.theme === 'bold'
+                                        ? 'text-gray-300'
+                                        : 'text-gray-700'
+                                "
+                            >
+                                Remember me
+                            </span>
                         </label>
+                        <a
+                            :href="`/store/${store.id}/forgot-password`"
+                            class="text-sm font-medium"
+                            :class="themeConfig.link"
+                        >
+                            Forgot password?
+                        </a>
                     </div>
 
                     <!-- Submit Button -->
@@ -236,8 +257,11 @@
 
 <script setup>
 import { ref } from "vue";
-import { router } from "@inertiajs/vue3";
+import { router, usePage } from "@inertiajs/vue3";
 import { useTheme } from "@/Composables/useTheme";
+import TurnstileWidget from "@/Components/TurnstileWidget.vue";
+
+const page = usePage();
 
 const props = defineProps({
     store: {
@@ -256,20 +280,30 @@ const form = ref({
     email: "",
     password: "",
     remember: false,
+    turnstile_token: null,
 });
 
 const showPassword = ref(false);
 const processing = ref(false);
+const turnstileRef = ref(null);
 
 const submitLogin = () => {
+    // Validate Turnstile token
+    if (!turnstileRef.value?.isValid()) {
+        props.errors.turnstile_token = 'Please complete the security verification';
+        return;
+    }
+
     processing.value = true;
 
     router.post(`/store/${props.store.id}/login`, form.value, {
         onFinish: () => {
             processing.value = false;
+            turnstileRef.value?.reset();
         },
         onError: () => {
             form.value.password = "";
+            turnstileRef.value?.reset();
         },
     });
 };

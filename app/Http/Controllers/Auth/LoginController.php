@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Rules\ValidTurnstile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -27,6 +28,7 @@ class LoginController extends Controller
         $request->validate([
             'username' => ['required', 'string'],
             'password' => ['required', 'string'],
+            'turnstile_token' => ['required', 'string', new ValidTurnstile()],
         ]);
 
         if (!Auth::attempt($request->only('username', 'password'), $request->boolean('remember'))) {

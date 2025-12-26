@@ -27,11 +27,11 @@ class OnboardingStoreRequest extends FormRequest
             'logo' => ['nullable', 'image', 'max:2048'], // 2MB max
             'email' => ['nullable', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:20'],
-            'address' => ['nullable', 'string', 'max:500'],
-            'city' => ['nullable', 'string', 'max:100'],
-            'state' => ['nullable', 'string', 'max:100'],
-            'postcode' => ['nullable', 'string', 'max:20'],
-            'country' => ['nullable', 'string', 'max:100'],
+            'address' => ['required', 'string', 'max:500'],
+            'city' => ['required', 'string', 'max:100'],
+            'state' => ['required', 'string', 'max:100'],
+            'postcode' => ['required', 'string', 'max:20'],
+            'country' => ['required', 'string', 'max:100'],
         ];
     }
 
@@ -47,6 +47,11 @@ class OnboardingStoreRequest extends FormRequest
             'logo.image' => 'Logo must be an image file.',
             'logo.max' => 'Logo must not be larger than 2MB.',
             'email.email' => 'Please provide a valid email address.',
+            'address.required' => 'Street address is required.',
+            'city.required' => 'City is required.',
+            'state.required' => 'State/Province is required.',
+            'postcode.required' => 'Postal code is required.',
+            'country.required' => 'Country is required.',
         ];
     }
 }

@@ -19,8 +19,14 @@ class OrderReadyForPickupMail extends Mailable
     public function __construct(
         public Order $order
     ) {
-        // Load necessary relationships
-        $this->order->load(['store', 'items.product', 'customer']);
+        // Load necessary relationships including product images
+        $this->order->load([
+            'store',
+            'items.product.primaryImage',
+            'items.product.images',
+            'items.addons',
+            'customer'
+        ]);
     }
 
     /**
@@ -39,12 +45,17 @@ class OrderReadyForPickupMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.orders.ready-for-pickup',
+            view: 'emails.orders.ready-for-pickup',
             with: [
                 'order' => $this->order,
                 'store' => $this->order->store,
                 'items' => $this->order->items,
+                'subtotal' => $this->order->items_total_cents / 100,
+                'discount' => $this->order->discount_cents / 100,
+                'tax' => $this->order->tax_cents / 100,
+                'shipping' => $this->order->shipping_cost_cents / 100,
                 'total' => $this->order->total_cents / 100,
+                'headerSubtitle' => 'Order Ready for Pickup',
             ],
         );
     }

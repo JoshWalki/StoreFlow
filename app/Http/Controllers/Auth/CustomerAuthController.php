@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Store;
+use App\Rules\ValidTurnstile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -66,6 +67,7 @@ class CustomerAuthController extends Controller
         $credentials = $request->validate([
             'email' => ['required', 'email', 'max:255'],
             'password' => ['required', 'string', 'min:8'],
+            'turnstile_token' => ['required', 'string', new ValidTurnstile()],
         ]);
 
         // Sanitize email
@@ -76,8 +78,8 @@ class CustomerAuthController extends Controller
             ->where('merchant_id', $store->merchant_id)
             ->first();
 
-        // Verify customer exists and password is correct
-        if (!$customer || !Hash::check($credentials['password'], $customer->password)) {
+        // Check if customer exists
+        if (!$customer) {
             // Increment rate limiter on failed attempt
             RateLimiter::hit($key, 60);
 
@@ -86,10 +88,23 @@ class CustomerAuthController extends Controller
             ]);
         }
 
-        // Verify customer has a password (is registered)
+        // Verify customer has a password (is registered, not a guest checkout account)
         if (empty($customer->password)) {
+            // Increment rate limiter
+            RateLimiter::hit($key, 60);
+
             throw ValidationException::withMessages([
-                'email' => ['This account is not set up for login. Please register first.'],
+                'email' => ['This account was created during checkout. Please use "Register" to set a password first.'],
+            ]);
+        }
+
+        // Verify password is correct
+        if (!Hash::check($credentials['password'], $customer->password)) {
+            // Increment rate limiter on failed attempt
+            RateLimiter::hit($key, 60);
+
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials do not match our records.'],
             ]);
         }
 
@@ -104,6 +119,12 @@ class CustomerAuthController extends Controller
 
         // Store the store_id in session for customer context
         session(['customer_store_id' => $store->id]);
+
+        // Check if login was triggered from checkout
+        if ($request->query('checkout')) {
+            return redirect()->route('storefront.checkout', ['store' => $store->id])
+                ->with('success', 'Welcome back, ' . $customer->full_name . '! Your information has been pre-filled.');
+        }
 
         return redirect()->route('customer.profile', ['store' => $store->id])
             ->with('success', 'Welcome back, ' . $customer->full_name . '!');
@@ -148,23 +169,37 @@ class CustomerAuthController extends Controller
             ->first();
 
         if ($existingCustomer) {
-            // Increment rate limiter
-            RateLimiter::hit($key, 3600);
+            // If customer exists but doesn't have a password (guest checkout account),
+            // update their account with password and additional info
+            if (empty($existingCustomer->password)) {
+                $existingCustomer->update([
+                    'first_name' => $validated['first_name'],
+                    'last_name' => $validated['last_name'],
+                    'mobile' => $validated['mobile'] ?? $existingCustomer->mobile,
+                    'password' => Hash::make($validated['password']),
+                ]);
 
-            throw ValidationException::withMessages([
-                'email' => ['An account with this email already exists.'],
+                $customer = $existingCustomer;
+            } else {
+                // Account already has a password - they should use login instead
+                // Increment rate limiter
+                RateLimiter::hit($key, 3600);
+
+                throw ValidationException::withMessages([
+                    'email' => ['An account with this email already exists. Please use the login form.'],
+                ]);
+            }
+        } else {
+            // Create new customer with bcrypt hashed password (via Hash::make)
+            $customer = Customer::create([
+                'merchant_id' => $store->merchant_id,
+                'first_name' => $validated['first_name'],
+                'last_name' => $validated['last_name'],
+                'email' => $validated['email'],
+                'mobile' => $validated['mobile'] ?? null,
+                'password' => Hash::make($validated['password']), // Uses bcrypt by default
             ]);
         }
-
-        // Create customer with bcrypt hashed password (via Hash::make)
-        $customer = Customer::create([
-            'merchant_id' => $store->merchant_id,
-            'first_name' => $validated['first_name'],
-            'last_name' => $validated['last_name'],
-            'email' => $validated['email'],
-            'mobile' => $validated['mobile'] ?? null,
-            'password' => Hash::make($validated['password']), // Uses bcrypt by default
-        ]);
 
         // Increment rate limiter on successful registration
         RateLimiter::hit($key, 3600);

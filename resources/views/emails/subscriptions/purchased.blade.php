@@ -39,7 +39,7 @@ Start building your online store, adding products, and accepting orders right aw
 
 You can view your billing history, update payment methods, and manage your subscription at any time:
 
-<x-mail::button :url="$billingUrl" color="secondary">
+<x-mail::button :url="$billingUrl">
 Manage Billing
 </x-mail::button>
 
@@ -49,9 +49,8 @@ Manage Billing
 
 Our support team is here to help you succeed:
 
-- **Documentation** - Comprehensive guides and tutorials
+- **Documentation** - Coming soon!
 - **Email Support** - hello@storeflow.com.au
-- **Live Chat** - Available in your dashboard
 
 ---
 

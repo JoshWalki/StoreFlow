@@ -31,12 +31,14 @@ class Store extends Model
         'address_postcode',
         'open_time',
         'close_time',
+        'default_pickup_minutes',
     ];
 
     protected $casts = [
         'shipping_enabled' => 'boolean',
         'is_active' => 'boolean',
         'deactivated_at' => 'datetime',
+        'default_pickup_minutes' => 'integer',
     ];
 
     /**

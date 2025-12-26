@@ -76,6 +76,10 @@ const props = defineProps({
         type: String,
         default: null,
     },
+    stripeAccount: {
+        type: String,
+        default: null,
+    },
     returnUrl: {
         type: String,
         default: window.location.href,
@@ -114,7 +118,8 @@ onMounted(() => {
 
     if (props.publishableKey) {
         console.log('Initializing Stripe...');
-        initializeStripe(props.publishableKey);
+        console.log('Stripe account:', props.stripeAccount);
+        initializeStripe(props.publishableKey, props.stripeAccount);
     }
 });
 

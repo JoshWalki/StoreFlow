@@ -210,7 +210,7 @@
 
                         // Now register the NEW fixed service worker
                         const registration = await navigator.serviceWorker.register('/sw.js?v=' + Date.now());
-                        console.log('✅ New Service Worker registered with scope:', registration.scope);
+                        console.log(' New Service Worker registered with scope:', registration.scope);
 
                         // Force immediate activation
                         if (registration.waiting) {
@@ -227,7 +227,7 @@
 
                 // Listen for controller change
                 navigator.serviceWorker.addEventListener('controllerchange', () => {
-                    console.log('✅ Service worker activated!');
+                    console.log(' Service worker activated!');
                 });
             }
         </script>

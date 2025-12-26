@@ -15,10 +15,13 @@
                     <div class="flex items-center gap-4">
                         <a :href="`/store/${store.id}/profile`" :class="themeConfig.link">Profile</a>
                         <a :href="`/store/${store.id}`" :class="themeConfig.link">Store</a>
-                        <form :action="`/store/${store.id}/logout`" method="POST" class="inline">
-                            <input type="hidden" name="_token" :value="csrfToken" />
-                            <button type="submit" :class="themeConfig.link">Logout</button>
-                        </form>
+                        <button
+                            @click="handleLogout"
+                            type="button"
+                            :class="themeConfig.link"
+                        >
+                            Logout
+                        </button>
                     </div>
                 </div>
             </div>
@@ -52,7 +55,7 @@
                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                                 :class="getStatusClass(order.status)"
                             >
-                                {{ order.status }}
+                                {{ formatStatus(order.status) }}
                             </span>
                             <p class="text-xl font-bold mt-1" :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
                                 ${{ order.total.toFixed(2) }}
@@ -69,15 +72,39 @@
                             <div
                                 v-for="(item, index) in order.items"
                                 :key="index"
+                                class="p-2 rounded-lg"
+                                :class="item.is_refunded ? (store.theme === 'bold' ? 'bg-red-900/30 border border-red-700' : 'bg-red-50 border border-red-200') : ''"
                             >
-                                <div class="flex justify-between text-sm">
-                                    <span :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-600'">
-                                        {{ item.quantity }}x {{ item.product_name }}
-                                    </span>
-                                    <span :class="store.theme === 'bold' ? 'text-white' : 'text-gray-900'">
+                                <div class="flex justify-between text-sm items-center">
+                                    <div class="flex items-center gap-2 flex-1">
+                                        <span :class="store.theme === 'bold' ? 'text-gray-400' : 'text-gray-600'">
+                                            {{ item.quantity }}x {{ item.product_name }}
+                                        </span>
+                                        <span
+                                            v-if="item.is_refunded"
+                                            class="px-2 py-0.5 text-xs font-semibold rounded-full"
+                                            :class="store.theme === 'bold' ? 'bg-red-800 text-red-200 border border-red-600' : 'bg-red-100 text-red-800 border border-red-300'"
+                                        >
+                                            REFUNDED
+                                        </span>
+                                    </div>
+                                    <span :class="[
+                                        store.theme === 'bold' ? 'text-white' : 'text-gray-900',
+                                        item.is_refunded ? 'line-through opacity-60' : ''
+                                    ]">
                                         ${{ (item.price * item.quantity).toFixed(2) }}
                                     </span>
                                 </div>
+
+                                <!-- Refund Details -->
+                                <div v-if="item.is_refunded" class="mt-2 text-xs space-y-0.5" :class="store.theme === 'bold' ? 'text-red-300' : 'text-red-700'">
+                                    <p><strong>Refunded:</strong> {{ formatDate(item.refund_date) }}</p>
+                                    <p><strong>Reason:</strong> {{ item.refund_reason }}</p>
+                                    <p class="italic mt-1 opacity-80">
+                                        Refund will appear in your account within 5-10 business days.
+                                    </p>
+                                </div>
+
                                 <!-- Addons -->
                                 <div v-if="item.addons && item.addons.length > 0" class="ml-6 mt-1 space-y-0.5">
                                     <div
@@ -160,9 +187,9 @@ const props = defineProps({
 
 const { config: themeConfig } = useTheme(props.store.theme);
 
-const csrfToken = computed(() => {
-    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-});
+const handleLogout = () => {
+    router.post(`/store/${props.store.id}/logout`);
+};
 
 const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -172,16 +199,42 @@ const formatDate = (date) => {
     });
 };
 
+const formatStatus = (status) => {
+    const statusLabels = {
+        'pending': 'Pending',
+        'accepted': 'Accepted',
+        'in_progress': 'In Progress',
+        'preparing': 'Preparing',
+        'ready': 'Ready',
+        'ready_for_pickup': 'Ready for Pickup',
+        'packing': 'Packing',
+        'packed': 'Packed',
+        'shipped': 'Shipped',
+        'delivered': 'Delivered',
+        'picked_up': 'Picked Up',
+        'completed': 'Completed',
+        'cancelled': 'Cancelled',
+        'refunded': 'Refunded',
+    };
+    return statusLabels[status] || status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+};
+
 const getStatusClass = (status) => {
     const classes = {
         pending: 'bg-yellow-100 text-yellow-800',
         accepted: 'bg-blue-100 text-blue-800',
+        in_progress: 'bg-purple-100 text-purple-800',
         preparing: 'bg-purple-100 text-purple-800',
         ready: 'bg-green-100 text-green-800',
+        ready_for_pickup: 'bg-green-100 text-green-800',
+        packing: 'bg-blue-100 text-blue-800',
+        packed: 'bg-blue-100 text-blue-800',
         completed: 'bg-green-100 text-green-800',
         shipped: 'bg-blue-100 text-blue-800',
         delivered: 'bg-green-100 text-green-800',
+        picked_up: 'bg-green-100 text-green-800',
         cancelled: 'bg-red-100 text-red-800',
+        refunded: 'bg-red-100 text-red-800',
     };
     return classes[status] || 'bg-gray-100 text-gray-800';
 };

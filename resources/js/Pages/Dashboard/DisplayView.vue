@@ -1,5 +1,79 @@
 <template>
     <div class="dark min-h-screen bg-gray-900 p-2">
+        <!-- Bell Notification Icon (Fixed Top Right) -->
+        <div class="fixed top-4 right-4 z-50">
+            <button
+                @click="showBellDropdown = !showBellDropdown"
+                class="relative p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors bg-gray-800"
+                title="Notification Settings"
+            >
+                <svg
+                    class="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                >
+                    <path
+                        d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
+                    />
+                </svg>
+                <!-- Notification indicator dot when enabled -->
+                <span
+                    v-if="soundEnabled"
+                    class="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full"
+                ></span>
+            </button>
+
+            <!-- Notification Settings Dropdown -->
+            <Transition name="dropdown">
+                <div
+                    v-if="showBellDropdown"
+                    @click.stop
+                    class="absolute right-0 mt-2 w-72 bg-gray-800 rounded-lg shadow-xl border border-gray-700 z-50"
+                >
+                    <div class="p-4">
+                        <h3 class="text-sm font-semibold text-white mb-3">
+                            Sound Notifications
+                        </h3>
+
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex-1">
+                                <p class="text-sm text-gray-300">
+                                    Order Alerts
+                                </p>
+                                <p class="text-xs text-gray-400">
+                                    Play sound for new orders
+                                </p>
+                            </div>
+
+                            <!-- Toggle Switch -->
+                            <button
+                                @click="toggleSoundNotifications"
+                                class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                :class="soundEnabled ? 'bg-green-600' : 'bg-gray-600'"
+                            >
+                                <span
+                                    class="inline-block w-4 h-4 transform bg-white rounded-full transition-transform"
+                                    :class="soundEnabled ? 'translate-x-6' : 'translate-x-1'"
+                                ></span>
+                            </button>
+                        </div>
+
+                        <div class="pt-3 border-t border-gray-700">
+                            <p class="text-xs text-gray-400">
+                                <span v-if="soundEnabled" class="text-green-400 font-medium">
+                                    ✓ Enabled
+                                </span>
+                                <span v-else class="text-gray-500">
+                                    Disabled
+                                </span>
+                                - You will {{ soundEnabled ? '' : 'not' }} receive audio alerts when new orders arrive.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </Transition>
+        </div>
+
         <!-- Sound Notification Permission Banner -->
         <div
             v-if="showSoundPermissionBanner"
@@ -85,6 +159,7 @@
             v-if="selectedOrder"
             :is-open="isModalOpen"
             :order="selectedOrder"
+            :default-pickup-minutes="store?.default_pickup_minutes || 30"
             @close="closeOrderDetail"
             @status-updated="handleStatusUpdated"
         />
@@ -123,6 +198,10 @@ const selectedOrder = ref(null);
 // Sound notification permission
 const showSoundPermissionBanner = ref(false);
 const soundEnabled = ref(false);
+const notificationInterval = ref(null);
+
+// Bell notification dropdown state
+const showBellDropdown = ref(false);
 
 // Orders grouped by status
 const ordersByStatus = reactive({
@@ -265,9 +344,12 @@ const setupWebSocket = () => {
 
         storeChannel = window.Echo.private(channelName)
             .listen(".OrderCreated", (event) => {
+                // Add order first to ensure it's in the pending array
+                addOrUpdateOrder(event.order);
                 // Play sound immediately for new orders
                 playNotificationSound();
-                addOrUpdateOrder(event.order);
+                // Start repeating notification for pending orders
+                startRepeatingNotification();
             })
             .listen(".OrderStatusUpdated", (event) => {
                 updateOrderStatus(event.order, event.old_status, event.new_status);
@@ -336,6 +418,11 @@ const updateOrderStatus = (order, oldStatus, newStatus) => {
             ordersByStatus[newStatus][index] = order;
         }
     }
+
+    // Stop repeating notification if no more pending orders
+    if (oldStatus === 'pending' && ordersByStatus.pending.length === 0) {
+        stopRepeatingNotification();
+    }
 };
 
 const cleanupWebSocket = () => {
@@ -355,7 +442,7 @@ const enableSoundNotifications = async () => {
         audio.pause();
 
         soundEnabled.value = true;
-        localStorage.setItem('displaySoundNotificationsEnabled', 'true');
+        localStorage.setItem('soundNotificationsEnabled', 'true');
         showSoundPermissionBanner.value = false;
     } catch (error) {
         console.error('Failed to enable sound:', error);
@@ -363,8 +450,31 @@ const enableSoundNotifications = async () => {
 };
 
 const dismissSoundPermission = () => {
-    localStorage.setItem('displaySoundNotificationsEnabled', 'false');
+    localStorage.setItem('soundNotificationsEnabled', 'false');
     showSoundPermissionBanner.value = false;
+};
+
+const toggleSoundNotifications = async () => {
+    if (!soundEnabled.value) {
+        // Enabling sound
+        await enableSoundNotifications();
+    } else {
+        // Disabling sound
+        soundEnabled.value = false;
+        localStorage.setItem('soundNotificationsEnabled', 'false');
+        // Note: Toast not available in DisplayView, using alert
+        console.log('Sound notifications disabled');
+    }
+};
+
+// Close bell dropdown when clicking outside
+const handleClickOutside = (event) => {
+    const bellButton = event.target.closest('button[title="Notification Settings"]');
+    const bellDropdown = event.target.closest('.absolute.right-0.mt-2.w-72');
+
+    if (!bellButton && !bellDropdown && showBellDropdown.value) {
+        showBellDropdown.value = false;
+    }
 };
 
 const playNotificationSound = () => {
@@ -385,10 +495,61 @@ const playNotificationSound = () => {
     }
 };
 
+// Start repeating notification for pending orders
+const startRepeatingNotification = () => {
+    // Clear any existing interval
+    if (notificationInterval.value) {
+        clearInterval(notificationInterval.value);
+    }
+
+    // Only start if there are pending orders
+    if (ordersByStatus.pending.length > 0) {
+        notificationInterval.value = setInterval(() => {
+            // Check if there are still pending orders
+            if (ordersByStatus.pending.length > 0) {
+                playNotificationSound();
+            } else {
+                stopRepeatingNotification();
+            }
+        }, 3000); // Repeat every 3 seconds
+    }
+};
+
+// Stop repeating notification
+const stopRepeatingNotification = () => {
+    if (notificationInterval.value) {
+        clearInterval(notificationInterval.value);
+        notificationInterval.value = null;
+    }
+};
+
 // Modal handlers
-const openOrderDetail = (order) => {
-    selectedOrder.value = order;
-    isModalOpen.value = true;
+const openOrderDetail = async (order) => {
+    // Fetch full order details from backend to ensure we have the latest data (including refund status)
+    try {
+        const response = await fetch(route('orders.show', order.id), {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache',
+            },
+        });
+        const fullOrderData = await response.json();
+
+        console.log('DisplayView - Order data received:', fullOrderData);
+        console.log('DisplayView - Order items:', fullOrderData.items);
+        if (fullOrderData.items && fullOrderData.items.length > 0) {
+            console.log('DisplayView - First item refund status:', fullOrderData.items[0].is_refunded);
+        }
+
+        selectedOrder.value = fullOrderData;
+        isModalOpen.value = true;
+    } catch (error) {
+        console.error('Failed to load order details:', error);
+        // Fallback to using the order data we have
+        selectedOrder.value = order;
+        isModalOpen.value = true;
+    }
 };
 
 const closeOrderDetail = () => {
@@ -512,18 +673,30 @@ onMounted(() => {
     initializeOrders();
     setupWebSocket();
 
-    // Check if sound permission has been set
-    const soundPref = localStorage.getItem('displaySoundNotificationsEnabled');
+    // Check if sound permission has been set (synced with main dashboard)
+    const soundPref = localStorage.getItem('soundNotificationsEnabled');
     if (soundPref === null) {
         // Show banner if not set
         showSoundPermissionBanner.value = true;
     } else {
         soundEnabled.value = soundPref === 'true';
     }
+
+    // Start repeating notification if there are already pending orders
+    if (ordersByStatus.pending.length > 0) {
+        startRepeatingNotification();
+    }
+
+    // Add click outside listener for bell dropdown
+    document.addEventListener('click', handleClickOutside);
 });
 
 onUnmounted(() => {
     cleanupWebSocket();
+    stopRepeatingNotification();
+
+    // Remove click outside listener
+    document.removeEventListener('click', handleClickOutside);
 });
 </script>
 
@@ -542,5 +715,31 @@ onUnmounted(() => {
 
 .animate-pulse-subtle {
     animation: pulse-subtle 1.5s ease-in-out infinite;
+}
+
+/* Dropdown animation for bell notifications */
+.dropdown-enter-active,
+.dropdown-leave-active {
+    transition: all 0.2s ease;
+}
+
+.dropdown-enter-from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+}
+
+.dropdown-enter-to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.dropdown-leave-from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.dropdown-leave-to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
 }
 </style>

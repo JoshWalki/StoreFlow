@@ -88,6 +88,21 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Estimated Pickup Time (centered under progress bar) -->
+                <div v-if="order.fulfilment_type === 'pickup' && order.pickup_eta" class="mt-6 flex justify-center">
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 inline-flex items-start">
+                        <svg class="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <p class="text-sm font-medium text-green-900">Estimated Pickup Time</p>
+                            <p class="text-sm text-green-700 mt-1">
+                                Your order should be ready by {{ formatDateTime(order.pickup_eta) }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Order Details -->
@@ -235,9 +250,11 @@
                             <p class="text-gray-600">Subtotal</p>
                             <p class="font-medium text-gray-900">{{ formatPrice(order.subtotal_cents) }}</p>
                         </div>
-                        <div v-if="order.shipping_cost_cents > 0" class="flex justify-between text-sm">
+                        <div v-if="order.fulfilment_type === 'shipping'" class="flex justify-between text-sm">
                             <p class="text-gray-600">Delivery</p>
-                            <p class="font-medium text-gray-900">{{ formatPrice(order.shipping_cost_cents) }}</p>
+                            <p class="font-medium text-gray-900">
+                                {{ order.shipping_cost_cents === 0 ? 'FREE' : formatPrice(order.shipping_cost_cents) }}
+                            </p>
                         </div>
                         <div v-if="order.tax_cents > 0" class="flex justify-between text-sm">
                             <p class="text-gray-600">Tax</p>
@@ -390,6 +407,17 @@ const formatPrice = (cents) => {
     }).format(cents / 100);
 };
 
+const formatDateTime = (datetime) => {
+    if (!datetime) return '';
+    return new Date(datetime).toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+    });
+};
+
 const formatStatus = (status) => {
     const statusMap = {
         'pending': 'Pending',
@@ -487,13 +515,22 @@ const statusStepsWithState = computed(() => {
     return steps.map((step, index) => {
         const stepPriority = statusOrder[step.status] || index + 1;
 
+        // For in_progress/ready/packing states, treat them as 'accepted' for display purposes
+        // This means 'accepted' should be current, not the next step
+        const isInProgressState = ['in_progress', 'ready', 'packing'].includes(currentStatus);
+        const isAcceptedStep = step.status === 'accepted';
+
+        // Determine if this step is current
+        const isCurrent = currentStatusPriority === stepPriority ||
+                          (isInProgressState && isAcceptedStep);
+
+        // A step is completed if priority is greater AND it's not the current step
+        const isCompleted = currentStatusPriority > stepPriority && !isCurrent;
+
         return {
             ...step,
-            completed: currentStatusPriority > stepPriority,
-            current: currentStatusPriority === stepPriority ||
-                     (currentStatus === 'in_progress' && step.status === 'accepted') ||
-                     (currentStatus === 'ready' && step.status === 'accepted') ||
-                     (currentStatus === 'packing' && step.status === 'accepted'),
+            completed: isCompleted,
+            current: isCurrent,
         };
     });
 });

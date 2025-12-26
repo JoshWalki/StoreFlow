@@ -41,7 +41,7 @@ class OrderCreatedMail extends Mailable
                 'order' => $this->order,
                 'store' => $this->order->store,
                 'customer' => $this->order->customer,
-                'items' => $this->order->items()->with('product')->get(),
+                'items' => $this->order->items()->with(['product', 'addons'])->get(),
             ]
         );
     }

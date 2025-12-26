@@ -27,6 +27,19 @@
                     />
                 </div>
 
+                <!-- Turnstile Widget -->
+                <div>
+                    <TurnstileWidget
+                        ref="turnstileRef"
+                        :site-key="page.props.turnstile_site_key"
+                        v-model="form.turnstile_token"
+                        theme="dark"
+                    />
+                    <p v-if="page.props.errors?.turnstile_token" class="mt-2 text-sm text-red-400 text-center">
+                        {{ page.props.errors.turnstile_token }}
+                    </p>
+                </div>
+
                 <!-- Submit Button -->
                 <div>
                     <button
@@ -50,26 +63,43 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
+import TurnstileWidget from '@/Components/TurnstileWidget.vue';
 
 const form = ref({
     password: '',
+    turnstile_token: null,
 });
 
 const processing = ref(false);
+const turnstileRef = ref(null);
 const page = usePage();
 
 const errorMessage = computed(() => page.props.flash?.error || null);
 
 const submit = () => {
+    // Validate Turnstile token
+    if (!turnstileRef.value?.isValid()) {
+        // Set error in page props
+        if (!page.props.errors) {
+            page.props.errors = {};
+        }
+        page.props.errors.turnstile_token = 'Please complete the security verification';
+        return;
+    }
+
     processing.value = true;
 
     router.post(route('platform.login.post'), form.value, {
         onFinish: () => {
             processing.value = false;
+            turnstileRef.value?.reset();
             // Clear password on error
             if (errorMessage.value) {
                 form.value.password = '';
             }
+        },
+        onError: () => {
+            turnstileRef.value?.reset();
         },
     });
 };

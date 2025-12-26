@@ -65,8 +65,8 @@ class TestProductionLoad extends Command
         $this->info("Vendors: {$vendors}");
         $this->info("Duration: {$duration}s");
         $this->info("Concurrent Workers: {$workers}");
-        $this->info("Display Polling: " . ($enablePolling ? '✅' : '❌'));
-        $this->info("Broadcasting: " . ($enableBroadcast ? '✅' : '❌'));
+        $this->info("Display Polling: " . ($enablePolling ? '' : '❌'));
+        $this->info("Broadcasting: " . ($enableBroadcast ? '' : '❌'));
         $this->newLine();
 
         // Validate store
@@ -193,7 +193,7 @@ class TestProductionLoad extends Command
             usleep(100000); // Stagger worker starts by 100ms
         }
 
-        $this->info("✅ {$workers} workers started");
+        $this->info(" {$workers} workers started");
         $this->newLine();
     }
 
@@ -339,7 +339,7 @@ PHP;
         $cmd = sprintf('php %s > %s 2>&1 &', $pollingScript, $logFile);
         exec($cmd);
 
-        $this->info("✅ Polling simulation started (3-second intervals)");
+        $this->info(" Polling simulation started (3-second intervals)");
         $this->newLine();
     }
 
@@ -425,7 +425,7 @@ PHP;
     {
         $this->info("⏳ Waiting for workers to finish...");
         sleep(5); // Give workers time to complete
-        $this->info("✅ Workers completed");
+        $this->info(" Workers completed");
         $this->newLine();
     }
 
@@ -516,7 +516,7 @@ PHP;
                 } elseif ($usage > 50) {
                     $this->warn("⚠️  Connection pool usage: {$usage}%");
                 } else {
-                    $this->info("✅ Connection pool healthy ({$usage}% usage)");
+                    $this->info(" Connection pool healthy ({$usage}% usage)");
                 }
             } catch (\Exception $e) {
                 // Ignore
@@ -535,12 +535,12 @@ PHP;
             : 0;
 
         if ($errorRate === 0 && $ordersPerSecond > 1) {
-            $this->info("✅ PRODUCTION READY");
+            $this->info(" PRODUCTION READY");
             $this->info("   System handled {$vendors} concurrent vendors flawlessly");
             $this->info("   Throughput: " . round($ordersPerSecond, 2) . " orders/second");
             $this->info("   Zero errors under realistic load");
         } elseif ($errorRate < 1 && $ordersPerSecond > 0.5) {
-            $this->info("✅ PRODUCTION READY (with monitoring)");
+            $this->info(" PRODUCTION READY (with monitoring)");
             $this->info("   Minor issues detected but system stable");
             $this->info("   Error rate: " . round($errorRate, 2) . "%");
         } else {
@@ -584,6 +584,6 @@ PHP;
         }
         @unlink(storage_path('logs/polling.log'));
 
-        $this->info("✅ Cleanup complete");
+        $this->info(" Cleanup complete");
     }
 }

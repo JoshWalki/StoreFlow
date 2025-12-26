@@ -19,8 +19,14 @@ class OrderPlacedMail extends Mailable
     public function __construct(
         public Order $order
     ) {
-        // Load necessary relationships
-        $this->order->load(['store', 'items.product', 'customer']);
+        // Load necessary relationships including addons and product images
+        $this->order->load([
+            'store',
+            'items.product.primaryImage',
+            'items.product.images',
+            'items.addons',
+            'customer'
+        ]);
     }
 
     /**
@@ -39,7 +45,7 @@ class OrderPlacedMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.orders.placed',
+            view: 'emails.orders.placed',
             with: [
                 'order' => $this->order,
                 'store' => $this->order->store,
@@ -49,6 +55,7 @@ class OrderPlacedMail extends Mailable
                 'tax' => $this->order->tax_cents / 100,
                 'shipping' => $this->order->shipping_cost_cents / 100,
                 'total' => $this->order->total_cents / 100,
+                'headerSubtitle' => 'Order Confirmation',
             ],
         );
     }

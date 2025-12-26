@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen flex overflow-hidden">
+    <div class="min-h-screen flex flex-col lg:flex-row overflow-hidden">
         <!-- Left Section - Tips -->
         <div
             class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 via-purple-600 to-purple-800 relative overflow-hidden"
@@ -155,6 +155,15 @@
                             >
                         </div>
                     </div>
+                </div>
+
+                <!-- Wombat Mascot - Desktop Middle -->
+                <div class="absolute top-1/2 -right-[10rem] z-20" style="transform: translateY(-15%);">
+                    <img
+                        src="/images/logo/storeflow_wombat_thumbsup.png"
+                        alt="StoreFlow Mascot"
+                        class="w-[40rem] h-[40rem] opacity-90"
+                    />
                 </div>
             </div>
         </div>
@@ -356,16 +365,18 @@
                             class="ml-2 block text-sm text-gray-700"
                         >
                             I agree to the
-                            <a
-                                href="#"
-                                class="text-purple-600 hover:text-purple-700 font-medium"
-                                >Terms of Service</a
+                            <button
+                                type="button"
+                                @click="showTermsModal = true"
+                                class="text-purple-600 hover:text-purple-700 font-medium underline"
+                                >Terms of Service</button
                             >
                             and
-                            <a
-                                href="#"
-                                class="text-purple-600 hover:text-purple-700 font-medium"
-                                >Privacy Policy</a
+                            <button
+                                type="button"
+                                @click="showPrivacyModal = true"
+                                class="text-purple-600 hover:text-purple-700 font-medium underline"
+                                >Privacy Policy</button
                             >
                         </label>
                     </div>
@@ -417,12 +428,37 @@
                 </div>
             </div>
         </div>
+
+        <!-- Privacy Policy Modal -->
+        <PrivacyPolicyModal
+            :isOpen="showPrivacyModal"
+            @close="showPrivacyModal = false"
+            contactEmail="hello@storeflow.com"
+        />
+
+        <!-- Terms of Service Modal -->
+        <TermsOfServiceModal
+            :isOpen="showTermsModal"
+            @close="showTermsModal = false"
+            contactEmail="hello@storeflow.com"
+        />
+
+        <!-- Wombat Mascot - Mobile Bottom Section -->
+        <div class="lg:hidden w-full">
+            <img
+                src="/images/logo/storeflow_wombat_thumbsup.png"
+                alt="StoreFlow Mascot"
+                class="w-full h-auto opacity-90"
+            />
+        </div>
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
 import { router } from "@inertiajs/vue3";
+import PrivacyPolicyModal from "@/Components/Legal/PrivacyPolicyModal.vue";
+import TermsOfServiceModal from "@/Components/Legal/TermsOfServiceModal.vue";
 
 const form = ref({
     name: "",
@@ -489,6 +525,10 @@ const tips = [
 // Select a random tip on component mount
 const currentTipIndex = ref(0);
 const currentTip = ref(tips[0]);
+
+// Modal states
+const showPrivacyModal = ref(false);
+const showTermsModal = ref(false);
 
 onMounted(() => {
     // Pick a random tip
