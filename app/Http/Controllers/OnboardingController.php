@@ -48,7 +48,7 @@ class OnboardingController extends Controller
                 $logoPath = null;
                 if ($request->hasFile('logo')) {
                     \Log::info('Logo file detected');
-                    $logoPath = $request->file('logo')->store('store-logos', 'public');
+                    $logoPath = $request->file('logo')->store('stores', 'public');
                     \Log::info('Logo uploaded to: ' . $logoPath);
                 }
 

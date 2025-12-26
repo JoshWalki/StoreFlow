@@ -95,7 +95,7 @@
         </div>
 
         <!-- Store Settings Section (with sub-navigation) -->
-        <div v-if="activeSection === 'basic' || activeSection === 'logo' || activeSection === 'theme' || activeSection === 'sales' || activeSection === 'contact' || activeSection === 'business' || activeSection === 'pickup' || activeSection === 'stripe' || activeSection === 'subscription'" class="rounded-lg shadow-sm overflow-hidden">
+        <div v-if="activeSection === 'basic' || activeSection === 'logo' || activeSection === 'theme' || activeSection === 'sales'" class="rounded-lg shadow-sm overflow-hidden">
             <!-- Sub-navigation - Underline Style -->
             <nav class="flex bg-gray-50 dark:bg-gray-900/20">
                 <button
@@ -478,278 +478,6 @@
             </div>
         </div>
 
-        <!-- Contact Information -->
-        <div
-            v-if="activeSection === 'contact'"
-            class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6"
-        >
-            <h2
-                class="text-lg font-semibold text-gray-800 dark:text-white mb-4"
-            >
-                Contact Information
-            </h2>
-            <form @submit.prevent="saveContactInfo" class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label
-                            for="email"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                        >
-                            Email
-                        </label>
-                        <input
-                            id="email"
-                            v-model="contactForm.email"
-                            type="email"
-                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                    </div>
-
-                    <div>
-                        <label
-                            for="phone"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                        >
-                            Phone
-                        </label>
-                        <input
-                            id="phone"
-                            v-model="contactForm.phone"
-                            type="tel"
-                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                    </div>
-                </div>
-
-                <div>
-                    <label
-                        for="address"
-                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                    >
-                        Address
-                    </label>
-                    <input
-                        id="address"
-                        v-model="contactForm.address"
-                        type="text"
-                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label
-                            for="city"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                        >
-                            City
-                        </label>
-                        <input
-                            id="city"
-                            v-model="contactForm.city"
-                            type="text"
-                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                    </div>
-
-                    <div>
-                        <label
-                            for="state"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                        >
-                            State
-                        </label>
-                        <input
-                            id="state"
-                            v-model="contactForm.state"
-                            type="text"
-                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                    </div>
-
-                    <div>
-                        <label
-                            for="postcode"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                        >
-                            Post Code
-                        </label>
-                        <input
-                            id="postcode"
-                            v-model="contactForm.postcode"
-                            type="text"
-                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                    </div>
-                </div>
-
-                <div class="flex justify-end">
-                    <button
-                        type="submit"
-                        :disabled="contactForm.processing"
-                        class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
-                    >
-                        {{
-                            contactForm.processing
-                                ? "Saving..."
-                                : "Save Contact Info"
-                        }}
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Business Settings -->
-        <div
-            v-if="activeSection === 'business'"
-            class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6"
-        >
-            <h2
-                class="text-lg font-semibold text-gray-800 dark:text-white mb-4"
-            >
-                Business Settings
-            </h2>
-            <form @submit.prevent="saveBusinessSettings" class="space-y-4">
-                <div>
-                    <label
-                        for="currency"
-                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                    >
-                        Currency
-                    </label>
-                    <select
-                        id="currency"
-                        v-model="businessForm.currency"
-                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                    >
-                        <option value="AUD">AUD - Australian Dollar</option>
-                        <option value="USD">USD - US Dollar</option>
-                        <option value="EUR">EUR - Euro</option>
-                        <option value="GBP">GBP - British Pound</option>
-                        <option value="CAD">CAD - Canadian Dollar</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label
-                        for="timezone"
-                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                    >
-                        Timezone
-                    </label>
-                    <select
-                        id="timezone"
-                        v-model="businessForm.timezone"
-                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                    >
-                        <option value="Australia/Sydney">
-                            Sydney (AEDT/AEST)
-                        </option>
-                        <option value="Australia/Melbourne">
-                            Melbourne (AEDT/AEST)
-                        </option>
-                        <option value="Australia/Brisbane">
-                            Brisbane (AEST)
-                        </option>
-                        <option value="Australia/Perth">Perth (AWST)</option>
-                        <option value="Australia/Adelaide">
-                            Adelaide (ACDT/ACST)
-                        </option>
-                        <option value="Australia/Hobart">
-                            Hobart (AEDT/AEST)
-                        </option>
-                        <option value="Australia/Darwin">Darwin (ACST)</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label
-                        for="tax_rate"
-                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                    >
-                        Default Tax Rate (%)
-                    </label>
-                    <input
-                        id="tax_rate"
-                        v-model.number="businessForm.tax_rate"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        max="100"
-                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                </div>
-                <!-- Deprecated
-                <ToggleSwitch
-                    v-model="businessForm.auto_fulfill"
-                    label="Automatically fulfill orders when paid"
-                />
-                -->
-                <div class="flex justify-end">
-                    <button
-                        type="submit"
-                        :disabled="businessForm.processing"
-                        class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
-                    >
-                        {{
-                            businessForm.processing
-                                ? "Saving..."
-                                : "Save Business Settings"
-                        }}
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Pickup Settings Section -->
-        <div
-            v-if="activeSection === 'pickup'"
-            class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6"
-        >
-            <h2
-                class="text-lg font-semibold text-gray-800 dark:text-white mb-4"
-            >
-                Pickup Settings
-            </h2>
-            <form @submit.prevent="savePickupSettings" class="space-y-4">
-                <div>
-                    <label
-                        for="default_pickup_minutes"
-                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                    >
-                        Default Pickup Time (minutes)
-                    </label>
-                    <input
-                        id="default_pickup_minutes"
-                        v-model.number="pickupForm.default_pickup_minutes"
-                        type="number"
-                        step="5"
-                        min="5"
-                        max="480"
-                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="30"
-                    />
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        This sets the default estimated time for order pickup (5-480 minutes)
-                    </p>
-                </div>
-
-                <div class="flex justify-end">
-                    <button
-                        type="submit"
-                        :disabled="pickupForm.processing"
-                        class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
-                    >
-                        {{
-                            pickupForm.processing
-                                ? "Saving..."
-                                : "Save Pickup Settings"
-                        }}
-                    </button>
-                </div>
-            </form>
-        </div>
-
         <!-- Storefront Theme -->
         <div
             v-if="activeSection === 'theme'"
@@ -1099,6 +827,288 @@
             </form>
         </div>
 
+        <!-- Sales & Discounts -->
+        <div
+            v-if="activeSection === 'sales' && user && user.role === 'owner'"
+            class="p-6 bg-white dark:bg-gray-800 rounded-b-lg"
+        >
+            <SalesTab />
+        </div>
+        </div>
+        <!-- End Store Settings Section -->
+
+        <!-- Contact Information -->
+        <div
+            v-if="activeSection === 'contact'"
+            class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6"
+        >
+            <h2
+                class="text-lg font-semibold text-gray-800 dark:text-white mb-4"
+            >
+                Contact Information
+            </h2>
+            <form @submit.prevent="saveContactInfo" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label
+                            for="email"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                        >
+                            Email
+                        </label>
+                        <input
+                            id="email"
+                            v-model="contactForm.email"
+                            type="email"
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                    </div>
+
+                    <div>
+                        <label
+                            for="phone"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                        >
+                            Phone
+                        </label>
+                        <input
+                            id="phone"
+                            v-model="contactForm.phone"
+                            type="tel"
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <label
+                        for="address"
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    >
+                        Address
+                    </label>
+                    <input
+                        id="address"
+                        v-model="contactForm.address"
+                        type="text"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label
+                            for="city"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                        >
+                            City
+                        </label>
+                        <input
+                            id="city"
+                            v-model="contactForm.city"
+                            type="text"
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                    </div>
+
+                    <div>
+                        <label
+                            for="state"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                        >
+                            State
+                        </label>
+                        <input
+                            id="state"
+                            v-model="contactForm.state"
+                            type="text"
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                    </div>
+
+                    <div>
+                        <label
+                            for="postcode"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                        >
+                            Post Code
+                        </label>
+                        <input
+                            id="postcode"
+                            v-model="contactForm.postcode"
+                            type="text"
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button
+                        type="submit"
+                        :disabled="contactForm.processing"
+                        class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+                    >
+                        {{
+                            contactForm.processing
+                                ? "Saving..."
+                                : "Save Contact Info"
+                        }}
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Business Settings -->
+        <div
+            v-if="activeSection === 'business'"
+            class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6"
+        >
+            <h2
+                class="text-lg font-semibold text-gray-800 dark:text-white mb-4"
+            >
+                Business Settings
+            </h2>
+            <form @submit.prevent="saveBusinessSettings" class="space-y-4">
+                <div>
+                    <label
+                        for="currency"
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    >
+                        Currency
+                    </label>
+                    <select
+                        id="currency"
+                        v-model="businessForm.currency"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                    >
+                        <option value="AUD">AUD - Australian Dollar</option>
+                        <option value="USD">USD - US Dollar</option>
+                        <option value="EUR">EUR - Euro</option>
+                        <option value="GBP">GBP - British Pound</option>
+                        <option value="CAD">CAD - Canadian Dollar</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label
+                        for="timezone"
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    >
+                        Timezone
+                    </label>
+                    <select
+                        id="timezone"
+                        v-model="businessForm.timezone"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                    >
+                        <option value="Australia/Sydney">
+                            Sydney (AEDT/AEST)
+                        </option>
+                        <option value="Australia/Melbourne">
+                            Melbourne (AEDT/AEST)
+                        </option>
+                        <option value="Australia/Brisbane">
+                            Brisbane (AEST)
+                        </option>
+                        <option value="Australia/Perth">Perth (AWST)</option>
+                        <option value="Australia/Adelaide">
+                            Adelaide (ACDT/ACST)
+                        </option>
+                        <option value="Australia/Hobart">
+                            Hobart (AEDT/AEST)
+                        </option>
+                        <option value="Australia/Darwin">Darwin (ACST)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label
+                        for="tax_rate"
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    >
+                        Default Tax Rate (%)
+                    </label>
+                    <input
+                        id="tax_rate"
+                        v-model.number="businessForm.tax_rate"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="100"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                </div>
+                <!-- Deprecated
+                <ToggleSwitch
+                    v-model="businessForm.auto_fulfill"
+                    label="Automatically fulfill orders when paid"
+                />
+                -->
+                <div class="flex justify-end">
+                    <button
+                        type="submit"
+                        :disabled="businessForm.processing"
+                        class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+                    >
+                        {{
+                            businessForm.processing
+                                ? "Saving..."
+                                : "Save Business Settings"
+                        }}
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Pickup Settings Section -->
+        <div
+            v-if="activeSection === 'pickup'"
+            class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6"
+        >
+            <h2
+                class="text-lg font-semibold text-gray-800 dark:text-white mb-4"
+            >
+                Pickup Settings
+            </h2>
+            <form @submit.prevent="savePickupSettings" class="space-y-4">
+                <div>
+                    <label
+                        for="default_pickup_minutes"
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    >
+                        Default Pickup Time (minutes)
+                    </label>
+                    <input
+                        id="default_pickup_minutes"
+                        v-model.number="pickupForm.default_pickup_minutes"
+                        type="number"
+                        step="5"
+                        min="5"
+                        max="480"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="30"
+                    />
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        This sets the default estimated time for order pickup (5-480 minutes)
+                    </p>
+                </div>
+
+                <div class="flex justify-end">
+                    <button
+                        type="submit"
+                        :disabled="pickupForm.processing"
+                        class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+                    >
+                        {{
+                            pickupForm.processing
+                                ? "Saving..."
+                                : "Save Pickup Settings"
+                        }}
+                    </button>
+                </div>
+            </form>
+        </div>
+
         <!-- Stripe Connect -->
         <div
             v-if="activeSection === 'stripe' && user && user.role === 'owner'"
@@ -1123,19 +1133,10 @@
                 user &&
                 user.role === 'owner'
             "
+            class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6"
         >
             <SubscriptionTab />
         </div>
-
-        <!-- Sales & Discounts -->
-        <div
-            v-if="activeSection === 'sales' && user && user.role === 'owner'"
-            class="p-6 bg-white dark:bg-gray-800 rounded-b-lg"
-        >
-            <SalesTab />
-        </div>
-        </div>
-        <!-- End Store Settings Section -->
 
         <!-- Data Migration -->
         <div
