@@ -1455,7 +1455,7 @@ const dismissNotice = () => {
 // Use auth user from Inertia shared props if not passed as prop
 const currentUser = computed(() => props.user || page.props.auth?.user);
 const currentStore = computed(() => props.store || page.props.store);
-const { success } = useNotifications();
+const { success, error } = useNotifications();
 
 // Store URL and copy functionality
 const storeUrl = computed(() => {
@@ -1531,17 +1531,17 @@ const togglePushNotifications = async () => {
             await subscribePush();
             success('Push Notifications Enabled!', 'You will now receive notifications even when the app is closed');
         }
-    } catch (error) {
-        console.error('Push notification error:', error);
+    } catch (err) {
+        console.error('Push notification error:', err);
 
         // Provide user-friendly error messages
         let errorMessage = 'Failed to update push notifications';
-        if (error.message.includes('permission denied')) {
+        if (err.message && err.message.includes('permission denied')) {
             errorMessage = 'Notification permission was denied. Please enable notifications in your browser settings.';
-        } else if (error.message.includes('not supported')) {
+        } else if (err.message && err.message.includes('not supported')) {
             errorMessage = 'Push notifications are not supported on this device or browser.';
-        } else if (error.message) {
-            errorMessage = error.message;
+        } else if (err.message) {
+            errorMessage = err.message;
         }
 
         error('Push Notifications', errorMessage);

@@ -53,16 +53,29 @@ export function usePushNotifications() {
 
             // Get service worker registration
             const registration = await navigator.serviceWorker.ready;
+            console.log('✅ Service worker ready:', registration);
 
             // Get VAPID public key from backend
             const { data } = await axios.get('/api/push/vapid-key');
             const vapidPublicKey = data.public_key;
 
+            if (!vapidPublicKey) {
+                throw new Error('VAPID public key not configured on server');
+            }
+
+            console.log('✅ VAPID public key received:', vapidPublicKey.substring(0, 20) + '...');
+
+            // Convert VAPID key
+            const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
+            console.log('✅ Application server key converted, length:', applicationServerKey.length);
+
             // Subscribe to push notifications
+            console.log('Subscribing to push manager...');
             const pushSubscription = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+                applicationServerKey: applicationServerKey
             });
+            console.log('✅ Push subscription successful:', pushSubscription.endpoint.substring(0, 50) + '...');
 
             // Send subscription to backend
             await axios.post('/api/push/subscribe', {
