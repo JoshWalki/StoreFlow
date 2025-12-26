@@ -42,4 +42,28 @@ window.Echo = new Echo({
     forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
     enabledTransports: ['ws', 'wss'],
     authEndpoint: '/broadcasting/auth',
+    auth: {
+        headers: {
+            'X-CSRF-TOKEN': document.head.querySelector('meta[name="csrf-token"]')?.content,
+        },
+    },
 });
+
+// Debug connection status (can be removed after fixing production)
+if (import.meta.env.DEV || window.location.hostname === 'storeflow.com.au') {
+    window.Echo.connector.pusher.connection.bind('error', function(err) {
+        console.error('Pusher connection error:', err);
+    });
+
+    window.Echo.connector.pusher.connection.bind('connected', function() {
+        console.log('✅ Pusher connected successfully');
+    });
+
+    window.Echo.connector.pusher.connection.bind('disconnected', function() {
+        console.warn('⚠️ Pusher disconnected');
+    });
+
+    window.Echo.connector.pusher.connection.bind('failed', function() {
+        console.error('❌ Pusher connection failed');
+    });
+}
