@@ -41,7 +41,7 @@
                     <!-- Full Screen Display Button -->
                     <button
                         @click="openFullScreenDisplay"
-                        class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md whitespace-nowrap"
+                        class="inline-flex items-center self-start sm:self-auto gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md whitespace-nowrap"
                         title="Open full-screen display view"
                     >
                         <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
