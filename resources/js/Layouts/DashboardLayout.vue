@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div class="min-h-screen bg-gray-100 dark:bg-gray-900 w-full max-w-full overflow-x-hidden">
         <!-- Onboarding Modal (Unclosable) -->
         <OnboardingModal v-if="needsOnboarding" />
 
@@ -169,10 +169,19 @@
                                                 </p>
                                             </div>
 
+                                            <!-- Loading Spinner -->
+                                            <div v-if="pushLoading" class="flex items-center justify-center w-11 h-6">
+                                                <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                            </div>
+
                                             <!-- Toggle Switch -->
                                             <button
+                                                v-else
                                                 @click="togglePushNotifications"
-                                                :disabled="!pushSupported"
+                                                :disabled="!pushSupported || pushLoading"
                                                 class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                                                 :class="pushEnabled ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-600'"
                                             >
@@ -323,7 +332,7 @@
         </div>
 
         <!-- Sidebar and Content -->
-        <div class="flex">
+        <div class="flex w-full max-w-full overflow-x-hidden">
             <!-- Desktop Sidebar (hidden on mobile) -->
             <aside
                 class="hidden lg:block relative bg-white dark:bg-gray-800 shadow-sm min-h-screen transition-all pt-3 duration-300"
@@ -1401,7 +1410,7 @@
             </Transition>
 
             <!-- Main Content -->
-            <main class="flex-1 p-4 sm:p-6 lg:p-8 bg-gray-50 dark:bg-gray-900">
+            <main class="flex-1 w-full max-w-full p-4 sm:p-6 lg:p-8 bg-gray-50 dark:bg-gray-900 overflow-x-hidden">
                 <slot />
             </main>
         </div>
@@ -1477,6 +1486,9 @@ const {
     checkSubscription
 } = usePushNotifications();
 
+// Push notification loading state
+const pushLoading = ref(false);
+
 // Check if sound permission has been set
 onMounted(() => {
     const soundPref = localStorage.getItem("soundNotificationsEnabled");
@@ -1521,6 +1533,7 @@ const toggleSoundNotifications = async () => {
 };
 
 const togglePushNotifications = async () => {
+    pushLoading.value = true;
     try {
         if (pushEnabled.value) {
             // Disabling push notifications
@@ -1545,6 +1558,8 @@ const togglePushNotifications = async () => {
         }
 
         error('Push Notifications', errorMessage);
+    } finally {
+        pushLoading.value = false;
     }
 };
 

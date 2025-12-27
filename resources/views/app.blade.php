@@ -192,25 +192,20 @@
 
                         // Unregister all old service workers
                         for (let registration of registrations) {
-                            console.log('Unregistering old service worker...');
                             await registration.unregister();
                         }
 
-                        // Clear ALL caches (including the broken 'offline' cache)
+                        // Clear ALL caches
                         const cacheNames = await caches.keys();
                         for (let cacheName of cacheNames) {
-                            console.log('Deleting cache:', cacheName);
                             await caches.delete(cacheName);
                         }
-
-                        console.log('All old service workers and caches cleared!');
 
                         // Small delay to ensure cleanup completes
                         await new Promise(resolve => setTimeout(resolve, 100));
 
                         // Now register the NEW fixed service worker
                         const registration = await navigator.serviceWorker.register('/sw.js?v=' + Date.now());
-                        console.log(' New Service Worker registered with scope:', registration.scope);
 
                         // Force immediate activation
                         if (registration.waiting) {
@@ -227,7 +222,7 @@
 
                 // Listen for controller change
                 navigator.serviceWorker.addEventListener('controllerchange', () => {
-                    console.log(' Service worker activated!');
+                    // Service worker activated
                 });
             }
         </script>

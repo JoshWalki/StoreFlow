@@ -8,55 +8,53 @@
         </div>
 
         <!-- Tabs Navigation -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-            <div class="border-b border-gray-200">
-                <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
-                    <button
-                        @click="activeTab = 'zones'"
-                        :class="[
-                            activeTab === 'zones'
-                                ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                            'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm',
-                        ]"
-                    >
-                        Shipping Zones
-                    </button>
-                    <button
-                        @click="activeTab = 'methods'"
-                        :class="[
-                            activeTab === 'methods'
-                                ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                            'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm',
-                        ]"
-                    >
-                        Shipping Methods
-                    </button>
-                    <button
-                        @click="activeTab = 'calculator'"
-                        :class="[
-                            activeTab === 'calculator'
-                                ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                            'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm',
-                        ]"
-                    >
-                        Rate Calculator
-                    </button>
-                    <button
-                        @click="activeTab = 'settings'"
-                        :class="[
-                            activeTab === 'settings'
-                                ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                            'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm',
-                        ]"
-                    >
-                        Settings
-                    </button>
-                </nav>
-            </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+            <nav class="flex overflow-x-auto" aria-label="Tabs">
+                <button
+                    @click="activeTab = 'zones'"
+                    :class="[
+                        activeTab === 'zones'
+                            ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                            : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600',
+                        'px-4 sm:px-6 py-3 text-xs sm:text-sm font-medium whitespace-nowrap border-b-2 transition-colors',
+                    ]"
+                >
+                    Shipping Zones
+                </button>
+                <button
+                    @click="activeTab = 'methods'"
+                    :class="[
+                        activeTab === 'methods'
+                            ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                            : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600',
+                        'px-4 sm:px-6 py-3 text-xs sm:text-sm font-medium whitespace-nowrap border-b-2 transition-colors',
+                    ]"
+                >
+                    Shipping Methods
+                </button>
+                <button
+                    @click="activeTab = 'calculator'"
+                    :class="[
+                        activeTab === 'calculator'
+                            ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                            : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600',
+                        'px-4 sm:px-6 py-3 text-xs sm:text-sm font-medium whitespace-nowrap border-b-2 transition-colors',
+                    ]"
+                >
+                    Rate Calculator
+                </button>
+                <button
+                    @click="activeTab = 'settings'"
+                    :class="[
+                        activeTab === 'settings'
+                            ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                            : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600',
+                        'px-4 sm:px-6 py-3 text-xs sm:text-sm font-medium whitespace-nowrap border-b-2 transition-colors',
+                    ]"
+                >
+                    Settings
+                </button>
+            </nav>
         </div>
 
         <!-- Tab Content -->

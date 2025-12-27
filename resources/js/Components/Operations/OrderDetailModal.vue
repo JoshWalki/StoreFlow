@@ -131,7 +131,7 @@
                                         <div class="mt-3">
                                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                 Pickup ETA
-                                                <span v-if="!currentPickupEta" class="text-xs font-normal text-gray-500 dark:text-gray-400">(Default)</span>
+                                                <span v-if="!currentPickupEta" class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">(Default)</span>
                                             </label>
                                             <div class="space-y-2">
                                                 <!-- Manual datetime input -->
@@ -143,7 +143,7 @@
                                                 />
 
                                                 <!-- Quick adjust buttons -->
-                                                <div class="flex items-center gap-2">
+                                                <div class="flex flex-col sm:flex-row items-stretch gap-2">
                                                     <button
                                                         @click="adjustPickupEta(-5)"
                                                         :disabled="updatingEta"

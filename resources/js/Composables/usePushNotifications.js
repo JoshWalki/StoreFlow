@@ -53,14 +53,11 @@ export function usePushNotifications() {
 
             // Get service worker registration
             const registration = await navigator.serviceWorker.ready;
-            console.log('✅ Service worker ready:', registration);
 
             // Check for existing subscription and unsubscribe first
             const existingSubscription = await registration.pushManager.getSubscription();
             if (existingSubscription) {
-                console.log('⚠️ Found existing subscription, unsubscribing first...');
                 await existingSubscription.unsubscribe();
-                console.log('✅ Existing subscription removed');
             }
 
             // Get VAPID public key from backend
@@ -71,17 +68,13 @@ export function usePushNotifications() {
                 throw new Error('VAPID public key not configured on server');
             }
 
-            console.log('✅ VAPID public key received:', vapidPublicKey.substring(0, 20) + '...');
-
             // Convert VAPID key
             const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
-            console.log('✅ Application server key converted, length:', applicationServerKey.length);
 
             // Add delay to ensure service worker is fully ready
             await new Promise(resolve => setTimeout(resolve, 500));
 
             // Subscribe to push notifications with retry logic
-            console.log('Subscribing to push manager...');
             let pushSubscription;
             try {
                 pushSubscription = await registration.pushManager.subscribe({
@@ -89,10 +82,9 @@ export function usePushNotifications() {
                     applicationServerKey: applicationServerKey
                 });
             } catch (subscribeError) {
-                console.error('First subscription attempt failed:', subscribeError);
+                console.error('Push subscription failed, retrying...', subscribeError);
 
                 // Wait and retry once
-                console.log('Retrying subscription in 1 second...');
                 await new Promise(resolve => setTimeout(resolve, 1000));
 
                 pushSubscription = await registration.pushManager.subscribe({
@@ -101,10 +93,7 @@ export function usePushNotifications() {
                 });
             }
 
-            console.log('✅ Push subscription successful:', pushSubscription.endpoint.substring(0, 50) + '...');
-
             // Refresh CSRF token before making request
-            console.log('Refreshing CSRF token...');
             await axios.get('/sanctum/csrf-cookie');
 
             // Update CSRF token in axios headers
@@ -114,11 +103,9 @@ export function usePushNotifications() {
             }
 
             // Send subscription to backend
-            console.log('Sending subscription to backend...');
             await axios.post('/api/push/subscribe', {
                 subscription: pushSubscription.toJSON()
             });
-            console.log('✅ Subscription saved to backend');
 
             subscription.value = pushSubscription;
             isSubscribed.value = true;

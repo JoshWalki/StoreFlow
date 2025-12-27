@@ -1,7 +1,8 @@
 <template>
-    <!-- Full-width container with custom padding -->
-    <div class="-m-8 min-h-screen bg-gray-50 dark:bg-gray-900 overflow-x-hidden">
-            <div class="px-4 sm:px-5 lg:px-6 py-4 max-w-full">
+    <!-- Full-width container with mobile-first design -->
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-900 -m-4 sm:-m-6 lg:-m-8">
+        <div class="w-full max-w-full overflow-x-hidden">
+            <div class="px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
                 <!-- Header with Status Indicators -->
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
                     <div class="flex items-center gap-2">
@@ -40,13 +41,13 @@
                     <!-- Full Screen Display Button -->
                     <button
                         @click="openFullScreenDisplay"
-                        class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md"
+                        class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md whitespace-nowrap"
                         title="Open full-screen display view"
                     >
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                         </svg>
-                        <span class="hidden sm:inline text-sm font-medium">Display View</span>
+                        <span class="text-xs sm:text-sm font-medium">Display View</span>
                     </button>
                 </div>
 
@@ -388,6 +389,7 @@
                 />
             </div>
         </div>
+    </div>
 </template>
 
 <script setup>

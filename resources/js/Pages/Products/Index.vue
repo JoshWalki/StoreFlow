@@ -64,8 +64,49 @@
             </Transition>
 
             <!-- Search & Filters -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
-                <div class="flex gap-4">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-3 sm:p-4">
+                <!-- Mobile: Stacked layout -->
+                <div class="flex flex-col gap-2 sm:hidden">
+                    <div v-if="user && user.role !== 'staff'" class="flex items-center pb-2 border-b border-gray-200 dark:border-gray-700">
+                        <input
+                            type="checkbox"
+                            :checked="selectedProducts.length === products.data.length && products.data.length > 0"
+                            @change="toggleSelectAll"
+                            class="w-4 h-4 text-blue-600 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
+                        />
+                        <label class="ml-2 text-xs text-gray-700 dark:text-gray-300">Select All</label>
+                    </div>
+                    <input
+                        v-model="searchForm.search"
+                        type="text"
+                        placeholder="Search..."
+                        class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
+                        @input="debouncedSearch"
+                    />
+                    <div class="flex gap-2">
+                        <select
+                            v-model="searchForm.category_id"
+                            class="flex-1 px-2 py-2 text-xs border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                            @change="applyFilters"
+                        >
+                            <option value="">All Categories</option>
+                            <option v-for="category in categories" :key="category.id" :value="category.id">
+                                {{ category.name }}
+                            </option>
+                        </select>
+                        <select
+                            v-model="searchForm.is_active"
+                            class="flex-1 px-2 py-2 text-xs border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                            @change="applyFilters"
+                        >
+                            <option value="">All Status</option>
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Desktop: Row layout -->
+                <div class="hidden sm:flex gap-4">
                     <div v-if="user && user.role !== 'staff'" class="flex items-center">
                         <input
                             type="checkbox"
@@ -105,7 +146,7 @@
             </div>
 
             <!-- Products Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4">
                 <div
                     v-for="product in products.data"
                     :key="product.id"
@@ -113,48 +154,48 @@
                     :class="{ 'ring-2 ring-blue-500': isProductSelected(product.id) }"
                 >
                     <!-- Selection Checkbox -->
-                    <div v-if="user && user.role !== 'staff'" class="absolute top-2 left-2 z-10">
+                    <div v-if="user && user.role !== 'staff'" class="absolute top-1 left-1 sm:top-2 sm:left-2 z-10">
                         <input
                             type="checkbox"
                             :checked="isProductSelected(product.id)"
                             @change="toggleProductSelection(product.id)"
-                            class="w-4 h-4 text-blue-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 cursor-pointer shadow-sm"
+                            class="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 cursor-pointer shadow-sm"
                         />
                     </div>
 
                     <!-- Product Image -->
-                    <div class="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center relative">
+                    <div class="w-full h-24 sm:h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center relative">
                         <img
                             v-if="product.image"
                             :src="product.image"
                             :alt="product.name"
                             class="w-full h-full object-cover"
                         />
-                        <span v-else class="text-gray-400 dark:text-gray-500 text-5xl">📦</span>
-                        <div v-if="product.images_count > 1" class="absolute bottom-2 right-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
-                            {{ product.images_count }} images
+                        <span v-else class="text-gray-400 dark:text-gray-500 text-2xl sm:text-5xl">📦</span>
+                        <div v-if="product.images_count > 1" class="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 bg-black bg-opacity-60 text-white text-[10px] sm:text-xs px-1 sm:px-2 py-0.5 sm:py-1 rounded">
+                            {{ product.images_count }}
                         </div>
                     </div>
 
                     <!-- Product Info -->
-                    <div class="p-3 flex flex-col flex-1">
+                    <div class="p-1.5 sm:p-3 flex flex-col flex-1">
                         <!-- Product Name and Category -->
-                        <div class="mb-2">
-                            <h3 class="font-semibold text-gray-900 dark:text-white text-sm mb-1 line-clamp-2">
+                        <div class="mb-1 sm:mb-2">
+                            <h3 class="font-semibold text-gray-900 dark:text-white text-[10px] sm:text-sm mb-0.5 sm:mb-1 line-clamp-2">
                                 {{ product.name }}
                             </h3>
-                            <p class="text-xs text-gray-600 dark:text-gray-400 truncate">
+                            <p class="text-[9px] sm:text-xs text-gray-600 dark:text-gray-400 truncate">
                                 {{ product.category?.name || 'No category' }}
                             </p>
                         </div>
 
                         <!-- Price and Status -->
-                        <div class="mb-3 space-y-2">
-                            <div class="text-lg font-bold text-gray-900 dark:text-white">
+                        <div class="mb-1 sm:mb-3 space-y-1 sm:space-y-2">
+                            <div class="text-xs sm:text-lg font-bold text-gray-900 dark:text-white">
                                 {{ formatCurrency(product.price_cents) }}
                             </div>
                             <span
-                                class="inline-block px-2 py-1 text-xs font-semibold rounded-full"
+                                class="inline-block px-1 sm:px-2 py-0.5 sm:py-1 text-[9px] sm:text-xs font-semibold rounded-full"
                                 :class="product.is_active ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'"
                             >
                                 {{ product.is_active ? 'Active' : 'Inactive' }}
@@ -162,18 +203,26 @@
                         </div>
 
                         <!-- Actions -->
-                        <div v-if="user && user.role !== 'staff'" class="mt-auto pt-3 border-t border-gray-200 dark:border-gray-700 flex gap-2">
+                        <div v-if="user && user.role !== 'staff'" class="mt-auto pt-1 sm:pt-3 border-t border-gray-200 dark:border-gray-700 flex gap-1 sm:gap-2">
                             <Link
                                 :href="route('products.edit', product.id)"
-                                class="flex-1 text-center px-3 py-2 text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-md transition-colors"
+                                class="flex-1 flex items-center justify-center px-1 sm:px-3 py-1 sm:py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-md transition-colors"
+                                title="Edit"
                             >
-                                Edit
+                                <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                <span class="hidden sm:inline ml-1 text-xs font-medium">Edit</span>
                             </Link>
                             <button
                                 @click="deleteProduct(product)"
-                                class="flex-1 text-center px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors"
+                                class="flex-1 flex items-center justify-center px-1 sm:px-3 py-1 sm:py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors"
+                                title="Delete"
                             >
-                                Delete
+                                <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                <span class="hidden sm:inline ml-1 text-xs font-medium">Delete</span>
                             </button>
                         </div>
                     </div>

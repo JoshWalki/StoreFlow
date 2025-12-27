@@ -49,21 +49,17 @@ window.Echo = new Echo({
     },
 });
 
-// Debug connection status (can be removed after fixing production)
-if (import.meta.env.DEV || window.location.hostname === 'storeflow.com.au') {
+// Debug connection status in development only
+if (import.meta.env.DEV) {
     window.Echo.connector.pusher.connection.bind('error', function(err) {
         console.error('Pusher connection error:', err);
     });
 
     window.Echo.connector.pusher.connection.bind('connected', function() {
-        console.log('✅ Pusher connected successfully');
-    });
-
-    window.Echo.connector.pusher.connection.bind('disconnected', function() {
-        console.warn('⚠️ Pusher disconnected');
+        console.log('Pusher connected');
     });
 
     window.Echo.connector.pusher.connection.bind('failed', function() {
-        console.error('❌ Pusher connection failed');
+        console.error('Pusher connection failed');
     });
 }

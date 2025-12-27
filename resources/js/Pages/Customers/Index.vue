@@ -6,76 +6,78 @@
             </div>
 
             <!-- Search & Filters -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
-                <div class="space-y-4">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-3 sm:p-4">
+                <div class="space-y-3 sm:space-y-4">
                     <!-- Search and Sort Row -->
-                    <div class="flex gap-4">
+                    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4">
                         <input
                             v-model="searchForm.search"
                             type="text"
                             placeholder="Search by name, email, or phone..."
-                            class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
+                            class="flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500"
                             @input="debouncedSearch"
                             aria-label="Search customers"
                         />
-                        <select
-                            v-model="searchForm.sort"
-                            class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                            @change="applyFilters"
-                            aria-label="Sort customers"
-                        >
-                            <option value="recent">Recent Orders</option>
-                            <option value="lifetime_value">Lifetime Value</option>
-                            <option value="name">Name A-Z</option>
-                        </select>
-                        <button
-                            @click="showFilters = !showFilters"
-                            class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors flex items-center gap-2"
-                            aria-label="Toggle filters"
-                        >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                            </svg>
-                            Filters
-                        </button>
+                        <div class="flex gap-2">
+                            <select
+                                v-model="searchForm.sort"
+                                class="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-base border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                                @change="applyFilters"
+                                aria-label="Sort customers"
+                            >
+                                <option value="recent">Recent</option>
+                                <option value="lifetime_value">Value</option>
+                                <option value="name">Name</option>
+                            </select>
+                            <button
+                                @click="showFilters = !showFilters"
+                                class="flex-1 sm:flex-none px-3 sm:px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-2"
+                                aria-label="Toggle filters"
+                            >
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                </svg>
+                                <span class="text-xs sm:text-base">Filters</span>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Advanced Filters (Collapsible) -->
                     <Transition name="slide-down">
-                        <div v-if="showFilters" class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <div v-if="showFilters" class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 pt-3 sm:pt-4 border-t border-gray-200 dark:border-gray-700">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Status
                                 </label>
                                 <select
                                     v-model="searchForm.status"
-                                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                                    class="w-full px-2 sm:px-4 py-2 text-xs sm:text-base border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
                                     @change="applyFilters"
                                 >
                                     <option value="all">All Customers</option>
-                                    <option value="active">Active (Orders in 90 days)</option>
-                                    <option value="inactive">Inactive (No recent orders)</option>
+                                    <option value="active">Active (90 days)</option>
+                                    <option value="inactive">Inactive</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     From Date
                                 </label>
                                 <input
                                     v-model="searchForm.date_from"
                                     type="date"
-                                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                                    class="w-full px-2 sm:px-4 py-2 text-xs sm:text-base border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
                                     @change="applyFilters"
                                 />
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     To Date
                                 </label>
                                 <input
                                     v-model="searchForm.date_to"
                                     type="date"
-                                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                                    class="w-full px-2 sm:px-4 py-2 text-xs sm:text-base border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
                                     @change="applyFilters"
                                 />
                             </div>

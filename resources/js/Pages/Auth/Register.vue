@@ -162,7 +162,7 @@
                     <img
                         src="/images/logo/storeflow_wombat_thumbsup.png"
                         alt="StoreFlow Mascot"
-                        class="w-[40rem] h-[40rem] opacity-90"
+                        class="w-[40rem] h-[40rem]"
                     />
                 </div>
             </div>
