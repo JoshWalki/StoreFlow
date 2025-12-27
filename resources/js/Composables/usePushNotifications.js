@@ -55,6 +55,14 @@ export function usePushNotifications() {
             const registration = await navigator.serviceWorker.ready;
             console.log('✅ Service worker ready:', registration);
 
+            // Check for existing subscription and unsubscribe first
+            const existingSubscription = await registration.pushManager.getSubscription();
+            if (existingSubscription) {
+                console.log('⚠️ Found existing subscription, unsubscribing first...');
+                await existingSubscription.unsubscribe();
+                console.log('✅ Existing subscription removed');
+            }
+
             // Get VAPID public key from backend
             const { data } = await axios.get('/api/push/vapid-key');
             const vapidPublicKey = data.public_key;
@@ -69,18 +77,48 @@ export function usePushNotifications() {
             const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
             console.log('✅ Application server key converted, length:', applicationServerKey.length);
 
-            // Subscribe to push notifications
+            // Add delay to ensure service worker is fully ready
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // Subscribe to push notifications with retry logic
             console.log('Subscribing to push manager...');
-            const pushSubscription = await registration.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: applicationServerKey
-            });
+            let pushSubscription;
+            try {
+                pushSubscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: applicationServerKey
+                });
+            } catch (subscribeError) {
+                console.error('First subscription attempt failed:', subscribeError);
+
+                // Wait and retry once
+                console.log('Retrying subscription in 1 second...');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                pushSubscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: applicationServerKey
+                });
+            }
+
             console.log('✅ Push subscription successful:', pushSubscription.endpoint.substring(0, 50) + '...');
 
+            // Refresh CSRF token before making request
+            console.log('Refreshing CSRF token...');
+            await axios.get('/sanctum/csrf-cookie');
+
+            // Update CSRF token in axios headers
+            const csrfToken = document.head.querySelector('meta[name="csrf-token"]');
+            if (csrfToken) {
+                axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken.content;
+            }
+
             // Send subscription to backend
+            console.log('Sending subscription to backend...');
             await axios.post('/api/push/subscribe', {
                 subscription: pushSubscription.toJSON()
             });
+            console.log('✅ Subscription saved to backend');
 
             subscription.value = pushSubscription;
             isSubscribed.value = true;

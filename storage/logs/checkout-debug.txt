@@ -634,3 +634,14 @@
     }
 ]
 
+2025-12-27 11:08:59 - Checkout request:
+[
+    {
+        "product_id": 27,
+        "qty": 1,
+        "customizations": [],
+        "addons": [],
+        "specialMessage": null
+    }
+]
+
