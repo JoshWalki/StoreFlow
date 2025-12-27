@@ -74,13 +74,15 @@ self.addEventListener('push', function(event) {
     const title = data.title || 'StoreFlow';
     const options = {
         body: data.body,
-        icon: '/images/logo/logo.png',
-        badge: '/images/logo/logo.png',
+        icon: '/images/logo/logo.png', // Large icon shown on right (Android)
+        badge: '/images/logo/logo-white.png', // Small monochrome icon on left (Android)
         tag: data.tag || 'storeflow-notification',
         data: data.data || {},
         requireInteraction: true, // Keeps notification visible until user interacts
         vibrate: [200, 100, 200], // Vibration pattern for mobile devices
-        sound: data.sound || '/sounds/notification.wav',
+        silent: false, // Allow device to play notification sound
+        // Note: Custom notification sounds are not supported by Web Notifications API
+        // The device will use its default notification sound
     };
 
     event.waitUntil(
